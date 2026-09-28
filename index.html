@@ -1,0 +1,1010 @@
+<header class="bg-carabinieri-900 border-b border-slate-800 sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 via-carabinieri-700 to-carabinieri-900 flex items-center justify-center border-2 border-amber-500/60 shadow-md">
+                <svg class="w-7 h-7 text-amber-400 drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3zm0 2.18l6 2.25v4.57c0 4.54-3.2 8.86-6 9.94-2.8-1.08-6-5.4-6-9.94V6.43l6-2.25z"/>
+                    <path d="M12 7c-1.66 0-3 1.34-3 3 0 2 3 5 3 5s3-3 3-5c0-1.66-1.34-3-3-3zm0 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" fill="#DC2626"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg sm:text-xl font-bold tracking-wide text-white flex items-center gap-2">
+                    ARMA DEI CARABINIERI <span class="text-red-500 font-extrabold tracking-normal">RP</span>
+                </h1>
+                <p class="text-xs text-slate-400 tracking-wider">PORTALE UFFICIALE E SERVIZI AL CITTADINO</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <button onclick="switchView('citizen')" id="nav-citizen-btn" class="px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white transition flex items-center gap-2 shadow-lg shadow-red-600/20">
+                <i class="fa-solid fa-house"></i> <span class="hidden md:inline">Home Cittadini</span>
+            </button>
+            <button onclick="switchView('operator-login')" id="nav-op-login-btn" class="px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-blue-400"></i> <span class="hidden md:inline">Area Operatori</span>
+            </button>
+            <button onclick="switchView('admin-login')" id="nav-admin-login-btn" class="px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-2">
+                <i class="fa-solid fa-user-shield text-amber-400"></i> <span class="hidden md:inline">Area Admin</span>
+            </button>
+            <button onclick="logout()" id="nav-logout-btn" class="hidden px-4 py-2 text-sm font-medium rounded-lg bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 transition flex items-center gap-2">
+                <i class="fa-solid fa-power-off"></i> Esci
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toast-content" class="bg-slate-900 border border-slate-700 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-500 text-lg"></i>
+            <span id="toast-message" class="text-sm font-medium">Messaggio di notifica</span>
+        </div>
+    </div>
+
+    <!-- MODAL CONTAINER FOR CITIZEN FORMS -->
+    <div id="citizen-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-carabinieri-900 border border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden relative">
+            <div class="flex items-center justify-between p-6 border-b border-slate-800 bg-slate-900/60">
+                <h3 id="modal-title" class="text-lg font-bold text-white flex items-center gap-2">Titolo Modulo</h3>
+                <button onclick="closeCitizenModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="modal-body" class="p-6 max-h-[80vh] overflow-y-auto">
+                <!-- Dynamic form content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONTAINER FOR ADMIN SETTINGS (COMPACT) -->
+    <div id="admin-settings-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-carabinieri-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative">
+            <div class="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-900/60">
+                <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-gear text-amber-400"></i> Impostazioni Comando</h3>
+                <button onclick="closeAdminSettingsModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Nuova Password Admin</label>
+                    <input type="text" id="new-admin-pass" placeholder="Inserisci nuova password" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <button onclick="updateAdminPassword()" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2 rounded-lg transition text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Salva Password Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <section id="view-citizen" class="space-y-10">
+        <!-- Hero Banner -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-carabinieri-900 via-slate-900 to-blue-950 border border-slate-800 p-8 sm:p-12 shadow-2xl">
+            <div class="relative z-10 max-w-2xl space-y-4">
+                <span class="px-3 py-1 bg-red-600/20 border border-red-500/40 text-red-400 rounded-full text-xs font-semibold tracking-wide uppercase">Servizi Telematici per la Cittadinanza</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Nei Secoli Fedeli alla Città</h2>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    Benvenuti nel portale ufficiale dell'Arma dei Carabinieri RP. Seleziona uno dei servizi sottostanti per richiedere un colloquio, inoltrare una denuncia formale o inviare segnalazioni confidenziali.
+                </p>
+            </div>
+        </div>
+
+        <!-- Distinct Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1: Colloqui -->
+            <div class="bg-carabinieri-900/80 backdrop-blur border border-slate-800 hover:border-red-500/50 rounded-2xl p-6 shadow-xl flex flex-col justify-between transition group">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 rounded-xl bg-red-600/20 border border-red-500/30 text-red-500 flex items-center justify-center text-2xl group-hover:scale-110 transition duration-300">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Prenotazione Colloqui</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        Richiedi un appuntamento ufficiale con il personale dell'Arma presso la stazione territoriale per pratiche o colloqui informativi.
+                    </p>
+                </div>
+                <div class="pt-6">
+                    <button onclick="openCitizenForm('appointments')" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-arrow-right"></i> Prenota Colloquio
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2: Denunce -->
+            <div class="bg-carabinieri-900/80 backdrop-blur border border-slate-800 hover:border-blue-500/50 rounded-2xl p-6 shadow-xl flex flex-col justify-between transition group">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-500 flex items-center justify-center text-2xl group-hover:scale-110 transition duration-300">
+                        <i class="fa-solid fa-file-shield"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Presentazione Denunce</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        Compila il modulo telematico per denunciare furti, aggressioni, danneggiamenti o altri reati avvenuti sul territorio.
+                    </p>
+                </div>
+                <div class="pt-6">
+                    <button onclick="openCitizenForm('denouncements')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-arrow-right"></i> Sporgi Denuncia
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 3: Segnalazioni -->
+            <div class="bg-carabinieri-900/80 backdrop-blur border border-slate-800 hover:border-amber-500/50 rounded-2xl p-6 shadow-xl flex flex-col justify-between transition group">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 rounded-xl bg-amber-600/20 border border-amber-500/30 text-amber-500 flex items-center justify-center text-2xl group-hover:scale-110 transition duration-300">
+                        <i class="fa-solid fa-user-secret"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Segnalazioni Anonime</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        Invia informazioni confidenziali e segnalazioni riservate alle forze dell'ordine in totale anonimato e sicurezza.
+                    </p>
+                </div>
+                <div class="pt-6">
+                    <button onclick="openCitizenForm('reports')" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-amber-600/25 flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-arrow-right"></i> Invia Segnalazione
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-operator-login" class="hidden max-w-md mx-auto mt-12 bg-carabinieri-900/80 backdrop-blur border border-slate-800 p-8 rounded-2xl shadow-2xl">
+        <div class="text-center mb-8">
+            <div class="inline-flex p-4 rounded-2xl bg-slate-900 border border-slate-700 text-blue-400 mb-3 shadow-inner">
+                <i class="fa-solid fa-shield-halved text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Accesso Area Operatori</h2>
+            <p class="text-sm text-slate-400 mt-1">Inserisci le credenziali provvisorie fornite dall'Admin</p>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Nome Utente Operatore</label>
+                <input type="text" id="op-username" placeholder="es. m.rossi" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Password Provvisoria</label>
+                <input type="password" id="op-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+            </div>
+            <button onclick="loginOperator()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 mt-2">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Accedi al Terminale
+            </button>
+        </div>
+    </section>
+
+    <section id="view-operator" class="hidden space-y-8">
+        <div class="bg-gradient-to-r from-blue-950/80 via-slate-900 to-carabinieri-900 border border-blue-900/50 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span id="op-badge-tag" class="text-xs uppercase tracking-wider font-semibold px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full">Matricola: CC-0000</span>
+                    <span id="op-role-tag" class="text-xs uppercase tracking-wider font-semibold px-2.5 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full">Carabiniere</span>
+                </div>
+                <h2 class="text-2xl font-bold text-white mt-2" id="op-welcome-title">Bentornato, Operatore</h2>
+                <p class="text-sm text-slate-400">Gestisci il servizio attivo, monitora le ore precise (HH:MM:SS) e gestisci le richieste dei cittadini.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="duty-status-badge" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 font-semibold text-sm flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-slate-500 animate-pulse"></span> FUORI SERVIZIO
+                </div>
+            </div>
+        </div>
+
+        <!-- Duty Control & Personal Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-carabinieri-900 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-amber-400"></i> Controllo Servizio
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-6">Attiva lo stato di servizio per avviare il conteggio automatico in tempo reale.</p>
+
+                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center mb-6">
+                        <span class="text-xs text-slate-400 block uppercase tracking-wider mb-1">Durata Sessione Corrente (HH:MM:SS)</span>
+                        <span id="active-timer-display" class="text-2xl sm:text-3xl font-mono font-bold text-emerald-400">00:00:00</span>
+                    </div>
+                </div>
+
+                <button id="btn-toggle-duty" onclick="toggleDuty()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 text-base">
+                    <i class="fa-solid fa-play"></i> Entra in Servizio
+                </button>
+            </div>
+
+            <div class="md:col-span-2 bg-carabinieri-900 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-blue-400"></i> Storico Sessioni Personali
+                        </h3>
+                        <div class="text-xs bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300">
+                            Totale Ore: <strong id="op-total-hours" class="text-amber-400 font-mono">00:00:00</strong>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-52 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950">
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="bg-slate-900 text-xs uppercase text-slate-400 sticky top-0 border-b border-slate-800">
+                                <tr>
+                                    <th class="px-4 py-3">Data</th>
+                                    <th class="px-4 py-3">Inizio</th>
+                                    <th class="px-4 py-3">Fine</th>
+                                    <th class="px-4 py-3 text-right">Durata (HH:MM:SS)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="op-history-tbody" class="divide-y divide-slate-900">
+                                <tr>
+                                    <td colspan="4" class="px-4 py-6 text-center text-slate-500 italic">Nessuna sessione registrata.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citizen Requests Management Section -->
+        <div class="bg-carabinieri-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open text-red-500"></i> Gestione Richieste Cittadini
+                    </h3>
+                    <p class="text-xs text-slate-400">Colloqui prenotati, denunce telematiche e segnalazioni anonime ricevute.</p>
+                </div>
+                <!-- Sub-tabs for operator requests -->
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button onclick="switchOpReqTab('appointments')" id="op-req-tab-appt" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 text-white transition">Colloqui</button>
+                    <button onclick="switchOpReqTab('denouncements')" id="op-req-tab-den" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Denunce</button>
+                    <button onclick="switchOpReqTab('reports')" id="op-req-tab-rep" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Segnalazioni</button>
+                </div>
+            </div>
+
+            <!-- Requests Table Container -->
+            <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900 text-xs uppercase text-slate-400 border-b border-slate-800">
+                        <tr id="req-table-head">
+                            <th class="px-4 py-3">Cittadino</th>
+                            <th class="px-4 py-3">Contatto</th>
+                            <th class="px-4 py-3">Dettagli Motivo</th>
+                            <th class="px-4 py-3">Data / Ora</th>
+                            <th class="px-4 py-3">Stato</th>
+                            <th class="px-4 py-3 text-right">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="req-table-tbody" class="divide-y divide-slate-900">
+                        <tr>
+                            <td colspan="6" class="px-4 py-6 text-center text-slate-500 italic">Caricamento richieste in corso...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-admin-login" class="hidden max-w-md mx-auto mt-12 bg-carabinieri-900/80 backdrop-blur border border-slate-800 p-8 rounded-2xl shadow-xl">
+        <div class="text-center mb-8">
+            <div class="inline-flex p-4 rounded-2xl bg-slate-900 border border-slate-700 text-amber-400 mb-3 shadow-inner">
+                <i class="fa-solid fa-user-shield text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Accesso Area Admin</h2>
+            <p class="text-sm text-slate-400 mt-1">Inserisci la password di comando</p>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Password Amministratore</label>
+                <input type="password" id="admin-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+            </div>
+            <button onclick="loginAdmin()" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2.5 rounded-lg transition shadow-lg shadow-amber-600/25 flex items-center justify-center gap-2 mt-2">
+                <i class="fa-solid fa-key"></i> Accedi al Comando Centrale
+            </button>
+        </div>
+        <div class="mt-6 text-center text-xs text-slate-500">
+            Password predefinita: <code class="text-slate-300">admin123</code>
+        </div>
+    </section>
+
+    <section id="view-admin" class="hidden space-y-8">
+        <div class="bg-gradient-to-r from-amber-950/60 via-slate-900 to-carabinieri-900 border border-amber-900/50 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <span class="text-xs uppercase tracking-wider font-semibold px-2.5 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full">Pannello Comando Amministrativo</span>
+                <h2 class="text-2xl font-bold text-white mt-2">Organico Operatori & Gestione Ore (HH:MM:SS)</h2>
+                <p class="text-sm text-slate-400">Genera credenziali, gestisci ruoli/promozioni e controlla i turni del personale.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openAdminSettingsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-xs font-medium transition flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-amber-400"></i> Impostazioni Comando
+                </button>
+                <button onclick="resetAllWeeklyHours()" class="px-3 py-1.5 bg-red-950/60 hover:bg-red-900 border border-red-800 text-red-300 rounded-lg text-xs font-medium transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> Reset Totale Ore
+                </button>
+            </div>
+        </div>
+
+        <!-- Single Horizontal Row Operator Generator Form with Custom Temp Password & Role Dropdown -->
+        <div class="bg-carabinieri-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-user-plus text-amber-400"></i> Genera Nuovo Operatore
+            </h3>
+            
+            <form onsubmit="createNewOperator(event)" class="flex flex-col lg:flex-row items-center gap-3">
+                <div class="w-full lg:flex-1">
+                    <input type="text" id="gen-op-name" required placeholder="Nome e Cognome / Callsign" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <div class="w-full lg:w-48">
+                    <input type="text" id="gen-op-username" required placeholder="Username (es. m.rossi)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <div class="w-full lg:w-48">
+                    <input type="text" id="gen-op-pass" required placeholder="Password Provvisoria" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <div class="w-full lg:w-48">
+                    <select id="gen-op-role" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                        <option value="Carabiniere">Carabiniere</option>
+                        <option value="Appuntato">Appuntato</option>
+                        <option value="Maresciallo">Maresciallo</option>
+                        <option value="Tenente">Tenente</option>
+                        <option value="Capitano">Capitano</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full lg:w-auto px-6 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-amber-600/25 flex items-center justify-center gap-2 text-sm whitespace-nowrap">
+                    <i class="fa-solid fa-user-plus"></i> Genera
+                </button>
+            </form>
+        </div>
+
+        <!-- Organico Operatori & Integrated Hour Management -->
+        <div class="bg-carabinieri-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear text-amber-400"></i> Organico Operatori & Gestione Ore
+                </h3>
+                <span class="text-xs text-slate-400">Totale: <strong id="admin-total-ops" class="text-white">0</strong></span>
+            </div>
+
+            <div class="overflow-x-auto max-h-[500px] overflow-y-auto rounded-xl border border-slate-800 bg-slate-950">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900 text-xs uppercase text-slate-400 sticky top-0 border-b border-slate-800">
+                        <tr>
+                            <th class="px-4 py-3">Matricola / Nome</th>
+                            <th class="px-4 py-3">Credenziali</th>
+                            <th class="px-4 py-3">Ruolo (Promozioni)</th>
+                            <th class="px-4 py-3">Ore Settimanali (HH:MM:SS)</th>
+                            <th class="px-4 py-3 text-right">Gestione Ore & Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-operators-tbody" class="divide-y divide-slate-900">
+                        <tr>
+                            <td colspan="5" class="px-4 py-6 text-center text-slate-500 italic">Nessun operatore registrato nel sistema.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="bg-carabinieri-900 border-t border-slate-800 mt-12 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p>© 2026 Arma dei Carabinieri RP • Portale Dedicato Roleplay</p>
+        <div class="flex items-center space-x-4">
+            <span class="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Telematico Online
+            </span>
+        </div>
+    </div>
+</footer>
+
+<script>
+    let db = {
+        passwords: {
+            admin: localStorage.getItem('carabinieri_admin_pass') || 'admin123'
+        },
+        currentSession: {
+            active: false,
+            startTime: null,
+            timerInterval: null
+        },
+        currentUser: null,
+        operators: JSON.parse(localStorage.getItem('carabinieri_operators')) || [
+            { id: 'CC-1024', name: 'Appuntato Mario Rossi', username: 'm.rossi', tempPass: 'carabiniere123', role: 'Appuntato' }
+        ],
+        sessions: JSON.parse(localStorage.getItem('carabinieri_sessions')) || [],
+        appointments: JSON.parse(localStorage.getItem('carabinieri_appointments')) || [],
+        denouncements: JSON.parse(localStorage.getItem('carabinieri_denouncements')) || [],
+        reports: JSON.parse(localStorage.getItem('carabinieri_reports')) || [],
+        activeOpReqTab: 'appointments'
+    };
+
+    function formatSecondsToHHMMSS(totalSeconds) {
+        const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        const secs = String(totalSeconds % 60).padStart(2, '0');
+        return `${hrs}:${mins}:${secs}`;
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const msg = document.getElementById('toast-message');
+        const icon = document.getElementById('toast-icon');
+
+        msg.textContent = message;
+        if(type === 'success') {
+            icon.className = 'fa-solid fa-circle-check text-emerald-500 text-lg';
+        } else {
+            icon.className = 'fa-solid fa-triangle-exclamation text-amber-500 text-lg';
+        }
+
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3500);
+    }
+
+    function openCitizenForm(type) {
+        const modal = document.getElementById('citizen-modal');
+        const title = document.getElementById('modal-title');
+        const body = document.getElementById('modal-body');
+        modal.classList.remove('hidden');
+
+        if(type === 'appointments') {
+            title.innerHTML = `<i class="fa-solid fa-calendar-days text-red-500"></i> Prenotazione Colloquio in Caserma`;
+            body.innerHTML = `
+                <form onsubmit="submitAppointment(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Nome e Cognome *</label>
+                        <input type="text" id="appt-name" required placeholder="es. Mario Rossi" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Numero di Contatto / Telefono *</label>
+                        <input type="text" id="appt-phone" required placeholder="es. 555-0192" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Motivo del Colloquio *</label>
+                        <input type="text" id="appt-reason" required placeholder="es. Richiesta informazioni porto d'armi" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500 transition">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Data Desiderata *</label>
+                            <input type="date" id="appt-date" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Orario Indicativo *</label>
+                            <select id="appt-time" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500 transition">
+                                <option value="10:00 - Mattina">10:00 (Mattina)</option>
+                                <option value="15:00 - Pomeriggio">15:00 (Pomeriggio)</option>
+                                <option value="18:00 - Sera">18:00 (Sera)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Invia Richiesta Colloquio
+                        </button>
+                    </div>
+                </form>
+            `;
+        } else if(type === 'denouncements') {
+            title.innerHTML = `<i class="fa-solid fa-file-shield text-blue-500"></i> Presentazione Denuncia Telematica`;
+            body.innerHTML = `
+                <form onsubmit="submitDenouncement(event)" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Denunciante *</label>
+                            <input type="text" id="den-name" required placeholder="es. Luigi Bianchi" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Tipologia Reato *</label>
+                            <select id="den-type" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                                <option value="Furto / Rapina">Furto / Rapina</option>
+                                <option value="Aggressione / Lesioni">Aggressione / Lesioni</option>
+                                <option value="Danneggiamento">Danneggiamento</option>
+                                <option value="Truffe / Frode">Truffe / Frode</option>
+                                <option value="Altro">Altro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Luogo Accaduto *</label>
+                            <input type="text" id="den-location" required placeholder="es. Vinewood Blvd" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Data Accaduto *</label>
+                            <input type="date" id="den-date" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Descrizione Dettagliata *</label>
+                        <textarea id="den-desc" rows="3" required placeholder="Fornisci dettagli sull'accaduto..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition"></textarea>
+                    </div>
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-file-shield"></i> Inoltra Denuncia Formale
+                        </button>
+                    </div>
+                </form>
+            `;
+        } else if(type === 'reports') {
+            title.innerHTML = `<i class="fa-solid fa-user-secret text-amber-500"></i> Segnalazione Riservata / Anonima`;
+            body.innerHTML = `
+                <form onsubmit="submitReport(event)" class="space-y-4">
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+                        <input type="checkbox" id="rep-anonymous" checked onchange="toggleAnonymousName(this)" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-amber-600 focus:ring-amber-500">
+                        <label for="rep-anonymous" class="text-xs font-medium text-slate-200 cursor-pointer">Invia in modalità completamente anonima</label>
+                    </div>
+                    <div id="rep-name-container" class="hidden">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Nome (Opzionale)</label>
+                        <input type="text" id="rep-name" placeholder="es. Cittadino Collaborativo" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Oggetto / Ambito *</label>
+                        <input type="text" id="rep-subject" required placeholder="es. Sospetta attività di spaccio" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Dettagli Segnalazione *</label>
+                        <textarea id="rep-details" rows="3" required placeholder="Indica zona, orari e descrizione..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition"></textarea>
+                    </div>
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-amber-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-user-secret"></i> Invia Segnalazione Riservata
+                        </button>
+                    </div>
+                </form>
+            `;
+        }
+    }
+
+    function closeCitizenModal() {
+        document.getElementById('citizen-modal').classList.add('hidden');
+    }
+
+    function openAdminSettingsModal() {
+        document.getElementById('admin-settings-modal').classList.remove('hidden');
+    }
+
+    function closeAdminSettingsModal() {
+        document.getElementById('admin-settings-modal').classList.add('hidden');
+    }
+
+    function toggleAnonymousName(checkbox) {
+        const container = document.getElementById('rep-name-container');
+        if(checkbox.checked) {
+            container.classList.add('hidden');
+        } else {
+            container.classList.remove('hidden');
+        }
+    }
+
+    function submitAppointment(e) {
+        e.preventDefault();
+        const newAppt = {
+            id: 'APT-' + Math.floor(1000 + Math.random() * 9000),
+            name: document.getElementById('appt-name').value.trim(),
+            phone: document.getElementById('appt-phone').value.trim(),
+            reason: document.getElementById('appt-reason').value.trim(),
+            date: document.getElementById('appt-date').value,
+            time: document.getElementById('appt-time').value,
+            status: 'In attesa',
+            timestamp: new Date().toLocaleDateString('it-IT')
+        };
+        db.appointments.push(newAppt);
+        localStorage.setItem('carabinieri_appointments', JSON.stringify(db.appointments));
+        showToast("Colloquio prenotato con successo!");
+        closeCitizenModal();
+    }
+
+    function submitDenouncement(e) {
+        e.preventDefault();
+        const newDen = {
+            id: 'DEN-' + Math.floor(1000 + Math.random() * 9000),
+            name: document.getElementById('den-name').value.trim(),
+            type: document.getElementById('den-type').value,
+            location: document.getElementById('den-location').value.trim(),
+            date: document.getElementById('den-date').value,
+            description: document.getElementById('den-desc').value.trim(),
+            status: 'In attesa di verifica',
+            timestamp: new Date().toLocaleDateString('it-IT')
+        };
+        db.denouncements.push(newDen);
+        localStorage.setItem('carabinieri_denouncements', JSON.stringify(db.denouncements));
+        showToast("Denuncia telematica inoltrata correttamente.");
+        closeCitizenModal();
+    }
+
+    function submitReport(e) {
+        e.preventDefault();
+        const isAnon = document.getElementById('rep-anonymous').checked;
+        const name = isAnon ? 'Anonimo' : (document.getElementById('rep-name').value.trim() || 'Cittadino');
+        const newRep = {
+            id: 'REP-' + Math.floor(1000 + Math.random() * 9000),
+            name: name,
+            subject: document.getElementById('rep-subject').value.trim(),
+            details: document.getElementById('rep-details').value.trim(),
+            status: 'Riservato',
+            timestamp: new Date().toLocaleDateString('it-IT')
+        };
+        db.reports.push(newRep);
+        localStorage.setItem('carabinieri_reports', JSON.stringify(db.reports));
+        showToast("Segnalazione riservata inviata con successo.");
+        closeCitizenModal();
+    }
+
+    function switchView(viewName) {
+        document.getElementById('view-citizen').classList.add('hidden');
+        document.getElementById('view-operator-login').classList.add('hidden');
+        document.getElementById('view-operator').classList.add('hidden');
+        document.getElementById('view-admin-login').classList.add('hidden');
+        document.getElementById('view-admin').classList.add('hidden');
+
+        document.getElementById('nav-citizen-btn').className = 'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-2';
+        document.getElementById('nav-op-login-btn').className = 'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-2';
+        document.getElementById('nav-admin-login-btn').className = 'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-2';
+        document.getElementById('nav-logout-btn').classList.add('hidden');
+
+        if(viewName === 'citizen') {
+            document.getElementById('view-citizen').classList.remove('hidden');
+            document.getElementById('nav-citizen-btn').className = 'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white transition flex items-center gap-2 shadow-lg shadow-red-600/20';
+            db.currentUser = null;
+            stopDutyTimerOnLogout();
+        } else if(viewName === 'operator-login') {
+            document.getElementById('view-operator-login').classList.remove('hidden');
+            document.getElementById('nav-op-login-btn').className = 'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-blue-900/60 text-blue-300 border border-blue-700/50 transition flex items-center gap-2';
+        } else if(viewName === 'operator') {
+            document.getElementById('view-operator').classList.remove('hidden');
+            document.getElementById('nav-op-login-btn').className = 'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-blue-900/60 text-blue-300 border border-blue-700/50 transition flex items-center gap-2';
+            document.getElementById('nav-logout-btn').classList.remove('hidden');
+            renderOperatorView();
+        } else if(viewName === 'admin-login') {
+            document.getElementById('view-admin-login').classList.remove('hidden');
+            document.getElementById('nav-admin-login-btn').className = 'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-amber-900/60 text-amber-300 border border-amber-700/50 transition flex items-center gap-2';
+        } else if(viewName === 'admin') {
+            document.getElementById('view-admin').classList.remove('hidden');
+            document.getElementById('nav-admin-login-btn').className = 'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg bg-amber-900/60 text-amber-300 border border-amber-700/50 transition flex items-center gap-2';
+            document.getElementById('nav-logout-btn').classList.remove('hidden');
+            renderAdminView();
+        }
+    }
+
+    function logout() {
+        if(db.currentSession.active) {
+            if(!confirm("Sei in servizio attivo! Uscendo il turno verrà chiuso automaticamente. Continuare?")) return;
+            toggleDuty();
+        }
+        showToast("Disconnessione effettuata.");
+        switchView('citizen');
+    }
+
+    function loginOperator() {
+        const userInput = document.getElementById('op-username').value.trim();
+        const passInput = document.getElementById('op-password').value;
+
+        const op = db.operators.find(o => o.username === userInput && o.tempPass === passInput);
+        if(!op) {
+            showToast("Username o password provvisoria errati.", "error");
+            return;
+        }
+
+        db.currentUser = op;
+        showToast(`Benvenuto, Operatore ${op.name} (${op.id})`);
+        switchView('operator');
+    }
+
+    function loginAdmin() {
+        const passInput = document.getElementById('admin-password').value;
+        if(passInput !== db.passwords.admin) {
+            showToast("Password amministratore errata.", "error");
+            return;
+        }
+        db.currentUser = { name: "ADMIN" };
+        showToast("Accesso Amministratore effettuato.");
+        switchView('admin');
+    }
+
+    function toggleDuty() {
+        if(!db.currentSession.active) {
+            db.currentSession.active = true;
+            db.currentSession.startTime = new Date();
+            
+            document.getElementById('btn-toggle-duty').innerHTML = `<i class="fa-solid fa-stop"></i> Esci da Servizio`;
+            document.getElementById('btn-toggle-duty').className = `w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 text-base`;
+            
+            const badge = document.getElementById('duty-status-badge');
+            badge.innerHTML = `<span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span> IN SERVIZIO`;
+            badge.className = `px-4 py-2 rounded-xl bg-emerald-950/60 border border-emerald-800 text-emerald-300 font-semibold text-sm flex items-center gap-2`;
+
+            db.currentSession.timerInterval = setInterval(updateLiveTimer, 1000);
+            showToast("Sei entrato in servizio.");
+        } else {
+            clearInterval(db.currentSession.timerInterval);
+            const endTime = new Date();
+            const startTime = db.currentSession.startTime;
+            const durationSeconds = Math.max(1, Math.round((endTime - startTime) / 1000));
+
+            const newSession = {
+                operatorId: db.currentUser.id,
+                operatorName: db.currentUser.name,
+                date: startTime.toLocaleDateString('it-IT'),
+                startTime: startTime.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit', second:'2-digit'}),
+                endTime: endTime.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit', second:'2-digit'}),
+                durationSeconds: durationSeconds
+            };
+
+            db.sessions.push(newSession);
+            localStorage.setItem('carabinieri_sessions', JSON.stringify(db.sessions));
+
+            db.currentSession.active = false;
+            db.currentSession.startTime = null;
+
+            document.getElementById('btn-toggle-duty').innerHTML = `<i class="fa-solid fa-play"></i> Entra in Servizio`;
+            document.getElementById('btn-toggle-duty').className = `w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 text-base`;
+            
+            const badge = document.getElementById('duty-status-badge');
+            badge.innerHTML = `<span class="w-3 h-3 rounded-full bg-slate-500 animate-pulse"></span> FUORI SERVIZIO`;
+            badge.className = `px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 font-semibold text-sm flex items-center gap-2`;
+
+            document.getElementById('active-timer-display').textContent = "00:00:00";
+            showToast(`Turno terminato. Durata: ${formatSecondsToHHMMSS(durationSeconds)}`);
+            renderOperatorView();
+        }
+    }
+
+    function updateLiveTimer() {
+        if(!db.currentSession.active) return;
+        const diffSec = Math.floor((new Date() - db.currentSession.startTime) / 1000);
+        document.getElementById('active-timer-display').textContent = formatSecondsToHHMMSS(diffSec);
+    }
+
+    function stopDutyTimerOnLogout() {
+        if(db.currentSession.active) {
+            clearInterval(db.currentSession.timerInterval);
+            db.currentSession.active = false;
+        }
+    }
+
+    function renderOperatorView() {
+        document.getElementById('op-welcome-title').textContent = `Bentornato, ${db.currentUser.name}`;
+        document.getElementById('op-badge-tag').textContent = `Matricola: ${db.currentUser.id} (@${db.currentUser.username})`;
+        document.getElementById('op-role-tag').textContent = db.currentUser.role || 'Carabiniere';
+
+        const tbody = document.getElementById('op-history-tbody');
+        const userSessions = db.sessions.filter(s => s.operatorId === db.currentUser.id);
+        
+        let totalSecs = 0;
+        if(userSessions.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-slate-500 italic">Nessuna sessione registrata.</td></tr>`;
+        } else {
+            tbody.innerHTML = userSessions.slice().reverse().map(s => {
+                const secs = s.durationSeconds || 0;
+                totalSecs += secs;
+                return `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="px-4 py-3 font-medium text-white">${s.date}</td>
+                        <td class="px-4 py-3">${s.startTime}</td>
+                        <td class="px-4 py-3">${s.endTime}</td>
+                        <td class="px-4 py-3 text-right font-mono text-emerald-400">${formatSecondsToHHMMSS(secs)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        document.getElementById('op-total-hours').textContent = formatSecondsToHHMMSS(totalSecs);
+        renderOperatorRequestsTable();
+    }
+
+    function switchOpReqTab(tabKey) {
+        db.activeOpReqTab = tabKey;
+        document.getElementById('op-req-tab-appt').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition';
+        document.getElementById('op-req-tab-den').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition';
+        document.getElementById('op-req-tab-rep').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition';
+
+        if(tabKey === 'appointments') document.getElementById('op-req-tab-appt').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 text-white transition';
+        if(tabKey === 'denouncements') document.getElementById('op-req-tab-den').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white transition';
+        if(tabKey === 'reports') document.getElementById('op-req-tab-rep').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 text-white transition';
+
+        renderOperatorRequestsTable();
+    }
+
+    function renderOperatorRequestsTable() {
+        const tbody = document.getElementById('req-table-tbody');
+        const thead = document.getElementById('req-table-head');
+
+        if(db.activeOpReqTab === 'appointments') {
+            thead.innerHTML = `<th class="px-4 py-3">Cittadino</th><th class="px-4 py-3">Contatto</th><th class="px-4 py-3">Motivo</th><th class="px-4 py-3">Data / Ora</th><th class="px-4 py-3">Stato</th><th class="px-4 py-3 text-right">Azioni</th>`;
+            if(db.appointments.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-slate-500 italic">Nessun colloquio.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = db.appointments.slice().reverse().map((item, idx) => {
+                const realIdx = db.appointments.length - 1 - idx;
+                return `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="px-4 py-3 font-medium text-white">${item.name}</td>
+                        <td class="px-4 py-3 text-slate-300">${item.phone}</td>
+                        <td class="px-4 py-3 text-slate-300">${item.reason}</td>
+                        <td class="px-4 py-3 text-slate-400">${item.date} (${item.time})</td>
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 text-xs rounded-md ${item.status === 'Risolto' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}">${item.status}</span></td>
+                        <td class="px-4 py-3 text-right space-x-1">
+                            <button onclick="updateStatus('appointments', ${realIdx}, 'Preso in carico')" class="px-2 py-1 bg-blue-950 text-blue-300 border border-blue-800 rounded text-xs">Prendi</button>
+                            <button onclick="updateStatus('appointments', ${realIdx}, 'Risolto')" class="px-2 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-xs">Chiudi</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } else if(db.activeOpReqTab === 'denouncements') {
+            thead.innerHTML = `<th class="px-4 py-3">Denunciante</th><th class="px-4 py-3">Tipo Reato</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3">Data</th><th class="px-4 py-3">Stato</th><th class="px-4 py-3 text-right">Azioni</th>`;
+            if(db.denouncements.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-slate-500 italic">Nessuna denuncia.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = db.denouncements.slice().reverse().map((item, idx) => {
+                const realIdx = db.denouncements.length - 1 - idx;
+                return `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="px-4 py-3 font-medium text-white">${item.name}</td>
+                        <td class="px-4 py-3 text-blue-400 font-semibold">${item.type}</td>
+                        <td class="px-4 py-3 text-slate-300"><strong>${item.location}</strong>: ${item.description}</td>
+                        <td class="px-4 py-3 text-slate-400">${item.date}</td>
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 text-xs rounded-md ${item.status === 'Risolto' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}">${item.status}</span></td>
+                        <td class="px-4 py-3 text-right space-x-1">
+                            <button onclick="updateStatus('denouncements', ${realIdx}, 'In indagine')" class="px-2 py-1 bg-blue-950 text-blue-300 border border-blue-800 rounded text-xs">Indaga</button>
+                            <button onclick="updateStatus('denouncements', ${realIdx}, 'Risolto')" class="px-2 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-xs">Chiudi</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } else if(db.activeOpReqTab === 'reports') {
+            thead.innerHTML = `<th class="px-4 py-3">Mittente</th><th class="px-4 py-3">Ambito</th><th class="px-4 py-3">Dettagli</th><th class="px-4 py-3">Data</th><th class="px-4 py-3">Stato</th><th class="px-4 py-3 text-right">Azioni</th>`;
+            if(db.reports.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-slate-500 italic">Nessuna segnalazione.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = db.reports.slice().reverse().map((item, idx) => {
+                const realIdx = db.reports.length - 1 - idx;
+                return `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="px-4 py-3 font-medium text-amber-400">${item.name}</td>
+                        <td class="px-4 py-3 text-white font-semibold">${item.subject}</td>
+                        <td class="px-4 py-3 text-slate-300">${item.details}</td>
+                        <td class="px-4 py-3 text-slate-400">${item.timestamp}</td>
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 text-xs rounded-md ${item.status === 'Verificato' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}">${item.status}</span></td>
+                        <td class="px-4 py-3 text-right">
+                            <button onclick="updateStatus('reports', ${realIdx}, 'Verificato')" class="px-2 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-xs">Verifica</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    }
+
+    function updateStatus(category, index, newStatus) {
+        db[category][index].status = newStatus;
+        localStorage.setItem('carabinieri_' + category, JSON.stringify(db[category]));
+        showToast("Stato aggiornato.");
+        renderOperatorRequestsTable();
+    }
+
+    function renderAdminView() {
+        const operatorMap = {};
+        db.operators.forEach(op => {
+            operatorMap[op.id] = { name: op.name, username: op.username, tempPass: op.tempPass, role: op.role || 'Carabiniere', totalSecs: 0 };
+        });
+
+        db.sessions.forEach(s => {
+            if(operatorMap[s.operatorId]) {
+                operatorMap[s.operatorId].totalSecs += (s.durationSeconds || 0);
+            }
+        });
+
+        const tbody = document.getElementById('admin-operators-tbody');
+        const opKeys = Object.keys(operatorMap);
+        document.getElementById('admin-total-ops').textContent = opKeys.length;
+
+        if(opKeys.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500 italic">Nessun operatore registrato.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = opKeys.map(id => {
+            const op = operatorMap[id];
+            const formattedTime = formatSecondsToHHMMSS(op.totalSecs);
+            const roles = ['Carabiniere', 'Appuntato', 'Maresciallo', 'Tenente', 'Capitano'];
+            const roleOptions = roles.map(r => `<option value="${r}" ${op.role === r ? 'selected' : ''}>${r}</option>`).join('');
+
+            return `
+                <tr class="hover:bg-slate-900/60 transition">
+                    <td class="px-4 py-3">
+                        <strong class="text-white block">${op.name}</strong>
+                        <span class="text-xs text-blue-400 font-mono">${id}</span>
+                    </td>
+                    <td class="px-4 py-3 text-xs">
+                        <span class="block text-slate-300">User: <code class="text-white">${op.username}</code></span>
+                        <span class="block text-slate-400">Pass: <code class="text-amber-400">${op.tempPass}</code></span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <select onchange="updateOperatorRole('${id}', this.value)" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-400 font-semibold focus:outline-none focus:border-amber-500 transition">
+                            ${roleOptions}
+                        </select>
+                    </td>
+                    <td class="px-4 py-3 font-mono font-bold text-amber-400">${formattedTime}</td>
+                    <td class="px-4 py-3 text-right space-x-1">
+                        <button onclick="adjustHours('${id}', 3600)" title="Aggiungi 1 ora" class="px-2 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-xs">+1h</button>
+                        <button onclick="adjustHours('${id}', -3600)" title="Rimuovi 1 ora" class="px-2 py-1 bg-amber-950 text-amber-300 border border-amber-800 rounded text-xs">-1h</button>
+                        <button onclick="deleteOperator('${id}')" title="Elimina operatore" class="px-2 py-1 bg-red-950 text-red-300 border border-red-800 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function createNewOperator(e) {
+        e.preventDefault();
+        const name = document.getElementById('gen-op-name').value.trim();
+        const username = document.getElementById('gen-op-username').value.trim();
+        const tempPass = document.getElementById('gen-op-pass').value.trim();
+        const role = document.getElementById('gen-op-role').value;
+        const matricola = 'CC-' + Math.floor(1000 + Math.random() * 9000);
+
+        const newOp = { id: matricola, name: name, username: username, tempPass: tempPass, role: role };
+        db.operators.push(newOp);
+        localStorage.setItem('carabinieri_operators', JSON.stringify(db.operators));
+
+        showToast(`Operatore ${name} creato con successo (${matricola})!`);
+        e.target.reset();
+        renderAdminView();
+    }
+
+    function updateOperatorRole(opId, newRole) {
+        const op = db.operators.find(o => o.id === opId);
+        if(op) {
+            op.role = newRole;
+            localStorage.setItem('carabinieri_operators', JSON.stringify(db.operators));
+            showToast(`Ruolo aggiornato a ${newRole} per ${op.name}.`);
+        }
+    }
+
+    function adjustHours(opId, deltaSecs) {
+        const op = db.operators.find(o => o.id === opId);
+        if(!op) return;
+        const now = new Date();
+        db.sessions.push({
+            operatorId: op.id,
+            operatorName: op.name,
+            date: now.toLocaleDateString('it-IT'),
+            startTime: 'Modifica',
+            endTime: 'Admin',
+            durationSeconds: deltaSecs
+        });
+        localStorage.setItem('carabinieri_sessions', JSON.stringify(db.sessions));
+        showToast(`Ore aggiornate per ${op.name}.`);
+        renderAdminView();
+    }
+
+    function deleteOperator(opId) {
+        if(!confirm("Eliminare questo operatore dal sistema?")) return;
+        db.operators = db.operators.filter(o => o.id !== opId);
+        localStorage.setItem('carabinieri_operators', JSON.stringify(db.operators));
+        showToast("Operatore eliminato.");
+        renderAdminView();
+    }
+
+    function resetAllWeeklyHours() {
+        if(!confirm("ATTENZIONE: Verranno azzerate tutte le ore settimanali. Continuare?")) return;
+        db.sessions = [];
+        localStorage.removeItem('carabinieri_sessions');
+        showToast("Tutte le ore sono state resettate.");
+        renderAdminView();
+    }
+
+    function updateAdminPassword() {
+        const newPass = document.getElementById('new-admin-pass').value.trim();
+        if(!newPass) {
+            showToast("Inserisci una password valida.", "error");
+            return;
+        }
+        db.passwords.admin = newPass;
+        localStorage.setItem('carabinieri_admin_pass', newPass);
+        document.getElementById('new-admin-pass').value = '';
+        closeAdminSettingsModal();
+        showToast("Password admin aggiornata con successo.");
+    }
+</script>
