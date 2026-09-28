@@ -165,18 +165,23 @@
                             <span id="live-timer" class="text-2xl font-mono font-bold text-amber-400">00:00:00</span>
                         </div>
                         <div class="flex flex-col gap-1">
-                            <button id="timer-toggle-btn" onclick="toggleDutyTimer()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow">
+                            <button id="timer-toggle-btn" onclick="startDuty()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow">
                                 <i class="fa-solid fa-play mr-1"></i> Inizia Servizio
                             </button>
-                            <button onclick="resetDutyTimer()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold rounded-lg transition">
-                                Reset
+                            <button id="duty-exit-btn" onclick="endDuty()" disabled class="px-3 py-1 bg-slate-700 text-slate-500 text-xs font-semibold rounded-lg transition cursor-not-allowed">
+                                <i class="fa-solid fa-stop mr-1"></i> Esci dal Servizio
                             </button>
                         </div>
                     </div>
 
-                    <button onclick="logoutOperator()" class="px-4 py-2 bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-white rounded-xl text-sm font-semibold transition border border-slate-600">
-                        <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Esci
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openHistoryModal(currentOperator.matricola)" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition border border-slate-600">
+                            <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Storico Turni
+                        </button>
+                        <button onclick="logoutOperator()" class="px-4 py-2 bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-white rounded-xl text-sm font-semibold transition border border-slate-600">
+                            <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Esci
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Citizen Requests Management -->
@@ -382,6 +387,33 @@
         </div>
     </div>
 
+    <!-- Hours History Modal -->
+    <div id="history-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
+            <button onclick="closeHistoryModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 id="history-title" class="text-xl font-bold text-white mb-1">Storico ore</h3>
+            <p class="text-xs text-slate-400 mb-4">Totale ore di servizio: <span id="history-total" class="font-mono font-bold text-amber-300">00:00:00</span></p>
+            <div class="overflow-y-auto max-h-96">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
+                            <th class="py-2 px-3">Tipo</th>
+                            <th class="py-2 px-3">Inizio</th>
+                            <th class="py-2 px-3">Fine</th>
+                            <th class="py-2 px-3 text-right">Durata</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody" class="text-sm divide-y divide-slate-700/50"></tbody>
+                </table>
+            </div>
+            <div class="flex justify-end pt-4">
+                <button onclick="closeHistoryModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom Notification Box (Instead of alert) -->
     <div id="notification-box" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-800 border border-amber-500/50 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
         <i id="notif-icon" class="fa-solid fa-circle-check text-amber-400 text-lg"></i>
@@ -527,6 +559,11 @@
                 document.getElementById('operator-dashboard').classList.remove('hidden');
                 document.getElementById('op-welcome-name').innerText = currentOperator.name;
                 document.getElementById('op-welcome-role').innerText = `${currentOperator.role} (${currentOperator.matricola})`;
+                if (!isDutyActive && currentOperator.shift) {
+                    finalizeShift(currentOperator); // turno interrotto (pagina chiusa)
+                    saveDB();
+                }
+                setDutyButtons(isDutyActive);
                 renderOperatorRequests();
                 updateTimerDisplay();
             } else {
@@ -538,8 +575,7 @@
         }
 
         function logoutOperator() {
-            if (dutyInterval) clearInterval(dutyInterval);
-            isDutyActive = false;
+            endDuty(true);
             currentOperator = null;
             saveDB();
             checkOperatorSession();
@@ -559,45 +595,114 @@
             }
         }
 
-        function toggleDutyTimer() {
-            const btn = document.getElementById('timer-toggle-btn');
-            if (!isDutyActive) {
-                isDutyActive = true;
-                btn.innerHTML = '<i class="fa-solid fa-pause mr-1"></i> In Servizio';
-                btn.className = 'px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition shadow';
+        function getOp(matricola) {
+            return db.operators.find(o => o.matricola === matricola);
+        }
 
-                dutyInterval = setInterval(() => {
-                    currentOperator.totalSeconds++;
-                    updateTimerDisplay();
-                    // sync with db
-                    const opIndex = db.operators.findIndex(o => o.matricola === currentOperator.matricola);
-                    if (opIndex !== -1) {
-                        db.operators[opIndex].totalSeconds = currentOperator.totalSeconds;
-                        saveDB();
-                    }
-                }, 1000);
+        function formatDateTime(iso) {
+            const d = new Date(iso);
+            return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        }
+
+        function addHistory(op, entry) {
+            if (!op.history) op.history = [];
+            op.history.unshift(entry);
+        }
+
+        // Chiude il turno in corso e lo salva nello storico
+        function finalizeShift(op) {
+            if (!op || !op.shift) return;
+            if (op.shift.seconds > 0) {
+                const startMs = new Date(op.shift.start).getTime();
+                addHistory(op, {
+                    type: 'Turno',
+                    start: op.shift.start,
+                    end: new Date(startMs + op.shift.seconds * 1000).toISOString(),
+                    seconds: op.shift.seconds
+                });
+            }
+            op.shift = null;
+        }
+
+        function setDutyButtons(active) {
+            const startBtn = document.getElementById('timer-toggle-btn');
+            const exitBtn = document.getElementById('duty-exit-btn');
+            if (active) {
+                startBtn.disabled = true;
+                startBtn.innerHTML = '<i class="fa-solid fa-circle text-xs mr-1 animate-pulse"></i> In Servizio';
+                startBtn.className = 'px-3 py-1 bg-amber-600 text-white text-xs font-semibold rounded-lg shadow cursor-default';
+                exitBtn.disabled = false;
+                exitBtn.className = 'px-3 py-1 bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold rounded-lg transition shadow';
             } else {
-                isDutyActive = false;
-                clearInterval(dutyInterval);
-                btn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Riprendi Servizio';
-                btn.className = 'px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow';
+                startBtn.disabled = false;
+                startBtn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Inizia Servizio';
+                startBtn.className = 'px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow';
+                exitBtn.disabled = true;
+                exitBtn.className = 'px-3 py-1 bg-slate-700 text-slate-500 text-xs font-semibold rounded-lg transition cursor-not-allowed';
             }
         }
 
-        function resetDutyTimer() {
-            if (isDutyActive) {
-                toggleDutyTimer();
-            }
-            if (currentOperator) {
-                currentOperator.totalSeconds = 0;
-                const opIndex = db.operators.findIndex(o => o.matricola === currentOperator.matricola);
-                if (opIndex !== -1) {
-                    db.operators[opIndex].totalSeconds = 0;
-                    saveDB();
-                }
+        function startDuty() {
+            if (isDutyActive || !currentOperator) return;
+            const op = getOp(currentOperator.matricola);
+            if (!op) return;
+            currentOperator = op;
+            isDutyActive = true;
+            op.shift = { start: new Date().toISOString(), seconds: 0 };
+            saveDB();
+            setDutyButtons(true);
+
+            dutyInterval = setInterval(() => {
+                op.totalSeconds++;
+                op.shift.seconds++;
                 updateTimerDisplay();
-                showNotification('Cronometro ore di servizio resettato.');
+                saveDB();
+            }, 1000);
+            showNotification('Servizio iniziato.');
+        }
+
+        function endDuty(silent) {
+            if (dutyInterval) { clearInterval(dutyInterval); dutyInterval = null; }
+            const wasActive = isDutyActive;
+            isDutyActive = false;
+            if (currentOperator) {
+                finalizeShift(getOp(currentOperator.matricola));
+                saveDB();
             }
+            setDutyButtons(false);
+            if (!silent && wasActive) showNotification('Sei uscito dal servizio. Turno salvato nello storico.');
+        }
+
+        function openHistoryModal(matricola) {
+            const op = getOp(matricola);
+            if (!op) return;
+            document.getElementById('history-title').innerText = `Storico ore - ${op.name}`;
+            document.getElementById('history-total').innerText = formatSecondsToHHMMSS(op.totalSeconds);
+            const tbody = document.getElementById('history-tbody');
+            tbody.innerHTML = '';
+            const hist = op.history || [];
+            if (hist.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500">Nessun turno registrato.</td></tr>';
+            }
+            hist.forEach(h => {
+                const isShift = h.type === 'Turno';
+                const sign = h.seconds < 0 ? '-' : (isShift ? '' : '+');
+                const color = h.seconds < 0 ? 'text-red-400' : (isShift ? 'text-amber-300' : 'text-emerald-400');
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/30 transition';
+                tr.innerHTML = `
+                    <td class="py-2 px-3 text-xs ${isShift ? 'text-slate-200' : 'text-blue-300'}">${h.type}</td>
+                    <td class="py-2 px-3 text-xs text-slate-400">${formatDateTime(h.start)}</td>
+                    <td class="py-2 px-3 text-xs text-slate-400">${isShift ? formatDateTime(h.end) : '-'}</td>
+                    <td class="py-2 px-3 text-right font-mono ${color}">${sign}${formatSecondsToHHMMSS(Math.abs(h.seconds))}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('history-modal').classList.remove('hidden');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('history-modal').classList.add('hidden');
         }
 
         function renderOperatorRequests() {
@@ -761,7 +866,10 @@
                         </div>
                     </td>
                     <td class="py-3 px-4 text-center">
-                        <button onclick="deleteOperator('${op.matricola}')" class="text-red-400 hover:text-red-300 p-1" title="Elimina operatore"><i class="fa-solid fa-trash"></i></button>
+                        <div class="inline-flex items-center gap-2">
+                            <button onclick="openHistoryModal('${op.matricola}')" class="text-amber-400 hover:text-amber-300 p-1" title="Storico ore"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                            <button onclick="deleteOperator('${op.matricola}')" class="text-red-400 hover:text-red-300 p-1" title="Elimina operatore"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -774,10 +882,15 @@
         }
 
         function adjustOperatorHours(index, action) {
+            const op = db.operators[index];
+            const nowIso = new Date().toISOString();
             if (action === 'reset') {
-                db.operators[index].totalSeconds = 0;
+                addHistory(op, { type: 'Reset admin', start: nowIso, end: nowIso, seconds: -op.totalSeconds });
+                op.totalSeconds = 0;
             } else {
-                db.operators[index].totalSeconds = Math.max(0, db.operators[index].totalSeconds + action);
+                const before = op.totalSeconds;
+                op.totalSeconds = Math.max(0, before + action);
+                addHistory(op, { type: 'Rettifica admin', start: nowIso, end: nowIso, seconds: op.totalSeconds - before });
             }
             saveDB();
             renderAdminOperators();
