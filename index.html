@@ -19,19 +19,39 @@
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-image: radial-gradient(1100px 480px at 50% -120px, rgba(30,64,175,.28), transparent); background-attachment: fixed; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        @keyframes pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+        .fade-in { animation: fadeUp .35s ease-out both; }
+        .card-lift { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+        .card-lift:hover { transform: translateY(-4px); box-shadow: 0 14px 30px -12px rgba(0,0,0,.7); }
+        [id$="-modal"]:not(.hidden) > div { animation: pop .18s ease-out both; }
+        button:not(:disabled):active { transform: scale(.97); }
+        @media (max-width: 640px) { input, select, textarea { font-size: 16px !important; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Stemma (simbolo grafico originale) -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="emblem" viewBox="0 0 48 48">
+            <path d="M24 3 42 9v13c0 11-8 19-18 23C14 41 6 33 6 22V9z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M24 8c3 5 6 7 3 12-1-2-2-2.5-3-3-1 .5-2 1-3 3-3-5 0-7 3-12z" fill="currentColor"/>
+            <rect x="21" y="20" width="6" height="4" rx="1" fill="currentColor"/>
+            <circle cx="24" cy="31" r="8" fill="currentColor"/>
+            <path d="M17.5 29h13M17 33h14" stroke="#1e3a8a" stroke-width="1.2" opacity=".6"/>
+        </symbol>
+    </svg>
 
     <header class="bg-slate-800 border-b border-red-900/40 shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
                 <div class="w-11 h-11 bg-red-800 rounded-full flex items-center justify-center border-2 border-amber-500 shadow-md">
-                    <i class="fa-solid fa-shield-halved text-amber-400 text-xl"></i>
+                    <svg viewBox="0 0 48 48" class="w-6 h-6 text-amber-400" aria-hidden="true"><use href="#emblem"/></svg>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-wider text-slate-100 flex items-center gap-2">
+                    <h1 class="font-bold text-sm sm:text-lg tracking-wider text-slate-100 flex items-center gap-2">
                         ARMA DEI CARABINIERI <span class="text-xs bg-red-950 text-red-300 px-2 py-0.5 rounded border border-red-800">RP PORTALE</span>
                     </h1>
                     <p class="text-xs text-slate-400">Servizio Telematico Unificato</p>
@@ -40,13 +60,13 @@
 
             <nav class="flex items-center space-x-2 mt-2 sm:mt-0">
                 <button onclick="switchTab('home')" id="nav-home" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-900/60 text-amber-300 border border-red-700 transition">
-                    <i class="fa-solid fa-house mr-1.5"></i> Home Cittadini
+                    <i class="fa-solid fa-house sm:mr-1.5"></i><span class="hidden sm:inline">Home Cittadini</span>
                 </button>
                 <button onclick="switchTab('operator')" id="nav-operator" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-700/50 text-slate-300 hover:bg-slate-700 transition">
-                    <i class="fa-solid fa-user-shield mr-1.5"></i> Area Operatori
+                    <i class="fa-solid fa-user-shield sm:mr-1.5"></i><span class="hidden sm:inline">Area Operatori</span><span id="nav-op-badge" class="hidden ml-1.5 bg-amber-500 text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full"></span>
                 </button>
                 <button onclick="switchTab('admin')" id="nav-admin" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-700/50 text-slate-300 hover:bg-slate-700 transition">
-                    <i class="fa-solid fa-lock mr-1.5"></i> Area Admin
+                    <i class="fa-solid fa-lock sm:mr-1.5"></i><span class="hidden sm:inline">Area Admin</span>
                 </button>
             </nav>
         </div>
@@ -58,7 +78,7 @@
         <div id="tab-home" class="space-y-6">
             <div class="bg-gradient-to-r from-red-950 via-slate-900 to-slate-900 border border-red-900/40 rounded-2xl p-6 sm:p-8 shadow-xl text-center">
                 <div class="inline-block p-3 bg-red-900/30 rounded-full border border-red-700/50 mb-4">
-                    <i class="fa-solid fa-scale-balanced text-3xl text-amber-400"></i>
+                    <svg viewBox="0 0 48 48" class="w-12 h-12 text-amber-400" aria-hidden="true"><use href="#emblem"/></svg>
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">Benvenuti al Portale dei Servizi ai Cittadini</h2>
                 <p class="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base">
@@ -69,7 +89,7 @@
             <!-- 3 Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Card 1: Colloqui -->
-                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 transition shadow-lg">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 card-lift shadow-lg">
                     <div>
                         <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-400 mb-4 border border-amber-500/20">
                             <i class="fa-solid fa-handshake text-xl"></i>
@@ -85,7 +105,7 @@
                 </div>
 
                 <!-- Card 2: Denunce -->
-                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 transition shadow-lg">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 card-lift shadow-lg">
                     <div>
                         <div class="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-400 mb-4 border border-red-500/20">
                             <i class="fa-solid fa-file-shield text-xl"></i>
@@ -101,7 +121,7 @@
                 </div>
 
                 <!-- Card 3: Segnalazioni -->
-                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 transition shadow-lg">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 card-lift shadow-lg">
                     <div>
                         <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-4 border border-blue-500/20">
                             <i class="fa-solid fa-user-secret text-xl"></i>
@@ -116,6 +136,22 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Controllo stato richiesta -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 shadow-lg">
+                <div class="flex flex-col md:flex-row md:items-end gap-4">
+                    <div class="md:w-1/3">
+                        <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-magnifying-glass text-amber-400"></i> Controlla lo stato</h3>
+                        <p class="text-slate-400 text-sm mt-1">Inserisci il codice di tracciamento ricevuto dopo l'invio.</p>
+                    </div>
+                    <div class="flex-1 flex gap-2">
+                        <input type="text" id="track-input" placeholder="Es. DEN-7K2M9Q" onkeydown="if(event.key==='Enter')checkTrackingCode()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 font-mono uppercase">
+                        <button onclick="checkTrackingCode()" class="px-5 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow">Verifica</button>
+                    </div>
+                </div>
+                <div id="track-result" class="hidden"></div>
+            </div>
+
         </div>
 
         <!-- ================= OPERATOR TAB ================= -->
@@ -128,6 +164,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-white">Accesso Area Operatori</h3>
                     <p class="text-slate-400 text-xs mt-1">Inserisci le credenziali assegnate dal comando</p>
+                    <p class="text-amber-400/90 text-xs mt-2"><i class="fa-solid fa-key mr-1"></i>Al primo accesso dovrai sostituire la password provvisoria con una personale.</p>
                 </div>
                 <form onsubmit="handleOperatorLogin(event)" class="space-y-4">
                     <div>
@@ -176,7 +213,9 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button id="sound-btn" onclick="toggleSound()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm border border-slate-600" title="Avviso sonoro per nuove richieste"><i class="fa-solid fa-bell"></i></button>
+                        <button onclick="openPasswordModal(false)" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-sm font-semibold transition border border-slate-600" title="Cambia password"><i class="fa-solid fa-key sm:mr-1.5"></i><span class="hidden sm:inline">Password</span></button>
                         <button onclick="openHistoryModal(currentOperator.matricola)" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition border border-slate-600">
                             <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Storico Turni
                         </button>
@@ -196,7 +235,7 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full min-w-[760px] text-left border-collapse">
                             <thead>
                                 <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
                                     <th class="py-3 px-4">Tipo</th>
@@ -204,6 +243,7 @@
                                     <th class="py-3 px-4">Contenuto / Dettagli</th>
                                     <th class="py-3 px-4">Data / Ora</th>
                                     <th class="py-3 px-4">Stato</th>
+                                    <th class="py-3 px-4">Assegnata a</th>
                                     <th class="py-3 px-4 text-center">Azioni</th>
                                 </tr>
                             </thead>
@@ -289,6 +329,10 @@
                     <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-user-plus text-amber-400"></i> Generazione Nuovo Operatore
                     </h3>
+                    <div class="mb-4 flex gap-3 items-start bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 text-xs text-amber-200">
+                        <i class="fa-solid fa-key mt-0.5 text-amber-400"></i>
+                        <p>La password inserita qui è <strong>provvisoria</strong>: al primo accesso all'Area Operatori ogni operatore dovrà obbligatoriamente scegliere una password personale e non potrà riutilizzare quella provvisoria.</p>
+                    </div>
                     <form onsubmit="handleCreateOperator(event)" class="flex flex-col lg:flex-row gap-3 items-end">
                         <div class="flex-1 w-full">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome e Cognome</label>
@@ -320,17 +364,20 @@
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">
                             <i class="fa-solid fa-users-gear text-amber-400"></i> Organico Operatori Registrati
                         </h3>
-                        <span id="operators-counter" class="text-xs bg-slate-900 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-medium">0 Operatori</span>
+                        <div class="flex items-center gap-2">
+                            <span id="pending-pw-counter" class="hidden text-xs bg-amber-900/40 text-amber-300 px-3 py-1 rounded-full border border-amber-700 font-medium"></span>
+                            <span id="operators-counter" class="text-xs bg-slate-900 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-medium">0 Operatori</span>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full min-w-[760px] text-left border-collapse">
                             <thead>
                                 <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
                                     <th class="py-3 px-4">Matricola</th>
                                     <th class="py-3 px-4">Nome e Cognome</th>
                                     <th class="py-3 px-4">Username</th>
-                                    <th class="py-3 px-4">Ruolo (Modificabile in tempo reale)</th>
+                                    <th class="py-3 px-4">Ruolo (modificabile)</th>
                                     <th class="py-3 px-4">Ore di Servizio Totali</th>
                                     <th class="py-3 px-4 text-center">Azioni Ore</th>
                                     <th class="py-3 px-4 text-center">Gestione</th>
@@ -339,6 +386,28 @@
                             <tbody id="admin-operators-tbody" class="text-sm divide-y divide-slate-700/50">
                                 <!-- Populated via JS -->
                             </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Registro Azioni -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-list text-amber-400"></i> Registro Azioni
+                        </h3>
+                        <span id="log-counter" class="text-xs bg-slate-900 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-medium">0 azioni</span>
+                    </div>
+                    <div class="overflow-auto max-h-80">
+                        <table class="w-full min-w-[560px] text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
+                                    <th class="py-2 px-4">Data / Ora</th>
+                                    <th class="py-2 px-4">Autore</th>
+                                    <th class="py-2 px-4">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-log-tbody" class="text-sm divide-y divide-slate-700/50"></tbody>
                         </table>
                     </div>
                 </div>
@@ -384,6 +453,14 @@
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Cosa denuncia</label>
                         <input type="text" id="citizen-subject" placeholder="Es. Furto, minacce, danneggiamento..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Data e ora del fatto</label>
+                        <input type="datetime-local" id="citizen-fact-when" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Luogo del fatto</label>
+                        <input type="text" id="citizen-fact-place" placeholder="Es. Via Roma 12, Bari" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1" id="citizen-content-label">Dettagli / Contenuto</label>
@@ -403,7 +480,7 @@
 
     <!-- Command Settings Modal (Impostazioni di Comando) -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -433,14 +510,38 @@
 
     <!-- Hours History Modal -->
     <div id="history-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeHistoryModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
-            <h3 id="history-title" class="text-xl font-bold text-white mb-1">Storico ore</h3>
-            <p class="text-xs text-slate-400 mb-4">Totale ore di servizio: <span id="history-total" class="font-mono font-bold text-amber-300">00:00:00</span></p>
-            <div class="overflow-y-auto max-h-96">
-                <table class="w-full text-left border-collapse">
+            <h3 id="history-title" class="text-xl font-bold text-white mb-4 pr-8">Storico ore</h3>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3"><span class="block text-[10px] uppercase tracking-wider text-slate-400">Periodo selezionato</span><span id="history-total-period" class="font-mono font-bold text-amber-300">00:00:00</span></div>
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3"><span class="block text-[10px] uppercase tracking-wider text-slate-400">Questa settimana</span><span id="history-total-week" class="font-mono font-bold text-slate-100">00:00:00</span></div>
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3"><span class="block text-[10px] uppercase tracking-wider text-slate-400">Questo mese</span><span id="history-total-month" class="font-mono font-bold text-slate-100">00:00:00</span></div>
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3"><span class="block text-[10px] uppercase tracking-wider text-slate-400">Totale generale</span><span id="history-total-all" class="font-mono font-bold text-slate-100">00:00:00</span></div>
+            </div>
+
+            <div class="flex flex-wrap items-end gap-3 mb-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Periodo</label>
+                    <select id="history-filter" onchange="renderHistory()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <option value="all">Tutto lo storico</option>
+                        <option value="week">Questa settimana</option>
+                        <option value="month">Questo mese</option>
+                        <option value="lastmonth">Mese scorso</option>
+                        <option value="custom">Intervallo personalizzato</option>
+                    </select>
+                </div>
+                <div id="history-custom" class="hidden flex flex-wrap items-end gap-3">
+                    <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Dal</label><input type="date" id="history-from" onchange="renderHistory()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"></div>
+                    <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Al</label><input type="date" id="history-to" onchange="renderHistory()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"></div>
+                </div>
+            </div>
+
+            <div class="overflow-auto max-h-72">
+                <table class="w-full min-w-[520px] text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
                             <th class="py-2 px-3">Tipo</th>
@@ -452,9 +553,108 @@
                     <tbody id="history-tbody" class="text-sm divide-y divide-slate-700/50"></tbody>
                 </table>
             </div>
-            <div class="flex justify-end pt-4">
+            <p class="text-[11px] text-slate-500 mt-2">I totali comprendono turni e rettifiche dell'admin.</p>
+            <div class="flex justify-end pt-3">
                 <button onclick="closeHistoryModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Chiudi</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Tracking Code Modal -->
+    <div id="code-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl text-center">
+            <div class="w-14 h-14 bg-emerald-900/40 rounded-full flex items-center justify-center mx-auto mb-3 border border-emerald-700"><i class="fa-solid fa-circle-check text-emerald-400 text-2xl"></i></div>
+            <h3 id="code-title" class="text-xl font-bold text-white mb-1">Richiesta inoltrata</h3>
+            <p class="text-xs text-slate-400 mb-4">Conserva questo codice: ti permette di controllare lo stato della richiesta dalla Home.</p>
+            <div id="code-value" class="font-mono text-2xl font-bold tracking-widest text-amber-300 bg-slate-900 border border-slate-700 rounded-xl py-3 mb-4 select-all">-</div>
+            <div class="flex justify-center gap-3">
+                <button onclick="copyTrackingCode()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition"><i class="fa-regular fa-copy mr-1.5"></i>Copia codice</button>
+                <button onclick="closeCodeModal()" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Detail Modal -->
+    <div id="request-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeRequestModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div class="flex flex-wrap items-center gap-2 mb-1 pr-8">
+                <h3 id="rm-title" class="text-xl font-bold text-white">Dettagli richiesta</h3>
+                <span id="rm-code" class="font-mono text-xs bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-amber-300"></span>
+            </div>
+            <p id="rm-meta" class="text-xs text-slate-400 mb-4"></p>
+            <div id="rm-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4"></div>
+            <label id="rm-content-label" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Dettagli</label>
+            <div id="rm-content" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 whitespace-pre-line break-words mb-4"></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Stato</label>
+                    <select id="rm-status" onchange="updateRequestStatus(currentRequestId, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <option value="In attesa">In attesa</option>
+                        <option value="In lavorazione">In lavorazione</option>
+                        <option value="Completata">Completata</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Assegnata a</label>
+                    <select id="rm-assignee" onchange="setRequestAssignee(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></select>
+                </div>
+            </div>
+            <button onclick="takeRequest()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow mb-5"><i class="fa-solid fa-hand mr-1.5"></i>Prendi in carico</button>
+
+            <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2"><i class="fa-solid fa-lock text-amber-400 text-xs"></i> Note interne <span class="text-[11px] font-normal text-slate-500">(visibili solo agli operatori)</span></h4>
+            <div id="rm-notes" class="space-y-2 max-h-40 overflow-y-auto mb-3"></div>
+            <textarea id="rm-note-input" rows="2" placeholder="Scrivi una nota interna..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
+            <div class="flex justify-end pt-3">
+                <button onclick="addRequestNote()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition">Aggiungi nota</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password change (operators) -->
+    <div id="force-pw-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-amber-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-4">
+                <div class="w-14 h-14 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-amber-500/40"><i class="fa-solid fa-key text-amber-400 text-2xl"></i></div>
+                <h3 id="fpw-title" class="text-xl font-bold text-white">Cambio password obbligatorio</h3>
+                <p id="fpw-subtitle" class="text-xs text-slate-400 mt-1">Stai usando una password provvisoria assegnata dal comando. Per continuare devi sceglierne una personale.</p>
+            </div>
+            <form onsubmit="submitPasswordChange(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nuova password</label>
+                    <input type="password" id="fpw-new" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Almeno 6 caratteri">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Conferma nuova password</label>
+                    <input type="password" id="fpw-confirm" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ripeti la password">
+                </div>
+                <p class="text-[11px] text-slate-500">Non puoi riutilizzare la password attuale.</p>
+                <div class="flex justify-end gap-3 pt-1">
+                    <button type="button" id="fpw-cancel" onclick="cancelPasswordModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Esci</button>
+                    <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">Salva password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin: set provisional password for an operator -->
+    <div id="admin-pw-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeAdminPwModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="text-xl font-bold text-white mb-1">Nuova password provvisoria</h3>
+            <p id="apw-subtitle" class="text-xs text-slate-400 mb-4"></p>
+            <form onsubmit="saveAdminPw(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password provvisoria</label>
+                    <input type="text" id="apw-input" required minlength="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Inserisci password provvisoria...">
+                </div>
+                <div class="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 text-[11px] text-amber-200"><i class="fa-solid fa-circle-info mt-0.5 text-amber-400"></i><span>L'operatore dovrà sostituirla con una password personale al prossimo accesso.</span></div>
+                <div class="flex justify-end gap-3 pt-1">
+                    <button type="button" onclick="closeAdminPwModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Annulla</button>
+                    <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">Imposta password</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -485,7 +685,8 @@
                 { id: 2, type: 'denuncia', name: 'Anonimo', content: 'Segnalazione furto autovettura in sosta.', date: '29/09/2026 11:15', status: 'In lavorazione' }
             ],
             adminPassword: localStorage.getItem('carabinieri_admin_pass_v2') || 'Carabinieri2026',
-            discordWebhook: localStorage.getItem('carabinieri_discord_webhook') || DEFAULT_DISCORD_WEBHOOK
+            discordWebhook: localStorage.getItem('carabinieri_discord_webhook') || DEFAULT_DISCORD_WEBHOOK,
+            log: JSON.parse(localStorage.getItem('carabinieri_log')) || []
         };
 
         let currentOperator = JSON.parse(localStorage.getItem('carabinieri_current_op')) || null;
@@ -497,11 +698,29 @@
             localStorage.setItem('carabinieri_requests', JSON.stringify(db.requests));
             localStorage.setItem('carabinieri_admin_pass_v2', db.adminPassword);
             localStorage.setItem('carabinieri_discord_webhook', db.discordWebhook || '');
+            localStorage.setItem('carabinieri_log', JSON.stringify(db.log));
             if (currentOperator) {
                 localStorage.setItem('carabinieri_current_op', JSON.stringify(currentOperator));
             } else {
                 localStorage.removeItem('carabinieri_current_op');
             }
+        }
+
+        // Salvataggio leggero usato dal timbro (non tocca richieste e registro)
+        function saveOperatorsOnly() {
+            localStorage.setItem('carabinieri_operators', JSON.stringify(db.operators));
+            if (currentOperator) localStorage.setItem('carabinieri_current_op', JSON.stringify(currentOperator));
+        }
+
+        function actorName() {
+            return currentOperator ? currentOperator.name : 'Sistema';
+        }
+
+        function logAction(actor, text) {
+            db.log.unshift({ ts: new Date().toISOString(), actor: actor, text: text });
+            if (db.log.length > 300) db.log.length = 300;
+            saveDB();
+            if (isAdminLoggedIn) renderAdminLog();
         }
 
         function showNotification(msg, type = 'success') {
@@ -529,6 +748,11 @@
             document.getElementById(`nav-${tabId}`).classList.remove('bg-slate-700/50', 'text-slate-300');
             document.getElementById(`nav-${tabId}`).classList.add('bg-red-900/60', 'text-amber-300', 'border', 'border-red-700');
 
+            const tabEl = document.getElementById(`tab-${tabId}`);
+            tabEl.classList.remove('fade-in');
+            void tabEl.offsetWidth;
+            tabEl.classList.add('fade-in');
+
             if (tabId === 'operator') {
                 checkOperatorSession();
             }
@@ -554,6 +778,13 @@
             document.getElementById('denuncia-fields').classList.toggle('hidden', !isDen);
             document.getElementById('citizen-phone').value = '';
             document.getElementById('citizen-subject').value = '';
+            const nowLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            const whenEl = document.getElementById('citizen-fact-when');
+            whenEl.value = '';
+            whenEl.max = nowLocal;
+            whenEl.required = isDen;
+            document.getElementById('citizen-fact-place').value = '';
+            document.getElementById('citizen-fact-place').required = isDen;
             document.getElementById('citizen-accused-type').value = 'noto';
             document.getElementById('citizen-accused-name').value = '';
             document.getElementById('citizen-phone').required = isDen;
@@ -580,7 +811,7 @@
 
         function requestSummary(req) {
             if (req.type === 'denuncia' && req.extra) {
-                return `Cosa denuncia: ${req.extra.subject}\nDenunciato: ${req.extra.accused}\nInfo: ${req.content}`;
+                return `Cosa denuncia: ${req.extra.subject}\nFatto: ${req.extra.when || '-'} - ${req.extra.place || '-'}\nDenunciato: ${req.extra.accused}\nInfo: ${req.content}`;
             }
             return req.content;
         }
@@ -600,7 +831,10 @@
                 name: name,
                 content: content,
                 date: dateStr,
-                status: 'In attesa'
+                status: 'In attesa',
+                code: generateTrackingCode(type),
+                assignedTo: null,
+                notes: []
             };
 
             if (type === 'denuncia') {
@@ -608,14 +842,16 @@
                 newReq.extra = {
                     phone: document.getElementById('citizen-phone').value.trim(),
                     accused: known ? document.getElementById('citizen-accused-name').value.trim() : 'Ignoto',
-                    subject: document.getElementById('citizen-subject').value.trim()
+                    subject: document.getElementById('citizen-subject').value.trim(),
+                    when: formatDateTime(document.getElementById('citizen-fact-when').value),
+                    place: document.getElementById('citizen-fact-place').value.trim()
                 };
             }
 
             db.requests.unshift(newReq);
             saveDB();
             closeCitizenModal();
-            showNotification(type === 'denuncia' ? 'Denuncia inoltrata con successo alla stazione.' : 'Richiesta inoltrata con successo alla stazione.');
+            openCodeModal(newReq);
             if (!document.getElementById('tab-operator').classList.contains('hidden')) {
                 renderOperatorRequests();
             }
@@ -656,6 +892,8 @@
                     fields: [
                         { name: 'Denunciante', value: cut(req.name), inline: true },
                         { name: 'Telefono', value: cut(ex.phone), inline: true },
+                        { name: 'Codice', value: cut(req.code), inline: true },
+                        { name: 'Data e luogo del fatto', value: cut((ex.when || '-') + ' - ' + (ex.place || '-')) },
                         { name: 'Persona denunciata', value: cut(ex.accused) },
                         { name: 'Cosa denuncia', value: cut(ex.subject) },
                         { name: 'Ulteriori informazioni', value: cut(req.content) }
@@ -689,6 +927,7 @@
                 return;
             }
             db.discordWebhook = url;
+            logAction('Admin', url ? 'Canale Discord denunce aggiornato' : 'Collegamento Discord rimosso');
             saveDB();
             updateDiscordStatus();
             showNotification(url ? 'Canale Discord salvato.' : 'Collegamento Discord rimosso.');
@@ -721,6 +960,7 @@
                 currentOperator = found;
                 saveDB();
                 checkOperatorSession();
+                logAction(found.name, 'Accesso Area Operatori');
                 showNotification(`Benvenuto, ${found.name}`);
             } else {
                 showNotification('Credenziali operatore non valide.', 'error');
@@ -742,8 +982,10 @@
                     saveDB();
                 }
                 setDutyButtons(isDutyActive);
+                updateSoundButton();
                 renderOperatorRequests();
                 updateTimerDisplay();
+                if (!currentOperator.pwChanged) openPasswordModal(true);
             } else {
                 document.getElementById('operator-login-view').classList.remove('hidden');
                 document.getElementById('operator-dashboard').classList.add('hidden');
@@ -757,6 +999,7 @@
             currentOperator = null;
             saveDB();
             checkOperatorSession();
+            updateNavBadge();
             showNotification('Disconnessione effettuata.');
         }
 
@@ -839,7 +1082,7 @@
                 op.totalSeconds++;
                 op.shift.seconds++;
                 updateTimerDisplay();
-                saveDB();
+                saveOperatorsOnly();
             }, 1000);
             showNotification('Servizio iniziato.');
         }
@@ -860,32 +1103,79 @@
             if (!silent && wasActive) showNotification(`Sei uscito dal servizio. Turno di ${formatSecondsToHHMMSS(saved)} salvato nello storico.`);
         }
 
+        let historyMatricola = null;
+
+        function fmtSigned(sec) {
+            return (sec < 0 ? '-' : '') + formatSecondsToHHMMSS(Math.abs(sec));
+        }
+
+        function historyBounds(mode) {
+            const now = new Date();
+            const sow = new Date(now);
+            sow.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+            sow.setHours(0, 0, 0, 0);
+            const som = new Date(now.getFullYear(), now.getMonth(), 1);
+            const somPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            if (mode === 'week') return [sow, null];
+            if (mode === 'month') return [som, null];
+            if (mode === 'lastmonth') return [somPrev, som];
+            if (mode === 'custom') {
+                const f = document.getElementById('history-from').value;
+                const t = document.getElementById('history-to').value;
+                const from = f ? new Date(f + 'T00:00:00') : null;
+                let to = null;
+                if (t) { to = new Date(t + 'T00:00:00'); to.setDate(to.getDate() + 1); }
+                return [from, to];
+            }
+            return [null, null];
+        }
+
         function openHistoryModal(matricola) {
             const op = getOp(matricola);
             if (!op) return;
+            historyMatricola = matricola;
             document.getElementById('history-title').innerText = `Storico ore - ${op.name}`;
-            document.getElementById('history-total').innerText = formatSecondsToHHMMSS(op.totalSeconds);
+            document.getElementById('history-filter').value = 'all';
+            document.getElementById('history-from').value = '';
+            document.getElementById('history-to').value = '';
+            renderHistory();
+            document.getElementById('history-modal').classList.remove('hidden');
+        }
+
+        function renderHistory() {
+            const op = getOp(historyMatricola);
+            if (!op) return;
+            const mode = document.getElementById('history-filter').value;
+            document.getElementById('history-custom').classList.toggle('hidden', mode !== 'custom');
+            const hist = op.history || [];
+            const inRange = (h, b) => { const t = new Date(h.start); return (!b[0] || t >= b[0]) && (!b[1] || t < b[1]); };
+            const sum = (b) => hist.filter(h => inRange(h, b)).reduce((a, h) => a + h.seconds, 0);
+            const bounds = historyBounds(mode);
+            document.getElementById('history-total-period').innerText = fmtSigned(sum(bounds));
+            document.getElementById('history-total-week').innerText = fmtSigned(sum(historyBounds('week')));
+            document.getElementById('history-total-month').innerText = fmtSigned(sum(historyBounds('month')));
+            document.getElementById('history-total-all').innerText = formatSecondsToHHMMSS(op.totalSeconds);
+
             const tbody = document.getElementById('history-tbody');
             tbody.innerHTML = '';
-            const hist = op.history || [];
-            if (hist.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500">Nessun turno registrato.</td></tr>';
+            const list = hist.filter(h => inRange(h, bounds));
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500">Nessun turno registrato in questo periodo.</td></tr>';
             }
-            hist.forEach(h => {
+            list.forEach(h => {
                 const isShift = h.type === 'Turno';
                 const sign = h.seconds < 0 ? '-' : (isShift ? '' : '+');
                 const color = h.seconds < 0 ? 'text-red-400' : (isShift ? 'text-amber-300' : 'text-emerald-400');
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-700/30 transition';
                 tr.innerHTML = `
-                    <td class="py-2 px-3 text-xs ${isShift ? 'text-slate-200' : 'text-blue-300'}">${h.type}</td>
+                    <td class="py-2 px-3 text-xs ${isShift ? 'text-slate-200' : 'text-blue-300'}">${esc(h.type)}</td>
                     <td class="py-2 px-3 text-xs text-slate-400">${formatDateTime(h.start)}</td>
                     <td class="py-2 px-3 text-xs text-slate-400">${isShift ? formatDateTime(h.end) : '-'}</td>
                     <td class="py-2 px-3 text-right font-mono ${color}">${sign}${formatSecondsToHHMMSS(Math.abs(h.seconds))}</td>
                 `;
                 tbody.appendChild(tr);
             });
-            document.getElementById('history-modal').classList.remove('hidden');
         }
 
         function closeHistoryModal() {
@@ -898,58 +1188,56 @@
             document.getElementById('requests-counter').innerText = `${db.requests.length} Richieste`;
 
             if (db.requests.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">Nessuna richiesta pervenuta.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Nessuna richiesta pervenuta.</td></tr>`;
+                updateNavBadge();
                 return;
             }
 
             db.requests.forEach(req => {
-                const typeBadge = {
-                    'colloquio': '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-semibold">Colloquio</span>',
-                    'denuncia': '<span class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-xs font-semibold">Denuncia</span>',
-                    'segnalazione': '<span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-semibold">Segnalazione</span>'
-                }[req.type];
-
-                const statusColor = {
-                    'In attesa': 'bg-amber-900/40 text-amber-300 border-amber-700',
-                    'In lavorazione': 'bg-blue-900/40 text-blue-300 border-blue-700',
-                    'Completata': 'bg-emerald-900/40 text-emerald-300 border-emerald-700'
-                }[req.status];
-
+                const assignee = req.assignedTo ? getOp(req.assignedTo) : null;
+                const assigneeText = req.assignedTo ? (assignee ? assignee.name : 'Operatore rimosso') : '-';
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-700/30 transition';
                 tr.innerHTML = `
-                    <td class="py-3 px-4">${typeBadge}</td>
+                    <td class="py-3 px-4">${TYPE_BADGE[req.type] || ''}<div class="font-mono text-[10px] text-slate-500 mt-1">${esc(req.code || '')}</div></td>
                     <td class="py-3 px-4 font-medium text-white">${esc(req.name)}${req.extra && req.extra.phone ? '<div class="text-xs font-normal text-slate-400"><i class="fa-solid fa-phone mr-1"></i>' + esc(req.extra.phone) + '</div>' : ''}</td>
-                    <td class="py-3 px-4 text-slate-300 max-w-md whitespace-pre-line break-words">${esc(requestSummary(req))}</td>
-                    <td class="py-3 px-4 text-xs text-slate-400">${req.date}</td>
-                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-xs border ${statusColor}">${req.status}</span></td>
-                    <td class="py-3 px-4 text-center">
+                    <td class="py-3 px-4 text-slate-300 max-w-xs"><div class="line-clamp-3 whitespace-pre-line break-words">${esc(requestSummary(req))}</div></td>
+                    <td class="py-3 px-4 text-xs text-slate-400">${esc(req.date)}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-xs border ${STATUS_STYLE[req.status] || ''}">${esc(req.status)}</span></td>
+                    <td class="py-3 px-4 text-xs ${req.assignedTo ? 'text-slate-200' : 'text-slate-500'}">${esc(assigneeText)}</td>
+                    <td class="py-3 px-4 text-center whitespace-nowrap">
                         <select onchange="updateRequestStatus(${req.id}, this.value)" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1 focus:outline-none">
                             <option value="In attesa" ${req.status === 'In attesa' ? 'selected' : ''}>In attesa</option>
                             <option value="In lavorazione" ${req.status === 'In lavorazione' ? 'selected' : ''}>In lavorazione</option>
                             <option value="Completata" ${req.status === 'Completata' ? 'selected' : ''}>Completata</option>
                         </select>
+                        <button onclick="openRequestModal(${req.id})" class="ml-2 text-amber-400 hover:text-amber-300" title="Dettagli, assegnazione e note"><i class="fa-solid fa-folder-open text-xs"></i></button>
                         <button onclick="deleteRequest(${req.id})" class="ml-2 text-red-400 hover:text-red-300" title="Elimina richiesta"><i class="fa-solid fa-trash text-xs"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+            updateNavBadge();
         }
 
         function updateRequestStatus(id, newStatus) {
             const req = db.requests.find(r => r.id === id);
             if (req) {
+                const old = req.status;
                 req.status = newStatus;
                 saveDB();
                 renderOperatorRequests();
+                logAction(actorName(), `Richiesta ${req.code}: stato "${old}" -> "${newStatus}"`);
                 showNotification('Stato richiesta aggiornato.');
             }
         }
 
         function deleteRequest(id) {
+            const req = db.requests.find(r => r.id === id);
             db.requests = db.requests.filter(r => r.id !== id);
             saveDB();
             renderOperatorRequests();
+            logAction(actorName(), `Eliminata richiesta ${req ? req.code : id}`);
             showNotification('Richiesta eliminata.');
         }
 
@@ -960,9 +1248,11 @@
             const pass = document.getElementById('admin-pass-input').value.trim();
             if (pass === db.adminPassword) {
                 isAdminLoggedIn = true;
+                logAction('Admin', 'Accesso Area Admin');
                 checkAdminSession();
                 showNotification('Accesso admin effettuato con successo.');
             } else {
+                logAction('Sistema', 'Tentativo di accesso admin fallito');
                 showNotification('Password di comando errata.', 'error');
             }
         }
@@ -973,6 +1263,7 @@
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 renderAdminOperators();
                 loadDiscordSettings();
+                renderAdminLog();
             } else {
                 document.getElementById('admin-login-view').classList.remove('hidden');
                 document.getElementById('admin-dashboard').classList.add('hidden');
@@ -1009,10 +1300,12 @@
                 username: username,
                 password: password,
                 role: role,
+                pwChanged: false,
                 totalSeconds: 0
             };
 
             db.operators.push(newOp);
+            logAction('Admin', `Creato operatore ${name} (${matricola}) con password provvisoria`);
             saveDB();
             renderAdminOperators();
 
@@ -1030,20 +1323,28 @@
             tbody.innerHTML = '';
             document.getElementById('operators-counter').innerText = `${db.operators.length} Operatori`;
 
+            const pending = db.operators.filter(o => !o.pwChanged).length;
+            const pendEl = document.getElementById('pending-pw-counter');
+            pendEl.innerText = `${pending} con password provvisoria`;
+            pendEl.classList.toggle('hidden', pending === 0);
+
             if (db.operators.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Nessun operatore registrato.</td></tr>`;
                 return;
             }
 
             db.operators.forEach((op, index) => {
+                const pwBadge = op.pwChanged
+                    ? '<span class="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border bg-emerald-900/40 text-emerald-300 border-emerald-700"><i class="fa-solid fa-check mr-1"></i>Password personale</span>'
+                    : '<span class="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border bg-amber-900/40 text-amber-300 border-amber-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Password provvisoria</span>';
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-700/30 transition';
                 tr.innerHTML = `
-                    <td class="py-3 px-4 font-mono font-bold text-amber-400">${op.matricola}</td>
-                    <td class="py-3 px-4 font-medium text-white">${op.name}</td>
-                    <td class="py-3 px-4 text-slate-300 font-mono text-xs">${op.username}</td>
+                    <td class="py-3 px-4 font-mono font-bold text-amber-400">${esc(op.matricola)}</td>
+                    <td class="py-3 px-4 font-medium text-white">${esc(op.name)}</td>
+                    <td class="py-3 px-4 text-slate-300 font-mono text-xs">${esc(op.username)}<div>${pwBadge}</div></td>
                     <td class="py-3 px-4">
-                        <input type="text" value="${op.role}" oninput="updateOperatorRole(${index}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="Ruolo libero...">
+                        <input type="text" value="${esc(op.role)}" onchange="updateOperatorRole(${index}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="Ruolo libero...">
                     </td>
                     <td class="py-3 px-4 font-mono text-amber-300">${formatSecondsToHHMMSS(op.totalSeconds)}</td>
                     <td class="py-3 px-4 text-center">
@@ -1056,6 +1357,7 @@
                     <td class="py-3 px-4 text-center">
                         <div class="inline-flex items-center gap-2">
                             <button onclick="openHistoryModal('${op.matricola}')" class="text-amber-400 hover:text-amber-300 p-1" title="Storico ore"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                            <button onclick="openAdminPwModal('${op.matricola}')" class="text-slate-300 hover:text-white p-1" title="Imposta nuova password provvisoria"><i class="fa-solid fa-key"></i></button>
                             <button onclick="deleteOperator('${op.matricola}')" class="text-red-400 hover:text-red-300 p-1" title="Elimina operatore"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </td>
@@ -1065,30 +1367,40 @@
         }
 
         function updateOperatorRole(index, newRole) {
-            db.operators[index].role = newRole;
+            const op = db.operators[index];
+            if (newRole === op.role) return;
+            const old = op.role;
+            op.role = newRole;
             saveDB();
+            logAction('Admin', `Ruolo di ${op.name}: "${old}" -> "${newRole}"`);
         }
 
         function adjustOperatorHours(index, action) {
             const op = db.operators[index];
             const nowIso = new Date().toISOString();
+            let text;
             if (action === 'reset') {
                 addHistory(op, { type: 'Reset admin', start: nowIso, end: nowIso, seconds: -op.totalSeconds });
                 op.totalSeconds = 0;
+                text = `Azzerate le ore di ${op.name}`;
             } else {
                 const before = op.totalSeconds;
                 op.totalSeconds = Math.max(0, before + action);
                 addHistory(op, { type: 'Rettifica admin', start: nowIso, end: nowIso, seconds: op.totalSeconds - before });
+                text = `${action > 0 ? '+1h' : '-1h'} a ${op.name}`;
             }
             saveDB();
             renderAdminOperators();
+            logAction('Admin', text);
             showNotification('Ore di servizio aggiornate.');
         }
 
         function deleteOperator(matricola) {
+            const op = getOp(matricola);
             db.operators = db.operators.filter(o => o.matricola !== matricola);
             saveDB();
             renderAdminOperators();
+            logAction('Admin', `Eliminato operatore ${op ? op.name : matricola}`);
             showNotification('Operatore eliminato dal sistema.');
         }
 
@@ -1113,13 +1425,366 @@
             }
 
             db.adminPassword = p1;
+            logAction('Admin', 'Password admin modificata');
             saveDB();
             closeSettingsModal();
             showNotification('Impostazioni di Comando aggiornate con successo.');
         }
 
+        // ================= COSTANTI STILE =================
+        const TYPE_BADGE = {
+            'colloquio': '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-semibold">Colloquio</span>',
+            'denuncia': '<span class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-xs font-semibold">Denuncia</span>',
+            'segnalazione': '<span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-semibold">Segnalazione</span>'
+        };
+        const STATUS_STYLE = {
+            'In attesa': 'bg-amber-900/40 text-amber-300 border-amber-700',
+            'In lavorazione': 'bg-blue-900/40 text-blue-300 border-blue-700',
+            'Completata': 'bg-emerald-900/40 text-emerald-300 border-emerald-700'
+        };
+        const TYPE_LABEL = { colloquio: 'Colloquio', denuncia: 'Denuncia', segnalazione: 'Segnalazione' };
+
+        // ================= CODICE DI TRACCIAMENTO =================
+        const CODE_PREFIX = { colloquio: 'COL', denuncia: 'DEN', segnalazione: 'SEG' };
+        let lastTrackingCode = '';
+
+        function generateTrackingCode(type) {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code;
+            do {
+                code = (CODE_PREFIX[type] || 'REQ') + '-' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+            } while (db.requests.some(r => r.code === code));
+            return code;
+        }
+
+        function openCodeModal(req) {
+            lastTrackingCode = req.code;
+            document.getElementById('code-title').innerText = (TYPE_LABEL[req.type] || 'Richiesta') + ' inoltrata con successo';
+            document.getElementById('code-value').innerText = req.code;
+            document.getElementById('code-modal').classList.remove('hidden');
+        }
+
+        function closeCodeModal() {
+            document.getElementById('code-modal').classList.add('hidden');
+        }
+
+        function copyTrackingCode() {
+            const done = () => showNotification('Codice copiato negli appunti.');
+            const fail = () => showNotification('Copia non riuscita: seleziona e copia il codice a mano.', 'error');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(lastTrackingCode).then(done, fail);
+            } else {
+                fail();
+            }
+        }
+
+        function checkTrackingCode() {
+            const code = document.getElementById('track-input').value.trim().toUpperCase();
+            const box = document.getElementById('track-result');
+            box.innerHTML = '';
+            const req = code ? db.requests.find(r => (r.code || '').toUpperCase() === code) : null;
+            if (!req) {
+                box.className = 'mt-4 text-sm rounded-xl border border-red-800/60 bg-red-950/30 text-red-300 px-4 py-3';
+                box.textContent = 'Nessuna richiesta trovata con questo codice. Controlla di averlo scritto correttamente.';
+                return;
+            }
+            box.className = 'mt-4 text-sm rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2';
+            [['Tipo', TYPE_LABEL[req.type]], ['Inviata il', req.date], ['Presa in carico', req.assignedTo ? 'Sì' : 'Non ancora']].forEach(([k, v]) => {
+                const d = document.createElement('div');
+                const a = document.createElement('span');
+                a.className = 'text-slate-400 text-xs uppercase tracking-wider mr-2';
+                a.textContent = k;
+                const b = document.createElement('span');
+                b.className = 'text-white font-medium';
+                b.textContent = v;
+                d.append(a, b);
+                box.appendChild(d);
+            });
+            const st = document.createElement('span');
+            st.className = 'px-2 py-0.5 rounded text-xs border ' + (STATUS_STYLE[req.status] || '');
+            st.textContent = 'Stato: ' + req.status;
+            box.appendChild(st);
+        }
+
+        // ================= DETTAGLI RICHIESTA / NOTE / ASSEGNAZIONE =================
+        let currentRequestId = null;
+
+        function openRequestModal(id) {
+            const req = db.requests.find(r => r.id === id);
+            if (!req) return;
+            currentRequestId = id;
+            document.getElementById('rm-title').textContent = TYPE_LABEL[req.type] || 'Richiesta';
+            document.getElementById('rm-code').textContent = req.code || '';
+            document.getElementById('rm-meta').textContent = `Ricevuta il ${req.date}`;
+            const fields = [['Mittente', req.name]];
+            if (req.extra) {
+                fields.push(['Telefono', req.extra.phone || '-'], ['Data e ora del fatto', req.extra.when || '-'], ['Luogo del fatto', req.extra.place || '-'], ['Persona denunciata', req.extra.accused || '-'], ['Cosa denuncia', req.extra.subject || '-']);
+            }
+            const box = document.getElementById('rm-fields');
+            box.innerHTML = '';
+            fields.forEach(([k, v]) => {
+                const d = document.createElement('div');
+                d.className = 'bg-slate-900 border border-slate-700 rounded-xl px-3 py-2';
+                const a = document.createElement('span');
+                a.className = 'block text-[10px] uppercase tracking-wider text-slate-400';
+                a.textContent = k;
+                const b = document.createElement('span');
+                b.className = 'text-slate-100 break-words';
+                b.textContent = v;
+                d.append(a, b);
+                box.appendChild(d);
+            });
+            document.getElementById('rm-content-label').textContent = req.type === 'denuncia' ? 'Più informazioni sulla denuncia' : 'Dettagli';
+            document.getElementById('rm-content').textContent = req.content;
+            document.getElementById('rm-status').value = req.status;
+
+            const sel = document.getElementById('rm-assignee');
+            sel.innerHTML = '';
+            const none = document.createElement('option');
+            none.value = '';
+            none.textContent = 'Nessuno';
+            sel.appendChild(none);
+            db.operators.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = o.matricola;
+                opt.textContent = `${o.name} (${o.matricola})`;
+                sel.appendChild(opt);
+            });
+            sel.value = req.assignedTo || '';
+            document.getElementById('rm-note-input').value = '';
+            renderRequestNotes(req);
+            document.getElementById('request-modal').classList.remove('hidden');
+        }
+
+        function closeRequestModal() {
+            document.getElementById('request-modal').classList.add('hidden');
+            currentRequestId = null;
+        }
+
+        function renderRequestNotes(req) {
+            const box = document.getElementById('rm-notes');
+            box.innerHTML = '';
+            const notes = req.notes || [];
+            if (notes.length === 0) {
+                const e = document.createElement('p');
+                e.className = 'text-xs text-slate-500';
+                e.textContent = 'Nessuna nota interna.';
+                box.appendChild(e);
+                return;
+            }
+            notes.forEach(n => {
+                const d = document.createElement('div');
+                d.className = 'bg-slate-900 border border-slate-700 rounded-xl px-3 py-2';
+                const h = document.createElement('div');
+                h.className = 'text-[10px] text-slate-400 mb-0.5';
+                h.textContent = `${n.author} - ${formatDateTime(n.ts)}`;
+                const t = document.createElement('div');
+                t.className = 'text-sm text-slate-200 whitespace-pre-line break-words';
+                t.textContent = n.text;
+                d.append(h, t);
+                box.appendChild(d);
+            });
+        }
+
+        function setRequestAssignee(matricola) {
+            const req = db.requests.find(r => r.id === currentRequestId);
+            if (!req) return;
+            req.assignedTo = matricola || null;
+            const op = matricola ? getOp(matricola) : null;
+            saveDB();
+            renderOperatorRequests();
+            logAction(actorName(), `Richiesta ${req.code} assegnata a ${op ? op.name : 'nessuno'}`);
+            showNotification('Assegnazione aggiornata.');
+        }
+
+        function takeRequest() {
+            const req = db.requests.find(r => r.id === currentRequestId);
+            if (!req || !currentOperator) return;
+            req.assignedTo = currentOperator.matricola;
+            if (req.status === 'In attesa') req.status = 'In lavorazione';
+            saveDB();
+            renderOperatorRequests();
+            document.getElementById('rm-assignee').value = req.assignedTo;
+            document.getElementById('rm-status').value = req.status;
+            logAction(actorName(), `Presa in carico la richiesta ${req.code}`);
+            showNotification('Richiesta presa in carico.');
+        }
+
+        function addRequestNote() {
+            const req = db.requests.find(r => r.id === currentRequestId);
+            const input = document.getElementById('rm-note-input');
+            const text = input.value.trim();
+            if (!req || !text) return;
+            if (!req.notes) req.notes = [];
+            req.notes.push({ ts: new Date().toISOString(), author: actorName(), text: text });
+            input.value = '';
+            saveDB();
+            renderRequestNotes(req);
+            logAction(actorName(), `Aggiunta nota interna alla richiesta ${req.code}`);
+        }
+
+        // ================= PASSWORD OPERATORE =================
+        let pwModalForced = false;
+
+        function openPasswordModal(forced) {
+            pwModalForced = !!forced;
+            document.getElementById('fpw-new').value = '';
+            document.getElementById('fpw-confirm').value = '';
+            document.getElementById('fpw-title').innerText = forced ? 'Cambio password obbligatorio' : 'Cambia password';
+            document.getElementById('fpw-subtitle').innerText = forced
+                ? 'Stai usando una password provvisoria assegnata dal comando. Per continuare devi sceglierne una personale.'
+                : 'Scegli una nuova password personale.';
+            document.getElementById('fpw-cancel').innerText = forced ? 'Esci' : 'Annulla';
+            document.getElementById('force-pw-modal').classList.remove('hidden');
+        }
+
+        function cancelPasswordModal() {
+            document.getElementById('force-pw-modal').classList.add('hidden');
+            if (pwModalForced) logoutOperator();
+        }
+
+        function submitPasswordChange(event) {
+            event.preventDefault();
+            const p1 = document.getElementById('fpw-new').value;
+            const p2 = document.getElementById('fpw-confirm').value;
+            const op = currentOperator ? getOp(currentOperator.matricola) : null;
+            if (!op) return;
+            if (p1.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
+            if (p1 !== p2) { showNotification('Le password non coincidono.', 'error'); return; }
+            if (p1 === op.password) { showNotification('La nuova password deve essere diversa da quella attuale.', 'error'); return; }
+            op.password = p1;
+            op.pwChanged = true;
+            currentOperator = op;
+            pwModalForced = false;
+            document.getElementById('force-pw-modal').classList.add('hidden');
+            logAction(op.name, 'Ha cambiato la propria password');
+            showNotification('Password aggiornata con successo.');
+        }
+
+        // ================= ADMIN: PASSWORD PROVVISORIA + REGISTRO =================
+        let adminPwTarget = null;
+
+        function openAdminPwModal(matricola) {
+            const op = getOp(matricola);
+            if (!op) return;
+            adminPwTarget = matricola;
+            document.getElementById('apw-subtitle').innerText = `Operatore: ${op.name} (${op.matricola})`;
+            document.getElementById('apw-input').value = '';
+            document.getElementById('admin-pw-modal').classList.remove('hidden');
+        }
+
+        function closeAdminPwModal() {
+            document.getElementById('admin-pw-modal').classList.add('hidden');
+            adminPwTarget = null;
+        }
+
+        function saveAdminPw(event) {
+            event.preventDefault();
+            const op = getOp(adminPwTarget);
+            const pw = document.getElementById('apw-input').value.trim();
+            if (!op || pw.length < 4) return;
+            op.password = pw;
+            op.pwChanged = false;
+            closeAdminPwModal();
+            renderAdminOperators();
+            logAction('Admin', `Impostata nuova password provvisoria per ${op.name}`);
+            showNotification('Password provvisoria impostata: dovrà essere cambiata al prossimo accesso.');
+        }
+
+        function renderAdminLog() {
+            const tbody = document.getElementById('admin-log-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            document.getElementById('log-counter').innerText = `${db.log.length} azioni`;
+            if (db.log.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-slate-500">Nessuna azione registrata.</td></tr>';
+                return;
+            }
+            db.log.slice(0, 100).forEach(l => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/30 transition';
+                tr.innerHTML = `
+                    <td class="py-2 px-4 text-xs text-slate-400 whitespace-nowrap">${formatDateTime(l.ts)}</td>
+                    <td class="py-2 px-4 text-xs font-medium text-amber-300">${esc(l.actor)}</td>
+                    <td class="py-2 px-4 text-xs text-slate-200">${esc(l.text)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ================= AVVISI NUOVE RICHIESTE =================
+        let soundEnabled = localStorage.getItem('carabinieri_sound') !== 'off';
+
+        function updateSoundButton() {
+            const b = document.getElementById('sound-btn');
+            if (b) b.innerHTML = soundEnabled ? '<i class="fa-solid fa-bell"></i>' : '<i class="fa-solid fa-bell-slash text-slate-500"></i>';
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('carabinieri_sound', soundEnabled ? 'on' : 'off');
+            updateSoundButton();
+            if (soundEnabled) playAlert();
+            showNotification(soundEnabled ? 'Avviso sonoro attivato.' : 'Avviso sonoro disattivato.');
+        }
+
+        function playAlert() {
+            if (!soundEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                [880, 1175].forEach((f, i) => {
+                    const o = ctx.createOscillator();
+                    const g = ctx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f;
+                    o.connect(g);
+                    g.connect(ctx.destination);
+                    const t = ctx.currentTime + i * 0.18;
+                    g.gain.setValueAtTime(0.0001, t);
+                    g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+                    o.start(t);
+                    o.stop(t + 0.17);
+                });
+                setTimeout(() => ctx.close(), 700);
+            } catch (e) { /* audio non disponibile */ }
+        }
+
+        function updateNavBadge() {
+            const b = document.getElementById('nav-op-badge');
+            if (!b) return;
+            const n = currentOperator ? db.requests.filter(r => r.status === 'In attesa').length : 0;
+            b.textContent = n;
+            b.classList.toggle('hidden', n === 0);
+        }
+
+        // Nuove richieste inviate da un'altra scheda dello stesso browser
+        window.addEventListener('storage', (e) => {
+            if (e.key !== 'carabinieri_requests') return;
+            let fresh;
+            try { fresh = JSON.parse(e.newValue) || []; } catch (err) { return; }
+            const known = new Set(db.requests.map(r => r.id));
+            const added = fresh.filter(r => !known.has(r.id));
+            db.requests = fresh;
+            if (currentOperator) {
+                if (!document.getElementById('tab-operator').classList.contains('hidden')) renderOperatorRequests();
+                else updateNavBadge();
+                if (added.length) {
+                    playAlert();
+                    showNotification(added.length === 1
+                        ? `Nuova richiesta ricevuta: ${added[0].code || TYPE_LABEL[added[0].type]}`
+                        : `${added.length} nuove richieste ricevute.`);
+                }
+            }
+        });
+
         // Initialize view on load
         window.onload = function() {
+            db.requests.forEach(r => {
+                if (!r.code) r.code = generateTrackingCode(r.type);
+                if (!r.notes) r.notes = [];
+            });
+            saveDB();
             // Check if operator session was active
             if (currentOperator) {
                 // verify exists
