@@ -216,7 +216,7 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <button id="sound-btn" onclick="toggleSound()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm border border-slate-600" title="Avviso sonoro per nuove richieste"><i class="fa-solid fa-bell"></i></button>
                         <button onclick="openPasswordModal(false)" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-sm font-semibold transition border border-slate-600" title="Cambia password"><i class="fa-solid fa-key sm:mr-1.5"></i><span class="hidden sm:inline">Password</span></button>
-                        <button onclick="openHistoryModal(currentOperator.matricola)" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition border border-slate-600">
+                        <button onclick="openMyHistory()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition border border-slate-600">
                             <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Storico Turni
                         </button>
                         <button onclick="logoutOperator()" class="px-4 py-2 bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-white rounded-xl text-sm font-semibold transition border border-slate-600">
@@ -269,7 +269,11 @@
                 </div>
                 <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Codice / Password Admin</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email amministratore</label>
+                        <input type="email" id="admin-email-input" required autocomplete="username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="admin@esempio.it">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password</label>
                         <input type="password" id="admin-pass-input" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Password comando...">
                     </div>
                     <button type="submit" class="w-full py-3 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow">
@@ -344,7 +348,7 @@
                         </div>
                         <div class="flex-1 w-full">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password Provvisoria</label>
-                            <input type="text" id="new-op-password" required placeholder="Inserisci password..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <input type="text" id="new-op-password" required minlength="6" placeholder="Inserisci password..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
                         </div>
                         <div class="flex-1 w-full">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Ruolo Iniziale (Testo Libero)</label>
@@ -431,7 +435,7 @@
                 <input type="hidden" id="citizen-req-type">
                 <div>
                     <label id="citizen-name-label" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome e Cognome (o Anonimo)</label>
-                    <input type="text" id="citizen-name" required placeholder="Es. Mario Rossi o Anonimo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <input type="text" id="citizen-name" required maxlength="100" placeholder="Es. Mario Rossi o Anonimo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div id="denuncia-fields" class="hidden space-y-4">
                     <div>
@@ -464,7 +468,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1" id="citizen-content-label">Dettagli / Contenuto</label>
-                    <textarea id="citizen-content" rows="4" required placeholder="Scrivi qui i dettagli..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
+                    <textarea id="citizen-content" rows="4" required maxlength="3000" placeholder="Scrivi qui i dettagli..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" onclick="closeCitizenModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">
@@ -485,9 +489,13 @@
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
             <h3 class="text-xl font-bold text-white mb-1">Impostazioni di Comando</h3>
-            <p class="text-xs text-slate-400 mb-4">Modifica la password di accesso amministrativo o resetta le credenziali.</p>
+            <p class="text-xs text-slate-400 mb-4">Modifica la password del tuo account amministratore.</p>
 
             <form onsubmit="saveCommandSettings(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password attuale</label>
+                    <input type="password" id="current-admin-password" required autocomplete="current-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Password attuale...">
+                </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nuova Password Admin</label>
                     <input type="password" id="new-admin-password" required placeholder="Inserisci nuova password admin..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
@@ -590,7 +598,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Stato</label>
-                    <select id="rm-status" onchange="updateRequestStatus(currentRequestId, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <select id="rm-status" onchange="modalStatusChange(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                         <option value="In attesa">In attesa</option>
                         <option value="In lavorazione">In lavorazione</option>
                         <option value="Completata">Completata</option>
@@ -622,6 +630,10 @@
             </div>
             <form onsubmit="submitPasswordChange(event)" class="space-y-4">
                 <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password attuale (provvisoria)</label>
+                    <input type="password" id="fpw-current" required autocomplete="current-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Password ricevuta dal comando">
+                </div>
+                <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nuova password</label>
                     <input type="password" id="fpw-new" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Almeno 6 caratteri">
                 </div>
@@ -638,27 +650,7 @@
         </div>
     </div>
 
-    <!-- Admin: set provisional password for an operator -->
-    <div id="admin-pw-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeAdminPwModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <h3 class="text-xl font-bold text-white mb-1">Nuova password provvisoria</h3>
-            <p id="apw-subtitle" class="text-xs text-slate-400 mb-4"></p>
-            <form onsubmit="saveAdminPw(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password provvisoria</label>
-                    <input type="text" id="apw-input" required minlength="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Inserisci password provvisoria...">
-                </div>
-                <div class="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 text-[11px] text-amber-200"><i class="fa-solid fa-circle-info mt-0.5 text-amber-400"></i><span>L'operatore dovrà sostituirla con una password personale al prossimo accesso.</span></div>
-                <div class="flex justify-end gap-3 pt-1">
-                    <button type="button" onclick="closeAdminPwModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Annulla</button>
-                    <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">Imposta password</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Custom Notification Box (Instead of alert) -->
+        <!-- Custom Notification Box (Instead of alert) -->
     <div id="notification-box" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-800 border border-amber-500/50 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
         <i id="notif-icon" class="fa-solid fa-circle-check text-amber-400 text-lg"></i>
         <span id="notif-text" class="text-sm font-medium">Messaggio di notifica</span>
@@ -670,1128 +662,1194 @@
     </footer>
 
     <!-- ================= APPLICATION SCRIPT ================= -->
-    <script>
-        // Password admin predefinita: Carabinieri2026 (chiave _v2 per ignorare la vecchia password salvata)
-        // Facoltativo: incolla qui il link webhook Discord per farlo funzionare anche dai dispositivi dei cittadini
-        const DEFAULT_DISCORD_WEBHOOK = '';
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-        let db = {
-            operators: JSON.parse(localStorage.getItem('carabinieri_operators')) || [
-                { matricola: 'CC-1001', name: 'Maresciallo Capo Marco Rossi', username: 'm.rossi', password: 'password123', role: 'Maresciallo Capo', totalSeconds: 0 },
-                { matricola: 'CC-1042', name: 'Appuntato Scelto Luca Bianchi', username: 'l.bianchi', password: 'password123', role: 'Appuntato Scelto', totalSeconds: 0 }
-            ],
-            requests: JSON.parse(localStorage.getItem('carabinieri_requests')) || [
-                { id: 1, type: 'colloquio', name: 'Giuseppe Verdi', content: 'Richiesta colloquio informativo per porto d armi.', date: '29/09/2026 10:30', status: 'In attesa' },
-                { id: 2, type: 'denuncia', name: 'Anonimo', content: 'Segnalazione furto autovettura in sosta.', date: '29/09/2026 11:15', status: 'In lavorazione' }
-            ],
-            adminPassword: localStorage.getItem('carabinieri_admin_pass_v2') || 'Carabinieri2026',
-            discordWebhook: localStorage.getItem('carabinieri_discord_webhook') || DEFAULT_DISCORD_WEBHOOK,
-            log: JSON.parse(localStorage.getItem('carabinieri_log')) || []
-        };
+// ================= FIREBASE =================
+const firebaseConfig = {
+    apiKey: "AIzaSyBktjEygi9VKCtKYqLABnucTaX2vPuCzts",
+    authDomain: "cc-rp-ae56e.firebaseapp.com",
+    projectId: "cc-rp-ae56e",
+    storageBucket: "cc-rp-ae56e.firebasestorage.app",
+    messagingSenderId: "225517187546",
+    appId: "1:225517187546:web:2f65110d5cc8e7918ad0e3"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const fs = getFirestore(app);
+let secondaryApp = null; // usata solo per creare account operatore senza uscire dall'admin
 
-        let currentOperator = JSON.parse(localStorage.getItem('carabinieri_current_op')) || null;
-        let dutyInterval = null;
-        let isDutyActive = false;
+const EMAIL_DOMAIN = 'portale.local'; // gli username diventano username@portale.local
+// Facoltativo: link webhook Discord valido per tutti i dispositivi (visibile a chi legge il codice della pagina)
+const DEFAULT_DISCORD_WEBHOOK = '';
 
-        function saveDB() {
-            localStorage.setItem('carabinieri_operators', JSON.stringify(db.operators));
-            localStorage.setItem('carabinieri_requests', JSON.stringify(db.requests));
-            localStorage.setItem('carabinieri_admin_pass_v2', db.adminPassword);
-            localStorage.setItem('carabinieri_discord_webhook', db.discordWebhook || '');
-            localStorage.setItem('carabinieri_log', JSON.stringify(db.log));
-            if (currentOperator) {
-                localStorage.setItem('carabinieri_current_op', JSON.stringify(currentOperator));
-            } else {
-                localStorage.removeItem('carabinieri_current_op');
-            }
-        }
+// Cache locali alimentate in tempo reale da Firestore
+let db = {
+    requests: [],
+    operators: [],
+    log: [],
+    discordWebhook: localStorage.getItem('carabinieri_discord_webhook') || DEFAULT_DISCORD_WEBHOOK
+};
+let currentUser = null;
+let sessionRole = null;      // 'operator' | 'admin' | null
+let currentOperator = null;  // documento dell'operatore collegato
+let isAdminLoggedIn = false;
+let loginIntent = null;      // 'operator' | 'admin' durante un login manuale
+let unsubs = [];
+let firstRequestsSnap = true;
+let adminViewInit = false;
+let dutyInterval = null;
+let isDutyActive = false;
 
-        // Salvataggio leggero usato dal timbro (non tocca richieste e registro)
-        function saveOperatorsOnly() {
-            localStorage.setItem('carabinieri_operators', JSON.stringify(db.operators));
-            if (currentOperator) localStorage.setItem('carabinieri_current_op', JSON.stringify(currentOperator));
-        }
+const TYPE_BADGE = {
+    'colloquio': '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-semibold">Colloquio</span>',
+    'denuncia': '<span class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-xs font-semibold">Denuncia</span>',
+    'segnalazione': '<span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-semibold">Segnalazione</span>'
+};
+const STATUS_STYLE = {
+    'In attesa': 'bg-amber-900/40 text-amber-300 border-amber-700',
+    'In lavorazione': 'bg-blue-900/40 text-blue-300 border-blue-700',
+    'Completata': 'bg-emerald-900/40 text-emerald-300 border-emerald-700'
+};
+const TYPE_LABEL = { colloquio: 'Colloquio', denuncia: 'Denuncia', segnalazione: 'Segnalazione' };
+const CODE_PREFIX = { colloquio: 'COL', denuncia: 'DEN', segnalazione: 'SEG' };
 
-        function actorName() {
-            return currentOperator ? currentOperator.name : 'Sistema';
-        }
+// ================= UTILITA' =================
+function esc(t) {
+    return String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
-        function logAction(actor, text) {
-            db.log.unshift({ ts: new Date().toISOString(), actor: actor, text: text });
-            if (db.log.length > 300) db.log.length = 300;
-            saveDB();
-            if (isAdminLoggedIn) renderAdminLog();
-        }
+function showNotification(msg, type = 'success') {
+    const box = document.getElementById('notification-box');
+    const text = document.getElementById('notif-text');
+    const icon = document.getElementById('notif-icon');
+    text.innerText = msg;
+    icon.className = type === 'success' ? 'fa-solid fa-circle-check text-amber-400 text-lg' : 'fa-solid fa-triangle-exclamation text-red-400 text-lg';
+    box.classList.remove('translate-y-24', 'opacity-0');
+    clearTimeout(showNotification.t);
+    showNotification.t = setTimeout(() => box.classList.add('translate-y-24', 'opacity-0'), 3500);
+}
 
-        function showNotification(msg, type = 'success') {
-            const box = document.getElementById('notification-box');
-            const text = document.getElementById('notif-text');
-            const icon = document.getElementById('notif-icon');
+function formatSecondsToHHMMSS(totalSecs) {
+    const h = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
+    const m = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
+    const s = String(totalSecs % 60).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+}
 
-            text.innerText = msg;
-            icon.className = type === 'success' ? 'fa-solid fa-circle-check text-amber-400 text-lg' : 'fa-solid fa-triangle-exclamation text-red-400 text-lg';
+function fmtSigned(sec) {
+    return (sec < 0 ? '-' : '') + formatSecondsToHHMMSS(Math.abs(sec));
+}
 
-            box.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => {
-                box.classList.add('translate-y-24', 'opacity-0');
-            }, 3500);
-        }
+function formatDateTime(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
 
-        function switchTab(tabId) {
-            ['home', 'operator', 'admin'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).classList.remove('bg-red-900/60', 'text-amber-300', 'border', 'border-red-700');
-                document.getElementById(`nav-${t}`).classList.add('bg-slate-700/50', 'text-slate-300');
-            });
+function usernameToEmail(u) {
+    return u.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '') + '@' + EMAIL_DOMAIN;
+}
 
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabId}`).classList.remove('bg-slate-700/50', 'text-slate-300');
-            document.getElementById(`nav-${tabId}`).classList.add('bg-red-900/60', 'text-amber-300', 'border', 'border-red-700');
+function authErrorText(e) {
+    const c = e && e.code;
+    if (['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found', 'auth/invalid-email'].includes(c)) return 'Credenziali non valide.';
+    if (c === 'auth/operation-not-allowed') return 'Accesso Email/Password non attivo nel progetto Firebase.';
+    if (c === 'auth/too-many-requests') return 'Troppi tentativi: riprova tra qualche minuto.';
+    if (c === 'auth/network-request-failed') return 'Connessione assente.';
+    if (c === 'auth/weak-password') return 'Password troppo debole (minimo 6 caratteri).';
+    return 'Errore di autenticazione' + (c ? ` (${c})` : '.');
+}
 
-            const tabEl = document.getElementById(`tab-${tabId}`);
-            tabEl.classList.remove('fade-in');
-            void tabEl.offsetWidth;
-            tabEl.classList.add('fade-in');
+async function tryWrite(promise, okMsg) {
+    try {
+        await promise;
+        if (okMsg) showNotification(okMsg);
+        return true;
+    } catch (e) {
+        console.error(e);
+        showNotification(e && e.code === 'permission-denied' ? 'Operazione non consentita dalle regole di sicurezza.' : 'Operazione non riuscita. Riprova.', 'error');
+        return false;
+    }
+}
 
-            if (tabId === 'operator') {
-                checkOperatorSession();
-            }
-            if (tabId === 'admin') {
-                checkAdminSession();
-            }
-        }
+function getOp(id) {
+    return db.operators.find(o => o.uid === id || o.matricola === id);
+}
 
-        function openCitizenModal(type) {
-            document.getElementById('citizen-modal').classList.remove('hidden');
-            document.getElementById('citizen-req-type').value = type;
-            const titles = {
-                'colloquio': ['Prenotazione Colloquio', 'Inserisci i tuoi dati per richiedere un appuntamento.'],
-                'denuncia': ['Presentazione Denuncia', 'Fornisci dettagli precisi in merito alla denuncia da presentare.'],
-                'segnalazione': ['Segnalazione Anonima', 'Le informazioni inviate rimarranno rigorosamente anonime.']
-            };
-            document.getElementById('citizen-modal-title').innerText = titles[type][0];
-            document.getElementById('citizen-modal-subtitle').innerText = titles[type][1];
-            document.getElementById('citizen-name').value = type === 'segnalazione' ? 'Anonimo' : '';
-            document.getElementById('citizen-content').value = '';
+function actorName() {
+    if (currentOperator) return currentOperator.name;
+    return isAdminLoggedIn ? 'Admin' : 'Sistema';
+}
 
-            const isDen = type === 'denuncia';
-            document.getElementById('denuncia-fields').classList.toggle('hidden', !isDen);
-            document.getElementById('citizen-phone').value = '';
-            document.getElementById('citizen-subject').value = '';
-            const nowLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-            const whenEl = document.getElementById('citizen-fact-when');
-            whenEl.value = '';
-            whenEl.max = nowLocal;
-            whenEl.required = isDen;
-            document.getElementById('citizen-fact-place').value = '';
-            document.getElementById('citizen-fact-place').required = isDen;
-            document.getElementById('citizen-accused-type').value = 'noto';
-            document.getElementById('citizen-accused-name').value = '';
-            document.getElementById('citizen-phone').required = isDen;
-            document.getElementById('citizen-subject').required = isDen;
-            toggleAccusedName();
-            document.getElementById('citizen-name-label').innerText = isDen ? 'Nome e Cognome di chi denuncia' : 'Nome e Cognome (o Anonimo)';
-            document.getElementById('citizen-content-label').innerText = isDen ? 'Più informazioni sulla denuncia' : 'Dettagli / Contenuto';
-        }
+function logAction(actor, text) {
+    if (!currentUser) return;
+    addDoc(collection(fs, 'log'), { ts: serverTimestamp(), actor: actor, text: text }).catch(e => console.error(e));
+}
 
-        function closeCitizenModal() {
-            document.getElementById('citizen-modal').classList.add('hidden');
-        }
+// ================= SESSIONE / AUTH =================
+async function resolveRole(user) {
+    try {
+        const adm = await getDoc(doc(fs, 'admins', user.uid));
+        if (adm.exists()) return 'admin';
+    } catch (e) { /* non admin */ }
+    try {
+        const op = await getDoc(doc(fs, 'operators', user.uid));
+        if (op.exists()) return 'operator';
+    } catch (e) { /* non operatore */ }
+    return null;
+}
 
-        function toggleAccusedName() {
-            const known = document.getElementById('citizen-accused-type').value === 'noto';
-            const isDen = !document.getElementById('denuncia-fields').classList.contains('hidden');
-            document.getElementById('accused-name-wrap').classList.toggle('hidden', !known);
-            document.getElementById('citizen-accused-name').required = known && isDen;
-        }
+function stopListeners() {
+    unsubs.forEach(f => { try { f(); } catch (e) {} });
+    unsubs = [];
+    db.requests = [];
+    db.operators = [];
+    db.log = [];
+    firstRequestsSnap = true;
+    adminViewInit = false;
+}
 
-        function esc(t) {
-            return String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        }
+function onListenError(err) {
+    console.error(err);
+    showNotification('Errore di sincronizzazione con il database.', 'error');
+}
 
-        function requestSummary(req) {
-            if (req.type === 'denuncia' && req.extra) {
-                return `Cosa denuncia: ${req.extra.subject}\nFatto: ${req.extra.when || '-'} - ${req.extra.place || '-'}\nDenunciato: ${req.extra.accused}\nInfo: ${req.content}`;
-            }
-            return req.content;
-        }
-
-        async function submitCitizenRequest(event) {
-            event.preventDefault();
-            const type = document.getElementById('citizen-req-type').value;
-            const name = document.getElementById('citizen-name').value;
-            const content = document.getElementById('citizen-content').value;
-
-            const now = new Date();
-            const dateStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-            const newReq = {
-                id: Date.now(),
-                type: type,
-                name: name,
-                content: content,
-                date: dateStr,
-                status: 'In attesa',
-                code: generateTrackingCode(type),
-                assignedTo: null,
-                notes: []
-            };
-
-            if (type === 'denuncia') {
-                const known = document.getElementById('citizen-accused-type').value === 'noto';
-                newReq.extra = {
-                    phone: document.getElementById('citizen-phone').value.trim(),
-                    accused: known ? document.getElementById('citizen-accused-name').value.trim() : 'Ignoto',
-                    subject: document.getElementById('citizen-subject').value.trim(),
-                    when: formatDateTime(document.getElementById('citizen-fact-when').value),
-                    place: document.getElementById('citizen-fact-place').value.trim()
-                };
-            }
-
-            db.requests.unshift(newReq);
-            saveDB();
-            closeCitizenModal();
-            openCodeModal(newReq);
-            if (!document.getElementById('tab-operator').classList.contains('hidden')) {
-                renderOperatorRequests();
-            }
-
-            if (type === 'denuncia' && db.discordWebhook) {
-                const ok = await sendDenunciaToDiscord(newReq);
-                if (!ok) showNotification('Denuncia salvata, ma invio a Discord non riuscito.', 'error');
-            }
-        }
-
-        // ---------- Discord ----------
-        function isValidWebhook(url) {
-            return /^https:\/\/(?:ptb\.|canary\.)?discord(?:app)?\.com\/api\/webhooks\/\d+\/[\w-]+/.test(url);
-        }
-
-        async function postToDiscord(url, payload) {
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                return res.ok;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        function sendDenunciaToDiscord(req) {
-            const cut = (t, n = 1000) => { t = String(t || '-'); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
-            const ex = req.extra || {};
-            return postToDiscord(db.discordWebhook, {
-                username: 'Portale Carabinieri RP',
-                allowed_mentions: { parse: [] },
-                embeds: [{
-                    title: '🚨 Nuova denuncia',
-                    color: 0x1e40af,
-                    fields: [
-                        { name: 'Denunciante', value: cut(req.name), inline: true },
-                        { name: 'Telefono', value: cut(ex.phone), inline: true },
-                        { name: 'Codice', value: cut(req.code), inline: true },
-                        { name: 'Data e luogo del fatto', value: cut((ex.when || '-') + ' - ' + (ex.place || '-')) },
-                        { name: 'Persona denunciata', value: cut(ex.accused) },
-                        { name: 'Cosa denuncia', value: cut(ex.subject) },
-                        { name: 'Ulteriori informazioni', value: cut(req.content) }
-                    ],
-                    footer: { text: 'Ricevuta il ' + req.date },
-                    timestamp: new Date().toISOString()
-                }]
-            });
-        }
-
-        function updateDiscordStatus() {
-            const el = document.getElementById('discord-status');
-            if (db.discordWebhook) {
-                el.innerText = 'Canale collegato: le nuove denunce vengono inviate su Discord.';
-                el.className = 'text-xs mt-3 text-emerald-400';
-            } else {
-                el.innerText = 'Nessun canale collegato.';
-                el.className = 'text-xs mt-3 text-slate-500';
-            }
-        }
-
-        function loadDiscordSettings() {
-            document.getElementById('discord-webhook-input').value = db.discordWebhook || '';
-            updateDiscordStatus();
-        }
-
-        function saveDiscordWebhook() {
-            const url = document.getElementById('discord-webhook-input').value.trim();
-            if (url && !isValidWebhook(url)) {
-                showNotification('Link webhook Discord non valido.', 'error');
+function startListeners(user) {
+    unsubs.push(onSnapshot(collection(fs, 'operators'), snap => {
+        db.operators = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+        if (sessionRole === 'operator') {
+            currentOperator = db.operators.find(o => o.uid === user.uid) || null;
+            if (!currentOperator) {
+                showNotification('Il tuo account operatore è stato rimosso.', 'error');
+                signOut(auth);
                 return;
             }
-            db.discordWebhook = url;
-            logAction('Admin', url ? 'Canale Discord denunce aggiornato' : 'Collegamento Discord rimosso');
-            saveDB();
-            updateDiscordStatus();
-            showNotification(url ? 'Canale Discord salvato.' : 'Collegamento Discord rimosso.');
-        }
-
-        async function testDiscordWebhook() {
-            const url = document.getElementById('discord-webhook-input').value.trim();
-            if (!isValidWebhook(url)) {
-                showNotification('Inserisci prima un link webhook Discord valido.', 'error');
-                return;
-            }
-            const btn = document.getElementById('discord-test-btn');
-            btn.disabled = true;
-            const ok = await postToDiscord(url, {
-                username: 'Portale Carabinieri RP',
-                allowed_mentions: { parse: [] },
-                content: '✅ **Test di collegamento riuscito.** Le denunce del Portale Arma dei Carabinieri RP arriveranno in questo canale.'
-            });
-            btn.disabled = false;
-            showNotification(ok ? 'Test riuscito: controlla il canale Discord.' : 'Test fallito: controlla il link del webhook.', ok ? 'success' : 'error');
-        }
-
-        function handleOperatorLogin(event) {
-            event.preventDefault();
-            const u = document.getElementById('op-user').value.trim();
-            const p = document.getElementById('op-pass').value.trim();
-
-            const found = db.operators.find(op => op.username === u && op.password === p);
-            if (found) {
-                currentOperator = found;
-                saveDB();
-                checkOperatorSession();
-                logAction(found.name, 'Accesso Area Operatori');
-                showNotification(`Benvenuto, ${found.name}`);
-            } else {
-                showNotification('Credenziali operatore non valide.', 'error');
+            if (loginIntent === 'operator') {
+                loginIntent = null;
+                showNotification(`Benvenuto, ${currentOperator.name}`);
+                logAction(currentOperator.name, 'Accesso Area Operatori');
             }
         }
-
-        function checkOperatorSession() {
-            if (currentOperator) {
-                // Ensure currentOperator is synced with DB
-                const latestOp = db.operators.find(o => o.matricola === currentOperator.matricola);
-                if (latestOp) currentOperator = latestOp;
-
-                document.getElementById('operator-login-view').classList.add('hidden');
-                document.getElementById('operator-dashboard').classList.remove('hidden');
-                document.getElementById('op-welcome-name').innerText = currentOperator.name;
-                document.getElementById('op-welcome-role').innerText = `${currentOperator.role} (${currentOperator.matricola})`;
-                if (!isDutyActive && currentOperator.shift) {
-                    finalizeShift(currentOperator); // turno interrotto (pagina chiusa)
-                    saveDB();
-                }
-                setDutyButtons(isDutyActive);
-                updateSoundButton();
-                renderOperatorRequests();
-                updateTimerDisplay();
-                if (!currentOperator.pwChanged) openPasswordModal(true);
-            } else {
-                document.getElementById('operator-login-view').classList.remove('hidden');
-                document.getElementById('operator-dashboard').classList.add('hidden');
-                if (dutyInterval) clearInterval(dutyInterval);
-                isDutyActive = false;
-            }
-        }
-
-        function logoutOperator() {
-            endDuty(true);
-            currentOperator = null;
-            saveDB();
-            checkOperatorSession();
-            updateNavBadge();
-            showNotification('Disconnessione effettuata.');
-        }
-
-        function formatSecondsToHHMMSS(totalSecs) {
-            const h = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
-            const m = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
-            const s = String(totalSecs % 60).padStart(2, '0');
-            return `${h}:${m}:${s}`;
-        }
-
-        function updateTimerDisplay() {
-            if (!currentOperator) return;
-            const sh = currentOperator.shift;
-            document.getElementById('live-timer').innerText = formatSecondsToHHMMSS(sh ? sh.seconds : 0);
-            document.getElementById('live-total').innerText = formatSecondsToHHMMSS(currentOperator.totalSeconds);
-            document.getElementById('live-since').innerText = sh
-                ? 'In servizio dalle ' + new Date(sh.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
-                : 'Fuori servizio';
-        }
-
-        function getOp(matricola) {
-            return db.operators.find(o => o.matricola === matricola);
-        }
-
-        function formatDateTime(iso) {
-            const d = new Date(iso);
-            return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        }
-
-        function addHistory(op, entry) {
-            if (!op.history) op.history = [];
-            op.history.unshift(entry);
-        }
-
-        // Chiude il turno in corso e lo salva nello storico
-        function finalizeShift(op) {
-            if (!op || !op.shift) return;
-            if (op.shift.seconds > 0) {
-                const startMs = new Date(op.shift.start).getTime();
-                addHistory(op, {
-                    type: 'Turno',
-                    start: op.shift.start,
-                    end: new Date(startMs + op.shift.seconds * 1000).toISOString(),
-                    seconds: op.shift.seconds
-                });
-            }
-            op.shift = null;
-        }
-
-        function setDutyButtons(active) {
-            const startBtn = document.getElementById('timer-toggle-btn');
-            const exitBtn = document.getElementById('duty-exit-btn');
-            if (active) {
-                startBtn.disabled = true;
-                startBtn.innerHTML = '<i class="fa-solid fa-circle text-xs mr-1 animate-pulse"></i> In Servizio';
-                startBtn.className = 'px-3 py-1 bg-amber-600 text-white text-xs font-semibold rounded-lg shadow cursor-default';
-                exitBtn.disabled = false;
-                exitBtn.className = 'px-3 py-1 bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold rounded-lg transition shadow';
-            } else {
-                startBtn.disabled = false;
-                startBtn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Inizia Servizio';
-                startBtn.className = 'px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow';
-                exitBtn.disabled = true;
-                exitBtn.className = 'px-3 py-1 bg-slate-700 text-slate-500 text-xs font-semibold rounded-lg transition cursor-not-allowed';
-            }
-        }
-
-        function startDuty() {
-            if (isDutyActive || !currentOperator) return;
-            const op = getOp(currentOperator.matricola);
-            if (!op) return;
-            currentOperator = op;
-            isDutyActive = true;
-            op.shift = { start: new Date().toISOString(), seconds: 0 };
-            saveDB();
-            setDutyButtons(true);
-            updateTimerDisplay();
-
-            dutyInterval = setInterval(() => {
-                op.totalSeconds++;
-                op.shift.seconds++;
-                updateTimerDisplay();
-                saveOperatorsOnly();
-            }, 1000);
-            showNotification('Servizio iniziato.');
-        }
-
-        function endDuty(silent) {
-            if (dutyInterval) { clearInterval(dutyInterval); dutyInterval = null; }
-            const wasActive = isDutyActive;
-            isDutyActive = false;
-            let saved = 0;
-            if (currentOperator) {
-                const op = getOp(currentOperator.matricola);
-                saved = op && op.shift ? op.shift.seconds : 0;
-                finalizeShift(op);
-                saveDB();
-            }
-            setDutyButtons(false);
-            updateTimerDisplay(); // l'orologio torna a 00:00:00
-            if (!silent && wasActive) showNotification(`Sei uscito dal servizio. Turno di ${formatSecondsToHHMMSS(saved)} salvato nello storico.`);
-        }
-
-        let historyMatricola = null;
-
-        function fmtSigned(sec) {
-            return (sec < 0 ? '-' : '') + formatSecondsToHHMMSS(Math.abs(sec));
-        }
-
-        function historyBounds(mode) {
-            const now = new Date();
-            const sow = new Date(now);
-            sow.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-            sow.setHours(0, 0, 0, 0);
-            const som = new Date(now.getFullYear(), now.getMonth(), 1);
-            const somPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            if (mode === 'week') return [sow, null];
-            if (mode === 'month') return [som, null];
-            if (mode === 'lastmonth') return [somPrev, som];
-            if (mode === 'custom') {
-                const f = document.getElementById('history-from').value;
-                const t = document.getElementById('history-to').value;
-                const from = f ? new Date(f + 'T00:00:00') : null;
-                let to = null;
-                if (t) { to = new Date(t + 'T00:00:00'); to.setDate(to.getDate() + 1); }
-                return [from, to];
-            }
-            return [null, null];
-        }
-
-        function openHistoryModal(matricola) {
-            const op = getOp(matricola);
-            if (!op) return;
-            historyMatricola = matricola;
-            document.getElementById('history-title').innerText = `Storico ore - ${op.name}`;
-            document.getElementById('history-filter').value = 'all';
-            document.getElementById('history-from').value = '';
-            document.getElementById('history-to').value = '';
-            renderHistory();
-            document.getElementById('history-modal').classList.remove('hidden');
-        }
-
-        function renderHistory() {
-            const op = getOp(historyMatricola);
-            if (!op) return;
-            const mode = document.getElementById('history-filter').value;
-            document.getElementById('history-custom').classList.toggle('hidden', mode !== 'custom');
-            const hist = op.history || [];
-            const inRange = (h, b) => { const t = new Date(h.start); return (!b[0] || t >= b[0]) && (!b[1] || t < b[1]); };
-            const sum = (b) => hist.filter(h => inRange(h, b)).reduce((a, h) => a + h.seconds, 0);
-            const bounds = historyBounds(mode);
-            document.getElementById('history-total-period').innerText = fmtSigned(sum(bounds));
-            document.getElementById('history-total-week').innerText = fmtSigned(sum(historyBounds('week')));
-            document.getElementById('history-total-month').innerText = fmtSigned(sum(historyBounds('month')));
-            document.getElementById('history-total-all').innerText = formatSecondsToHHMMSS(op.totalSeconds);
-
-            const tbody = document.getElementById('history-tbody');
-            tbody.innerHTML = '';
-            const list = hist.filter(h => inRange(h, bounds));
-            if (list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500">Nessun turno registrato in questo periodo.</td></tr>';
-            }
-            list.forEach(h => {
-                const isShift = h.type === 'Turno';
-                const sign = h.seconds < 0 ? '-' : (isShift ? '' : '+');
-                const color = h.seconds < 0 ? 'text-red-400' : (isShift ? 'text-amber-300' : 'text-emerald-400');
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-700/30 transition';
-                tr.innerHTML = `
-                    <td class="py-2 px-3 text-xs ${isShift ? 'text-slate-200' : 'text-blue-300'}">${esc(h.type)}</td>
-                    <td class="py-2 px-3 text-xs text-slate-400">${formatDateTime(h.start)}</td>
-                    <td class="py-2 px-3 text-xs text-slate-400">${isShift ? formatDateTime(h.end) : '-'}</td>
-                    <td class="py-2 px-3 text-right font-mono ${color}">${sign}${formatSecondsToHHMMSS(Math.abs(h.seconds))}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function closeHistoryModal() {
-            document.getElementById('history-modal').classList.add('hidden');
-        }
-
-        function renderOperatorRequests() {
-            const tbody = document.getElementById('operator-requests-tbody');
-            tbody.innerHTML = '';
-            document.getElementById('requests-counter').innerText = `${db.requests.length} Richieste`;
-
-            if (db.requests.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Nessuna richiesta pervenuta.</td></tr>`;
-                updateNavBadge();
-                return;
-            }
-
-            db.requests.forEach(req => {
-                const assignee = req.assignedTo ? getOp(req.assignedTo) : null;
-                const assigneeText = req.assignedTo ? (assignee ? assignee.name : 'Operatore rimosso') : '-';
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-700/30 transition';
-                tr.innerHTML = `
-                    <td class="py-3 px-4">${TYPE_BADGE[req.type] || ''}<div class="font-mono text-[10px] text-slate-500 mt-1">${esc(req.code || '')}</div></td>
-                    <td class="py-3 px-4 font-medium text-white">${esc(req.name)}${req.extra && req.extra.phone ? '<div class="text-xs font-normal text-slate-400"><i class="fa-solid fa-phone mr-1"></i>' + esc(req.extra.phone) + '</div>' : ''}</td>
-                    <td class="py-3 px-4 text-slate-300 max-w-xs"><div class="line-clamp-3 whitespace-pre-line break-words">${esc(requestSummary(req))}</div></td>
-                    <td class="py-3 px-4 text-xs text-slate-400">${esc(req.date)}</td>
-                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-xs border ${STATUS_STYLE[req.status] || ''}">${esc(req.status)}</span></td>
-                    <td class="py-3 px-4 text-xs ${req.assignedTo ? 'text-slate-200' : 'text-slate-500'}">${esc(assigneeText)}</td>
-                    <td class="py-3 px-4 text-center whitespace-nowrap">
-                        <select onchange="updateRequestStatus(${req.id}, this.value)" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1 focus:outline-none">
-                            <option value="In attesa" ${req.status === 'In attesa' ? 'selected' : ''}>In attesa</option>
-                            <option value="In lavorazione" ${req.status === 'In lavorazione' ? 'selected' : ''}>In lavorazione</option>
-                            <option value="Completata" ${req.status === 'Completata' ? 'selected' : ''}>Completata</option>
-                        </select>
-                        <button onclick="openRequestModal(${req.id})" class="ml-2 text-amber-400 hover:text-amber-300" title="Dettagli, assegnazione e note"><i class="fa-solid fa-folder-open text-xs"></i></button>
-                        <button onclick="deleteRequest(${req.id})" class="ml-2 text-red-400 hover:text-red-300" title="Elimina richiesta"><i class="fa-solid fa-trash text-xs"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            updateNavBadge();
-        }
-
-        function updateRequestStatus(id, newStatus) {
-            const req = db.requests.find(r => r.id === id);
-            if (req) {
-                const old = req.status;
-                req.status = newStatus;
-                saveDB();
-                renderOperatorRequests();
-                logAction(actorName(), `Richiesta ${req.code}: stato "${old}" -> "${newStatus}"`);
-                showNotification('Stato richiesta aggiornato.');
-            }
-        }
-
-        function deleteRequest(id) {
-            const req = db.requests.find(r => r.id === id);
-            db.requests = db.requests.filter(r => r.id !== id);
-            saveDB();
-            renderOperatorRequests();
-            logAction(actorName(), `Eliminata richiesta ${req ? req.code : id}`);
-            showNotification('Richiesta eliminata.');
-        }
-
-        let isAdminLoggedIn = false;
-
-        function handleAdminLogin(event) {
-            event.preventDefault();
-            const pass = document.getElementById('admin-pass-input').value.trim();
-            if (pass === db.adminPassword) {
-                isAdminLoggedIn = true;
-                logAction('Admin', 'Accesso Area Admin');
-                checkAdminSession();
-                showNotification('Accesso admin effettuato con successo.');
-            } else {
-                logAction('Sistema', 'Tentativo di accesso admin fallito');
-                showNotification('Password di comando errata.', 'error');
-            }
-        }
-
-        function checkAdminSession() {
-            if (isAdminLoggedIn) {
-                document.getElementById('admin-login-view').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                renderAdminOperators();
-                loadDiscordSettings();
-                renderAdminLog();
-            } else {
-                document.getElementById('admin-login-view').classList.remove('hidden');
-                document.getElementById('admin-dashboard').classList.add('hidden');
-            }
-        }
-
-        function logoutAdmin() {
-            isAdminLoggedIn = false;
-            checkAdminSession();
-            showNotification('Disconnessione admin effettuata.');
-        }
-
-        function generateMatricola() {
-            const randomNum = Math.floor(1000 + Math.random() * 9000);
-            return `CC-${randomNum}`;
-        }
-
-        function handleCreateOperator(event) {
-            event.preventDefault();
-            const name = document.getElementById('new-op-name').value.trim();
-            const username = document.getElementById('new-op-username').value.trim();
-            const password = document.getElementById('new-op-password').value.trim();
-            const role = document.getElementById('new-op-role').value.trim(); // Free text input
-
-            // Matricola starts with CC automatically
-            let matricola = generateMatricola();
-            while (db.operators.some(o => o.matricola === matricola)) {
-                matricola = generateMatricola();
-            }
-
-            const newOp = {
-                matricola: matricola,
-                name: name,
-                username: username,
-                password: password,
-                role: role,
-                pwChanged: false,
-                totalSeconds: 0
-            };
-
-            db.operators.push(newOp);
-            logAction('Admin', `Creato operatore ${name} (${matricola}) con password provvisoria`);
-            saveDB();
-            renderAdminOperators();
-
-            // Reset form
-            document.getElementById('new-op-name').value = '';
-            document.getElementById('new-op-username').value = '';
-            document.getElementById('new-op-password').value = '';
-            document.getElementById('new-op-role').value = '';
-
-            showNotification(`Operatore ${name} creato con matricola ${matricola}.`);
-        }
-
-        function renderAdminOperators() {
-            const tbody = document.getElementById('admin-operators-tbody');
-            tbody.innerHTML = '';
-            document.getElementById('operators-counter').innerText = `${db.operators.length} Operatori`;
-
-            const pending = db.operators.filter(o => !o.pwChanged).length;
-            const pendEl = document.getElementById('pending-pw-counter');
-            pendEl.innerText = `${pending} con password provvisoria`;
-            pendEl.classList.toggle('hidden', pending === 0);
-
-            if (db.operators.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Nessun operatore registrato.</td></tr>`;
-                return;
-            }
-
-            db.operators.forEach((op, index) => {
-                const pwBadge = op.pwChanged
-                    ? '<span class="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border bg-emerald-900/40 text-emerald-300 border-emerald-700"><i class="fa-solid fa-check mr-1"></i>Password personale</span>'
-                    : '<span class="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border bg-amber-900/40 text-amber-300 border-amber-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Password provvisoria</span>';
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-700/30 transition';
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-mono font-bold text-amber-400">${esc(op.matricola)}</td>
-                    <td class="py-3 px-4 font-medium text-white">${esc(op.name)}</td>
-                    <td class="py-3 px-4 text-slate-300 font-mono text-xs">${esc(op.username)}<div>${pwBadge}</div></td>
-                    <td class="py-3 px-4">
-                        <input type="text" value="${esc(op.role)}" onchange="updateOperatorRole(${index}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="Ruolo libero...">
-                    </td>
-                    <td class="py-3 px-4 font-mono text-amber-300">${formatSecondsToHHMMSS(op.totalSeconds)}</td>
-                    <td class="py-3 px-4 text-center">
-                        <div class="inline-flex gap-1">
-                            <button onclick="adjustOperatorHours(${index}, 3600)" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded text-xs font-bold" title="Aggiungi 1 ora">+1h</button>
-                            <button onclick="adjustOperatorHours(${index}, -3600)" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-red-400 rounded text-xs font-bold" title="Sottrai 1 ora">-1h</button>
-                            <button onclick="adjustOperatorHours(${index}, 'reset')" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-xs" title="Reset ore">Res</button>
-                        </div>
-                    </td>
-                    <td class="py-3 px-4 text-center">
-                        <div class="inline-flex items-center gap-2">
-                            <button onclick="openHistoryModal('${op.matricola}')" class="text-amber-400 hover:text-amber-300 p-1" title="Storico ore"><i class="fa-solid fa-clock-rotate-left"></i></button>
-                            <button onclick="openAdminPwModal('${op.matricola}')" class="text-slate-300 hover:text-white p-1" title="Imposta nuova password provvisoria"><i class="fa-solid fa-key"></i></button>
-                            <button onclick="deleteOperator('${op.matricola}')" class="text-red-400 hover:text-red-300 p-1" title="Elimina operatore"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function updateOperatorRole(index, newRole) {
-            const op = db.operators[index];
-            if (newRole === op.role) return;
-            const old = op.role;
-            op.role = newRole;
-            saveDB();
-            logAction('Admin', `Ruolo di ${op.name}: "${old}" -> "${newRole}"`);
-        }
-
-        function adjustOperatorHours(index, action) {
-            const op = db.operators[index];
-            const nowIso = new Date().toISOString();
-            let text;
-            if (action === 'reset') {
-                addHistory(op, { type: 'Reset admin', start: nowIso, end: nowIso, seconds: -op.totalSeconds });
-                op.totalSeconds = 0;
-                text = `Azzerate le ore di ${op.name}`;
-            } else {
-                const before = op.totalSeconds;
-                op.totalSeconds = Math.max(0, before + action);
-                addHistory(op, { type: 'Rettifica admin', start: nowIso, end: nowIso, seconds: op.totalSeconds - before });
-                text = `${action > 0 ? '+1h' : '-1h'} a ${op.name}`;
-            }
-            saveDB();
-            renderAdminOperators();
-            logAction('Admin', text);
-            showNotification('Ore di servizio aggiornate.');
-        }
-
-        function deleteOperator(matricola) {
-            const op = getOp(matricola);
-            db.operators = db.operators.filter(o => o.matricola !== matricola);
-            saveDB();
-            renderAdminOperators();
-            logAction('Admin', `Eliminato operatore ${op ? op.name : matricola}`);
-            showNotification('Operatore eliminato dal sistema.');
-        }
-
-        function openSettingsModal() {
-            document.getElementById('settings-modal').classList.remove('hidden');
-            document.getElementById('new-admin-password').value = '';
-            document.getElementById('confirm-admin-password').value = '';
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        }
-
-        function saveCommandSettings(event) {
-            event.preventDefault();
-            const p1 = document.getElementById('new-admin-password').value;
-            const p2 = document.getElementById('confirm-admin-password').value;
-
-            if (p1 !== p2) {
-                showNotification('Le password non coincidono.', 'error');
-                return;
-            }
-
-            db.adminPassword = p1;
-            logAction('Admin', 'Password admin modificata');
-            saveDB();
-            closeSettingsModal();
-            showNotification('Impostazioni di Comando aggiornate con successo.');
-        }
-
-        // ================= COSTANTI STILE =================
-        const TYPE_BADGE = {
-            'colloquio': '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-semibold">Colloquio</span>',
-            'denuncia': '<span class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-xs font-semibold">Denuncia</span>',
-            'segnalazione': '<span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-semibold">Segnalazione</span>'
-        };
-        const STATUS_STYLE = {
-            'In attesa': 'bg-amber-900/40 text-amber-300 border-amber-700',
-            'In lavorazione': 'bg-blue-900/40 text-blue-300 border-blue-700',
-            'Completata': 'bg-emerald-900/40 text-emerald-300 border-emerald-700'
-        };
-        const TYPE_LABEL = { colloquio: 'Colloquio', denuncia: 'Denuncia', segnalazione: 'Segnalazione' };
-
-        // ================= CODICE DI TRACCIAMENTO =================
-        const CODE_PREFIX = { colloquio: 'COL', denuncia: 'DEN', segnalazione: 'SEG' };
-        let lastTrackingCode = '';
-
-        function generateTrackingCode(type) {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let code;
-            do {
-                code = (CODE_PREFIX[type] || 'REQ') + '-' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-            } while (db.requests.some(r => r.code === code));
-            return code;
-        }
-
-        function openCodeModal(req) {
-            lastTrackingCode = req.code;
-            document.getElementById('code-title').innerText = (TYPE_LABEL[req.type] || 'Richiesta') + ' inoltrata con successo';
-            document.getElementById('code-value').innerText = req.code;
-            document.getElementById('code-modal').classList.remove('hidden');
-        }
-
-        function closeCodeModal() {
-            document.getElementById('code-modal').classList.add('hidden');
-        }
-
-        function copyTrackingCode() {
-            const done = () => showNotification('Codice copiato negli appunti.');
-            const fail = () => showNotification('Copia non riuscita: seleziona e copia il codice a mano.', 'error');
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(lastTrackingCode).then(done, fail);
-            } else {
-                fail();
-            }
-        }
-
-        function checkTrackingCode() {
-            const code = document.getElementById('track-input').value.trim().toUpperCase();
-            const box = document.getElementById('track-result');
-            box.innerHTML = '';
-            const req = code ? db.requests.find(r => (r.code || '').toUpperCase() === code) : null;
-            if (!req) {
-                box.className = 'mt-4 text-sm rounded-xl border border-red-800/60 bg-red-950/30 text-red-300 px-4 py-3';
-                box.textContent = 'Nessuna richiesta trovata con questo codice. Controlla di averlo scritto correttamente.';
-                return;
-            }
-            box.className = 'mt-4 text-sm rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2';
-            [['Tipo', TYPE_LABEL[req.type]], ['Inviata il', req.date], ['Presa in carico', req.assignedTo ? 'Sì' : 'Non ancora']].forEach(([k, v]) => {
-                const d = document.createElement('div');
-                const a = document.createElement('span');
-                a.className = 'text-slate-400 text-xs uppercase tracking-wider mr-2';
-                a.textContent = k;
-                const b = document.createElement('span');
-                b.className = 'text-white font-medium';
-                b.textContent = v;
-                d.append(a, b);
-                box.appendChild(d);
-            });
-            const st = document.createElement('span');
-            st.className = 'px-2 py-0.5 rounded text-xs border ' + (STATUS_STYLE[req.status] || '');
-            st.textContent = 'Stato: ' + req.status;
-            box.appendChild(st);
-        }
-
-        // ================= DETTAGLI RICHIESTA / NOTE / ASSEGNAZIONE =================
-        let currentRequestId = null;
-
-        function openRequestModal(id) {
-            const req = db.requests.find(r => r.id === id);
-            if (!req) return;
-            currentRequestId = id;
-            document.getElementById('rm-title').textContent = TYPE_LABEL[req.type] || 'Richiesta';
-            document.getElementById('rm-code').textContent = req.code || '';
-            document.getElementById('rm-meta').textContent = `Ricevuta il ${req.date}`;
-            const fields = [['Mittente', req.name]];
-            if (req.extra) {
-                fields.push(['Telefono', req.extra.phone || '-'], ['Data e ora del fatto', req.extra.when || '-'], ['Luogo del fatto', req.extra.place || '-'], ['Persona denunciata', req.extra.accused || '-'], ['Cosa denuncia', req.extra.subject || '-']);
-            }
-            const box = document.getElementById('rm-fields');
-            box.innerHTML = '';
-            fields.forEach(([k, v]) => {
-                const d = document.createElement('div');
-                d.className = 'bg-slate-900 border border-slate-700 rounded-xl px-3 py-2';
-                const a = document.createElement('span');
-                a.className = 'block text-[10px] uppercase tracking-wider text-slate-400';
-                a.textContent = k;
-                const b = document.createElement('span');
-                b.className = 'text-slate-100 break-words';
-                b.textContent = v;
-                d.append(a, b);
-                box.appendChild(d);
-            });
-            document.getElementById('rm-content-label').textContent = req.type === 'denuncia' ? 'Più informazioni sulla denuncia' : 'Dettagli';
-            document.getElementById('rm-content').textContent = req.content;
-            document.getElementById('rm-status').value = req.status;
-
-            const sel = document.getElementById('rm-assignee');
-            sel.innerHTML = '';
-            const none = document.createElement('option');
-            none.value = '';
-            none.textContent = 'Nessuno';
-            sel.appendChild(none);
-            db.operators.forEach(o => {
-                const opt = document.createElement('option');
-                opt.value = o.matricola;
-                opt.textContent = `${o.name} (${o.matricola})`;
-                sel.appendChild(opt);
-            });
-            sel.value = req.assignedTo || '';
-            document.getElementById('rm-note-input').value = '';
-            renderRequestNotes(req);
-            document.getElementById('request-modal').classList.remove('hidden');
-        }
-
-        function closeRequestModal() {
-            document.getElementById('request-modal').classList.add('hidden');
-            currentRequestId = null;
-        }
-
-        function renderRequestNotes(req) {
-            const box = document.getElementById('rm-notes');
-            box.innerHTML = '';
-            const notes = req.notes || [];
-            if (notes.length === 0) {
-                const e = document.createElement('p');
-                e.className = 'text-xs text-slate-500';
-                e.textContent = 'Nessuna nota interna.';
-                box.appendChild(e);
-                return;
-            }
-            notes.forEach(n => {
-                const d = document.createElement('div');
-                d.className = 'bg-slate-900 border border-slate-700 rounded-xl px-3 py-2';
-                const h = document.createElement('div');
-                h.className = 'text-[10px] text-slate-400 mb-0.5';
-                h.textContent = `${n.author} - ${formatDateTime(n.ts)}`;
-                const t = document.createElement('div');
-                t.className = 'text-sm text-slate-200 whitespace-pre-line break-words';
-                t.textContent = n.text;
-                d.append(h, t);
-                box.appendChild(d);
-            });
-        }
-
-        function setRequestAssignee(matricola) {
-            const req = db.requests.find(r => r.id === currentRequestId);
-            if (!req) return;
-            req.assignedTo = matricola || null;
-            const op = matricola ? getOp(matricola) : null;
-            saveDB();
-            renderOperatorRequests();
-            logAction(actorName(), `Richiesta ${req.code} assegnata a ${op ? op.name : 'nessuno'}`);
-            showNotification('Assegnazione aggiornata.');
-        }
-
-        function takeRequest() {
-            const req = db.requests.find(r => r.id === currentRequestId);
-            if (!req || !currentOperator) return;
-            req.assignedTo = currentOperator.matricola;
-            if (req.status === 'In attesa') req.status = 'In lavorazione';
-            saveDB();
-            renderOperatorRequests();
-            document.getElementById('rm-assignee').value = req.assignedTo;
-            document.getElementById('rm-status').value = req.status;
-            logAction(actorName(), `Presa in carico la richiesta ${req.code}`);
-            showNotification('Richiesta presa in carico.');
-        }
-
-        function addRequestNote() {
-            const req = db.requests.find(r => r.id === currentRequestId);
-            const input = document.getElementById('rm-note-input');
-            const text = input.value.trim();
-            if (!req || !text) return;
-            if (!req.notes) req.notes = [];
-            req.notes.push({ ts: new Date().toISOString(), author: actorName(), text: text });
-            input.value = '';
-            saveDB();
-            renderRequestNotes(req);
-            logAction(actorName(), `Aggiunta nota interna alla richiesta ${req.code}`);
-        }
-
-        // ================= PASSWORD OPERATORE =================
-        let pwModalForced = false;
-
-        function openPasswordModal(forced) {
-            pwModalForced = !!forced;
-            document.getElementById('fpw-new').value = '';
-            document.getElementById('fpw-confirm').value = '';
-            document.getElementById('fpw-title').innerText = forced ? 'Cambio password obbligatorio' : 'Cambia password';
-            document.getElementById('fpw-subtitle').innerText = forced
-                ? 'Stai usando una password provvisoria assegnata dal comando. Per continuare devi sceglierne una personale.'
-                : 'Scegli una nuova password personale.';
-            document.getElementById('fpw-cancel').innerText = forced ? 'Esci' : 'Annulla';
-            document.getElementById('force-pw-modal').classList.remove('hidden');
-        }
-
-        function cancelPasswordModal() {
-            document.getElementById('force-pw-modal').classList.add('hidden');
-            if (pwModalForced) logoutOperator();
-        }
-
-        function submitPasswordChange(event) {
-            event.preventDefault();
-            const p1 = document.getElementById('fpw-new').value;
-            const p2 = document.getElementById('fpw-confirm').value;
-            const op = currentOperator ? getOp(currentOperator.matricola) : null;
-            if (!op) return;
-            if (p1.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
-            if (p1 !== p2) { showNotification('Le password non coincidono.', 'error'); return; }
-            if (p1 === op.password) { showNotification('La nuova password deve essere diversa da quella attuale.', 'error'); return; }
-            op.password = p1;
-            op.pwChanged = true;
-            currentOperator = op;
-            pwModalForced = false;
-            document.getElementById('force-pw-modal').classList.add('hidden');
-            logAction(op.name, 'Ha cambiato la propria password');
-            showNotification('Password aggiornata con successo.');
-        }
-
-        // ================= ADMIN: PASSWORD PROVVISORIA + REGISTRO =================
-        let adminPwTarget = null;
-
-        function openAdminPwModal(matricola) {
-            const op = getOp(matricola);
-            if (!op) return;
-            adminPwTarget = matricola;
-            document.getElementById('apw-subtitle').innerText = `Operatore: ${op.name} (${op.matricola})`;
-            document.getElementById('apw-input').value = '';
-            document.getElementById('admin-pw-modal').classList.remove('hidden');
-        }
-
-        function closeAdminPwModal() {
-            document.getElementById('admin-pw-modal').classList.add('hidden');
-            adminPwTarget = null;
-        }
-
-        function saveAdminPw(event) {
-            event.preventDefault();
-            const op = getOp(adminPwTarget);
-            const pw = document.getElementById('apw-input').value.trim();
-            if (!op || pw.length < 4) return;
-            op.password = pw;
-            op.pwChanged = false;
-            closeAdminPwModal();
-            renderAdminOperators();
-            logAction('Admin', `Impostata nuova password provvisoria per ${op.name}`);
-            showNotification('Password provvisoria impostata: dovrà essere cambiata al prossimo accesso.');
-        }
-
-        function renderAdminLog() {
-            const tbody = document.getElementById('admin-log-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            document.getElementById('log-counter').innerText = `${db.log.length} azioni`;
-            if (db.log.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-slate-500">Nessuna azione registrata.</td></tr>';
-                return;
-            }
-            db.log.slice(0, 100).forEach(l => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-700/30 transition';
-                tr.innerHTML = `
-                    <td class="py-2 px-4 text-xs text-slate-400 whitespace-nowrap">${formatDateTime(l.ts)}</td>
-                    <td class="py-2 px-4 text-xs font-medium text-amber-300">${esc(l.actor)}</td>
-                    <td class="py-2 px-4 text-xs text-slate-200">${esc(l.text)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // ================= AVVISI NUOVE RICHIESTE =================
-        let soundEnabled = localStorage.getItem('carabinieri_sound') !== 'off';
-
-        function updateSoundButton() {
-            const b = document.getElementById('sound-btn');
-            if (b) b.innerHTML = soundEnabled ? '<i class="fa-solid fa-bell"></i>' : '<i class="fa-solid fa-bell-slash text-slate-500"></i>';
-        }
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            localStorage.setItem('carabinieri_sound', soundEnabled ? 'on' : 'off');
-            updateSoundButton();
-            if (soundEnabled) playAlert();
-            showNotification(soundEnabled ? 'Avviso sonoro attivato.' : 'Avviso sonoro disattivato.');
-        }
-
-        function playAlert() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                [880, 1175].forEach((f, i) => {
-                    const o = ctx.createOscillator();
-                    const g = ctx.createGain();
-                    o.type = 'sine';
-                    o.frequency.value = f;
-                    o.connect(g);
-                    g.connect(ctx.destination);
-                    const t = ctx.currentTime + i * 0.18;
-                    g.gain.setValueAtTime(0.0001, t);
-                    g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
-                    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-                    o.start(t);
-                    o.stop(t + 0.17);
-                });
-                setTimeout(() => ctx.close(), 700);
-            } catch (e) { /* audio non disponibile */ }
-        }
-
-        function updateNavBadge() {
-            const b = document.getElementById('nav-op-badge');
-            if (!b) return;
-            const n = currentOperator ? db.requests.filter(r => r.status === 'In attesa').length : 0;
-            b.textContent = n;
-            b.classList.toggle('hidden', n === 0);
-        }
-
-        // Nuove richieste inviate da un'altra scheda dello stesso browser
-        window.addEventListener('storage', (e) => {
-            if (e.key !== 'carabinieri_requests') return;
-            let fresh;
-            try { fresh = JSON.parse(e.newValue) || []; } catch (err) { return; }
-            const known = new Set(db.requests.map(r => r.id));
-            const added = fresh.filter(r => !known.has(r.id));
-            db.requests = fresh;
-            if (currentOperator) {
-                if (!document.getElementById('tab-operator').classList.contains('hidden')) renderOperatorRequests();
-                else updateNavBadge();
+        refreshViews();
+    }, onListenError));
+
+    if (sessionRole === 'operator') {
+        unsubs.push(onSnapshot(query(collection(fs, 'requests'), orderBy('createdAt', 'desc')), snap => {
+            db.requests = snap.docs.map(d => ({ id: d.id, code: d.id, notes: [], ...d.data() }));
+            if (!firstRequestsSnap) {
+                const added = snap.docChanges().filter(c => c.type === 'added');
                 if (added.length) {
                     playAlert();
+                    const first = added[0].doc.data();
                     showNotification(added.length === 1
-                        ? `Nuova richiesta ricevuta: ${added[0].code || TYPE_LABEL[added[0].type]}`
+                        ? `Nuova richiesta ricevuta: ${added[0].doc.id} (${TYPE_LABEL[first.type] || ''})`
                         : `${added.length} nuove richieste ricevute.`);
                 }
             }
-        });
+            firstRequestsSnap = false;
+            if (currentRequestId) refreshOpenRequest();
+            refreshViews();
+        }, onListenError));
+    }
 
-        // Initialize view on load
-        window.onload = function() {
-            db.requests.forEach(r => {
-                if (!r.code) r.code = generateTrackingCode(r.type);
-                if (!r.notes) r.notes = [];
+    if (sessionRole === 'admin') {
+        unsubs.push(onSnapshot(query(collection(fs, 'log'), orderBy('ts', 'desc'), limit(100)), snap => {
+            db.log = snap.docs.map(d => {
+                const x = d.data();
+                const t = x.ts && x.ts.toDate ? x.ts.toDate().toISOString() : new Date().toISOString();
+                return { ts: t, actor: x.actor, text: x.text };
             });
-            saveDB();
-            // Check if operator session was active
-            if (currentOperator) {
-                // verify exists
-                const exists = db.operators.find(o => o.matricola === currentOperator.matricola);
-                if (!exists) currentOperator = null;
-            }
+            if (isAdminLoggedIn) renderAdminLog();
+        }, onListenError));
+        if (loginIntent === 'admin') {
+            loginIntent = null;
+            showNotification('Accesso admin effettuato con successo.');
+            logAction('Admin', 'Accesso Area Admin');
+        }
+    }
+}
+
+onAuthStateChanged(auth, async (user) => {
+    stopListeners();
+    currentUser = user;
+    sessionRole = null;
+    currentOperator = null;
+    isAdminLoggedIn = false;
+    if (user) {
+        sessionRole = await resolveRole(user);
+        if (!sessionRole) {
+            loginIntent = null;
+            showNotification('Account non abilitato: contatta il comando.', 'error');
+            await signOut(auth);
+            return;
+        }
+        if (loginIntent && loginIntent !== sessionRole) {
+            const wanted = loginIntent;
+            loginIntent = null;
+            showNotification(wanted === 'admin' ? 'Questo account non è un amministratore.' : 'Questo account non è un operatore.', 'error');
+            await signOut(auth);
+            return;
+        }
+        isAdminLoggedIn = sessionRole === 'admin';
+        startListeners(user);
+    }
+    refreshViews();
+});
+
+function refreshViews() {
+    checkOperatorSession();
+    checkAdminSession();
+    updateNavBadge();
+}
+
+// ================= NAVIGAZIONE =================
+function switchTab(tabId) {
+    ['home', 'operator', 'admin'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).classList.remove('bg-red-900/60', 'text-amber-300', 'border', 'border-red-700');
+        document.getElementById(`nav-${t}`).classList.add('bg-slate-700/50', 'text-slate-300');
+    });
+    document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+    document.getElementById(`nav-${tabId}`).classList.remove('bg-slate-700/50', 'text-slate-300');
+    document.getElementById(`nav-${tabId}`).classList.add('bg-red-900/60', 'text-amber-300', 'border', 'border-red-700');
+
+    const tabEl = document.getElementById(`tab-${tabId}`);
+    tabEl.classList.remove('fade-in');
+    void tabEl.offsetWidth;
+    tabEl.classList.add('fade-in');
+
+    if (tabId === 'operator') checkOperatorSession();
+    if (tabId === 'admin') checkAdminSession();
+}
+
+// ================= CITTADINI =================
+function generateTrackingCode(type) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return (CODE_PREFIX[type] || 'REQ') + '-' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+function openCitizenModal(type) {
+    document.getElementById('citizen-modal').classList.remove('hidden');
+    document.getElementById('citizen-req-type').value = type;
+    const titles = {
+        'colloquio': ['Prenotazione Colloquio', 'Inserisci i tuoi dati per richiedere un appuntamento.'],
+        'denuncia': ['Presentazione Denuncia', 'Fornisci dettagli precisi in merito alla denuncia da presentare.'],
+        'segnalazione': ['Segnalazione Anonima', 'Le informazioni inviate rimarranno rigorosamente anonime.']
+    };
+    document.getElementById('citizen-modal-title').innerText = titles[type][0];
+    document.getElementById('citizen-modal-subtitle').innerText = titles[type][1];
+    document.getElementById('citizen-name').value = type === 'segnalazione' ? 'Anonimo' : '';
+    document.getElementById('citizen-content').value = '';
+
+    const isDen = type === 'denuncia';
+    document.getElementById('denuncia-fields').classList.toggle('hidden', !isDen);
+    document.getElementById('citizen-phone').value = '';
+    document.getElementById('citizen-subject').value = '';
+    const nowLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    const whenEl = document.getElementById('citizen-fact-when');
+    whenEl.value = '';
+    whenEl.max = nowLocal;
+    whenEl.required = isDen;
+    document.getElementById('citizen-fact-place').value = '';
+    document.getElementById('citizen-fact-place').required = isDen;
+    document.getElementById('citizen-accused-type').value = 'noto';
+    document.getElementById('citizen-accused-name').value = '';
+    document.getElementById('citizen-phone').required = isDen;
+    document.getElementById('citizen-subject').required = isDen;
+    toggleAccusedName();
+    document.getElementById('citizen-name-label').innerText = isDen ? 'Nome e Cognome di chi denuncia' : 'Nome e Cognome (o Anonimo)';
+    document.getElementById('citizen-content-label').innerText = isDen ? 'Più informazioni sulla denuncia' : 'Dettagli / Contenuto';
+}
+
+function closeCitizenModal() {
+    document.getElementById('citizen-modal').classList.add('hidden');
+}
+
+function toggleAccusedName() {
+    const known = document.getElementById('citizen-accused-type').value === 'noto';
+    const isDen = !document.getElementById('denuncia-fields').classList.contains('hidden');
+    document.getElementById('accused-name-wrap').classList.toggle('hidden', !known);
+    document.getElementById('citizen-accused-name').required = known && isDen;
+}
+
+function requestSummary(req) {
+    if (req.type === 'denuncia' && req.extra) {
+        return `Cosa denuncia: ${req.extra.subject}\nFatto: ${req.extra.when || '-'} - ${req.extra.place || '-'}\nDenunciato: ${req.extra.accused}\nInfo: ${req.content}`;
+    }
+    return req.content;
+}
+
+async function submitCitizenRequest(event) {
+    event.preventDefault();
+    const type = document.getElementById('citizen-req-type').value;
+    const name = document.getElementById('citizen-name').value.trim();
+    const content = document.getElementById('citizen-content').value.trim();
+    const now = new Date();
+    const dateStr = formatDateTime(now.toISOString());
+
+    const data = { type: type, name: name, content: content, status: 'In attesa', date: dateStr, assignedTo: null, assignedName: null, notes: [], createdAt: serverTimestamp() };
+    if (type === 'denuncia') {
+        const known = document.getElementById('citizen-accused-type').value === 'noto';
+        data.extra = {
+            phone: document.getElementById('citizen-phone').value.trim(),
+            accused: known ? document.getElementById('citizen-accused-name').value.trim() : 'Ignoto',
+            subject: document.getElementById('citizen-subject').value.trim(),
+            when: formatDateTime(document.getElementById('citizen-fact-when').value),
+            place: document.getElementById('citizen-fact-place').value.trim()
         };
+    }
+
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+    let code = null;
+    for (let i = 0; i < 3 && !code; i++) {
+        const candidate = generateTrackingCode(type);
+        try {
+            await setDoc(doc(fs, 'requests', candidate), data);
+            code = candidate;
+        } catch (e) {
+            console.error(e);
+            if (e.code !== 'permission-denied') break; // il codice può già esistere: riprova solo in quel caso
+        }
+    }
+    if (submitBtn) submitBtn.disabled = false;
+    if (!code) {
+        showNotification('Invio non riuscito. Controlla la connessione e riprova.', 'error');
+        return;
+    }
+    try {
+        await setDoc(doc(fs, 'status', code), { type: type, date: dateStr, status: 'In attesa', assigned: false });
+    } catch (e) {
+        console.error(e);
+    }
+
+    const newReq = { ...data, id: code, code: code };
+    closeCitizenModal();
+    openCodeModal(newReq);
+    if (type === 'denuncia' && db.discordWebhook) {
+        const ok = await sendDenunciaToDiscord(newReq);
+        if (!ok) showNotification('Denuncia salvata, ma invio a Discord non riuscito.', 'error');
+    }
+}
+
+// ---------- codice di tracciamento ----------
+let lastTrackingCode = '';
+
+function openCodeModal(req) {
+    lastTrackingCode = req.code;
+    document.getElementById('code-title').innerText = (TYPE_LABEL[req.type] || 'Richiesta') + ' inoltrata con successo';
+    document.getElementById('code-value').innerText = req.code;
+    document.getElementById('code-modal').classList.remove('hidden');
+}
+
+function closeCodeModal() {
+    document.getElementById('code-modal').classList.add('hidden');
+}
+
+function copyTrackingCode() {
+    const done = () => showNotification('Codice copiato negli appunti.');
+    const fail = () => showNotification('Copia non riuscita: seleziona e copia il codice a mano.', 'error');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lastTrackingCode).then(done, fail);
+    } else {
+        fail();
+    }
+}
+
+async function checkTrackingCode() {
+    const code = document.getElementById('track-input').value.trim().toUpperCase();
+    const box = document.getElementById('track-result');
+    box.innerHTML = '';
+    let data = null;
+    let failed = false;
+    if (code) {
+        try {
+            const snap = await getDoc(doc(fs, 'status', code));
+            if (snap.exists()) data = snap.data();
+        } catch (e) {
+            console.error(e);
+            failed = true;
+        }
+    }
+    if (!data) {
+        box.className = 'mt-4 text-sm rounded-xl border border-red-800/60 bg-red-950/30 text-red-300 px-4 py-3';
+        box.textContent = failed ? 'Impossibile controllare il codice in questo momento. Riprova.' : 'Nessuna richiesta trovata con questo codice. Controlla di averlo scritto correttamente.';
+        return;
+    }
+    box.className = 'mt-4 text-sm rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2';
+    [['Tipo', TYPE_LABEL[data.type]], ['Inviata il', data.date], ['Presa in carico', data.assigned ? 'Sì' : 'Non ancora']].forEach(([k, v]) => {
+        const d = document.createElement('div');
+        const a = document.createElement('span');
+        a.className = 'text-slate-400 text-xs uppercase tracking-wider mr-2';
+        a.textContent = k;
+        const b = document.createElement('span');
+        b.className = 'text-white font-medium';
+        b.textContent = v;
+        d.append(a, b);
+        box.appendChild(d);
+    });
+    const st = document.createElement('span');
+    st.className = 'px-2 py-0.5 rounded text-xs border ' + (STATUS_STYLE[data.status] || '');
+    st.textContent = 'Stato: ' + data.status;
+    box.appendChild(st);
+}
+
+// ================= DISCORD =================
+function isValidWebhook(url) {
+    return /^https:\/\/(?:ptb\.|canary\.)?discord(?:app)?\.com\/api\/webhooks\/\d+\/[\w-]+/.test(url);
+}
+
+async function postToDiscord(url, payload) {
+    try {
+        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        return res.ok;
+    } catch (e) {
+        return false;
+    }
+}
+
+function sendDenunciaToDiscord(req) {
+    const cut = (t, n = 1000) => { t = String(t || '-'); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+    const ex = req.extra || {};
+    return postToDiscord(db.discordWebhook, {
+        username: 'Portale Carabinieri RP',
+        allowed_mentions: { parse: [] },
+        embeds: [{
+            title: '🚨 Nuova denuncia',
+            color: 0x1e40af,
+            fields: [
+                { name: 'Denunciante', value: cut(req.name), inline: true },
+                { name: 'Telefono', value: cut(ex.phone), inline: true },
+                { name: 'Codice', value: cut(req.code), inline: true },
+                { name: 'Data e luogo del fatto', value: cut((ex.when || '-') + ' - ' + (ex.place || '-')) },
+                { name: 'Persona denunciata', value: cut(ex.accused) },
+                { name: 'Cosa denuncia', value: cut(ex.subject) },
+                { name: 'Ulteriori informazioni', value: cut(req.content) }
+            ],
+            footer: { text: 'Ricevuta il ' + req.date },
+            timestamp: new Date().toISOString()
+        }]
+    });
+}
+
+function updateDiscordStatus() {
+    const el = document.getElementById('discord-status');
+    if (db.discordWebhook) {
+        el.innerText = 'Canale collegato: le nuove denunce vengono inviate su Discord.';
+        el.className = 'text-xs mt-3 text-emerald-400';
+    } else {
+        el.innerText = 'Nessun canale collegato.';
+        el.className = 'text-xs mt-3 text-slate-500';
+    }
+}
+
+function loadDiscordSettings() {
+    document.getElementById('discord-webhook-input').value = db.discordWebhook || '';
+    updateDiscordStatus();
+}
+
+function saveDiscordWebhook() {
+    const url = document.getElementById('discord-webhook-input').value.trim();
+    if (url && !isValidWebhook(url)) {
+        showNotification('Link webhook Discord non valido.', 'error');
+        return;
+    }
+    db.discordWebhook = url;
+    localStorage.setItem('carabinieri_discord_webhook', url);
+    updateDiscordStatus();
+    logAction('Admin', url ? 'Canale Discord denunce aggiornato' : 'Collegamento Discord rimosso');
+    showNotification(url ? 'Canale Discord salvato.' : 'Collegamento Discord rimosso.');
+}
+
+async function testDiscordWebhook() {
+    const url = document.getElementById('discord-webhook-input').value.trim();
+    if (!isValidWebhook(url)) {
+        showNotification('Inserisci prima un link webhook Discord valido.', 'error');
+        return;
+    }
+    const btn = document.getElementById('discord-test-btn');
+    btn.disabled = true;
+    const ok = await postToDiscord(url, {
+        username: 'Portale Carabinieri RP',
+        allowed_mentions: { parse: [] },
+        content: '✅ **Test di collegamento riuscito.** Le denunce del Portale Arma dei Carabinieri RP arriveranno in questo canale.'
+    });
+    btn.disabled = false;
+    showNotification(ok ? 'Test riuscito: controlla il canale Discord.' : 'Test fallito: controlla il link del webhook.', ok ? 'success' : 'error');
+}
+
+// ================= AREA OPERATORI =================
+async function handleOperatorLogin(event) {
+    event.preventDefault();
+    const u = document.getElementById('op-user').value.trim();
+    const p = document.getElementById('op-pass').value;
+    loginIntent = 'operator';
+    try {
+        await signInWithEmailAndPassword(auth, usernameToEmail(u), p);
+        document.getElementById('op-pass').value = '';
+    } catch (e) {
+        loginIntent = null;
+        showNotification(authErrorText(e), 'error');
+    }
+}
+
+function checkOperatorSession() {
+    const on = sessionRole === 'operator' && currentOperator;
+    document.getElementById('operator-login-view').classList.toggle('hidden', !!on);
+    document.getElementById('operator-dashboard').classList.toggle('hidden', !on);
+    if (!on) {
+        syncDutyTicker();
+        return;
+    }
+    document.getElementById('op-welcome-name').innerText = currentOperator.name;
+    document.getElementById('op-welcome-role').innerText = `${currentOperator.role} (${currentOperator.matricola})`;
+    syncDutyTicker();
+    setDutyButtons(isDutyActive);
+    updateSoundButton();
+    updateTimerDisplay();
+    renderOperatorRequests();
+    if (!currentOperator.pwChanged && document.getElementById('force-pw-modal').classList.contains('hidden')) {
+        openPasswordModal(true);
+    }
+}
+
+async function logoutOperator() {
+    try {
+        await endDuty(true);
+        logAction(actorName(), 'Disconnessione Area Operatori');
+    } catch (e) { console.error(e); }
+    await signOut(auth);
+    showNotification('Disconnessione effettuata.');
+}
+
+function shiftSeconds(op) {
+    return op && op.shift ? Math.max(0, Math.floor((Date.now() - new Date(op.shift.start).getTime()) / 1000)) : 0;
+}
+
+function updateTimerDisplay() {
+    if (!currentOperator) return;
+    const sh = currentOperator.shift;
+    document.getElementById('live-timer').innerText = formatSecondsToHHMMSS(shiftSeconds(currentOperator));
+    document.getElementById('live-total').innerText = formatSecondsToHHMMSS((currentOperator.totalSeconds || 0) + shiftSeconds(currentOperator));
+    document.getElementById('live-since').innerText = sh
+        ? 'In servizio dalle ' + new Date(sh.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+        : 'Fuori servizio';
+}
+
+function syncDutyTicker() {
+    const active = !!(currentOperator && currentOperator.shift);
+    isDutyActive = active;
+    if (active && !dutyInterval) dutyInterval = setInterval(updateTimerDisplay, 1000);
+    if (!active && dutyInterval) { clearInterval(dutyInterval); dutyInterval = null; }
+}
+
+function setDutyButtons(active) {
+    const startBtn = document.getElementById('timer-toggle-btn');
+    const exitBtn = document.getElementById('duty-exit-btn');
+    if (active) {
+        startBtn.disabled = true;
+        startBtn.innerHTML = '<i class="fa-solid fa-circle text-xs mr-1 animate-pulse"></i> In Servizio';
+        startBtn.className = 'px-3 py-1 bg-amber-600 text-white text-xs font-semibold rounded-lg shadow cursor-default';
+        exitBtn.disabled = false;
+        exitBtn.className = 'px-3 py-1 bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold rounded-lg transition shadow';
+    } else {
+        startBtn.disabled = false;
+        startBtn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Inizia Servizio';
+        startBtn.className = 'px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow';
+        exitBtn.disabled = true;
+        exitBtn.className = 'px-3 py-1 bg-slate-700 text-slate-500 text-xs font-semibold rounded-lg transition cursor-not-allowed';
+    }
+}
+
+async function startDuty() {
+    if (!currentOperator || currentOperator.shift) return;
+    const ok = await tryWrite(updateDoc(doc(fs, 'operators', currentOperator.uid), { shift: { start: new Date().toISOString() } }));
+    if (ok) showNotification('Servizio iniziato.');
+}
+
+async function endDuty(silent) {
+    const op = currentOperator;
+    if (!op || !op.shift) return 0;
+    const seconds = shiftSeconds(op);
+    const upd = { shift: null, totalSeconds: increment(seconds) };
+    if (seconds > 0) upd.history = arrayUnion({ type: 'Turno', start: op.shift.start, end: new Date().toISOString(), seconds: seconds });
+    const ok = await tryWrite(updateDoc(doc(fs, 'operators', op.uid), upd));
+    if (ok && !silent) showNotification(`Sei uscito dal servizio. Turno di ${formatSecondsToHHMMSS(seconds)} salvato nello storico.`);
+    return seconds;
+}
+
+// ---------- richieste ----------
+function findReq(id) {
+    return db.requests.find(r => r.id === id);
+}
+
+function renderOperatorRequests() {
+    const tbody = document.getElementById('operator-requests-tbody');
+    tbody.innerHTML = '';
+    document.getElementById('requests-counter').innerText = `${db.requests.length} Richieste`;
+    if (db.requests.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Nessuna richiesta pervenuta.</td></tr>`;
+        return;
+    }
+    db.requests.forEach(req => {
+        const assignee = req.assignedTo ? getOp(req.assignedTo) : null;
+        const assigneeText = req.assignedTo ? (assignee ? assignee.name : (req.assignedName || 'Operatore rimosso')) : '-';
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-700/30 transition';
+        tr.innerHTML = `
+            <td class="py-3 px-4">${TYPE_BADGE[req.type] || ''}<div class="font-mono text-[10px] text-slate-500 mt-1">${esc(req.code)}</div></td>
+            <td class="py-3 px-4 font-medium text-white">${esc(req.name)}${req.extra && req.extra.phone ? '<div class="text-xs font-normal text-slate-400"><i class="fa-solid fa-phone mr-1"></i>' + esc(req.extra.phone) + '</div>' : ''}</td>
+            <td class="py-3 px-4 text-slate-300 max-w-xs"><div class="line-clamp-3 whitespace-pre-line break-words">${esc(requestSummary(req))}</div></td>
+            <td class="py-3 px-4 text-xs text-slate-400">${esc(req.date)}</td>
+            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-xs border ${STATUS_STYLE[req.status] || ''}">${esc(req.status)}</span></td>
+            <td class="py-3 px-4 text-xs ${req.assignedTo ? 'text-slate-200' : 'text-slate-500'}">${esc(assigneeText)}</td>
+            <td class="py-3 px-4 text-center whitespace-nowrap">
+                <select onchange="updateRequestStatus('${esc(req.id)}', this.value)" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1 focus:outline-none">
+                    <option value="In attesa" ${req.status === 'In attesa' ? 'selected' : ''}>In attesa</option>
+                    <option value="In lavorazione" ${req.status === 'In lavorazione' ? 'selected' : ''}>In lavorazione</option>
+                    <option value="Completata" ${req.status === 'Completata' ? 'selected' : ''}>Completata</option>
+                </select>
+                <button onclick="openRequestModal('${esc(req.id)}')" class="ml-2 text-amber-400 hover:text-amber-300" title="Dettagli, assegnazione e note"><i class="fa-solid fa-folder-open text-xs"></i></button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function updateRequestStatus(id, newStatus) {
+    const req = findReq(id);
+    if (!req) return;
+    const old = req.status;
+    const ok = await tryWrite(Promise.all([
+        updateDoc(doc(fs, 'requests', id), { status: newStatus }),
+        updateDoc(doc(fs, 'status', id), { status: newStatus })
+    ]), 'Stato richiesta aggiornato.');
+    if (ok) logAction(actorName(), `Richiesta ${req.code}: stato "${old}" -> "${newStatus}"`);
+}
+
+function modalStatusChange(value) {
+    updateRequestStatus(currentRequestId, value);
+}
+
+let currentRequestId = null;
+
+function openRequestModal(id) {
+    const req = findReq(id);
+    if (!req) return;
+    currentRequestId = id;
+    document.getElementById('rm-title').textContent = TYPE_LABEL[req.type] || 'Richiesta';
+    document.getElementById('rm-code').textContent = req.code || '';
+    document.getElementById('rm-meta').textContent = `Ricevuta il ${req.date}`;
+    const fields = [['Mittente', req.name]];
+    if (req.extra) {
+        fields.push(['Telefono', req.extra.phone || '-'], ['Data e ora del fatto', req.extra.when || '-'], ['Luogo del fatto', req.extra.place || '-'], ['Persona denunciata', req.extra.accused || '-'], ['Cosa denuncia', req.extra.subject || '-']);
+    }
+    const box = document.getElementById('rm-fields');
+    box.innerHTML = '';
+    fields.forEach(([k, v]) => {
+        const d = document.createElement('div');
+        d.className = 'bg-slate-900 border border-slate-700 rounded-xl px-3 py-2';
+        const a = document.createElement('span');
+        a.className = 'block text-[10px] uppercase tracking-wider text-slate-400';
+        a.textContent = k;
+        const b = document.createElement('span');
+        b.className = 'text-slate-100 break-words';
+        b.textContent = v;
+        d.append(a, b);
+        box.appendChild(d);
+    });
+    document.getElementById('rm-content-label').textContent = req.type === 'denuncia' ? 'Più informazioni sulla denuncia' : 'Dettagli';
+    document.getElementById('rm-content').textContent = req.content;
+
+    const sel = document.getElementById('rm-assignee');
+    sel.innerHTML = '';
+    const none = document.createElement('option');
+    none.value = '';
+    none.textContent = 'Nessuno';
+    sel.appendChild(none);
+    db.operators.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o.uid;
+        opt.textContent = `${o.name} (${o.matricola})`;
+        sel.appendChild(opt);
+    });
+    document.getElementById('rm-note-input').value = '';
+    refreshOpenRequest();
+    document.getElementById('request-modal').classList.remove('hidden');
+}
+
+function refreshOpenRequest() {
+    const req = findReq(currentRequestId);
+    if (!req) return;
+    document.getElementById('rm-status').value = req.status;
+    document.getElementById('rm-assignee').value = req.assignedTo || '';
+    renderRequestNotes(req);
+}
+
+function closeRequestModal() {
+    document.getElementById('request-modal').classList.add('hidden');
+    currentRequestId = null;
+}
+
+function renderRequestNotes(req) {
+    const box = document.getElementById('rm-notes');
+    box.innerHTML = '';
+    const notes = (req.notes || []).slice().sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+    if (notes.length === 0) {
+        const e = document.createElement('p');
+        e.className = 'text-xs text-slate-500';
+        e.textContent = 'Nessuna nota interna.';
+        box.appendChild(e);
+        return;
+    }
+    notes.forEach(n => {
+        const d = document.createElement('div');
+        d.className = 'bg-slate-900 border border-slate-700 rounded-xl px-3 py-2';
+        const h = document.createElement('div');
+        h.className = 'text-[10px] text-slate-400 mb-0.5';
+        h.textContent = `${n.author} - ${formatDateTime(n.ts)}`;
+        const t = document.createElement('div');
+        t.className = 'text-sm text-slate-200 whitespace-pre-line break-words';
+        t.textContent = n.text;
+        d.append(h, t);
+        box.appendChild(d);
+    });
+}
+
+async function setRequestAssignee(uid) {
+    const req = findReq(currentRequestId);
+    if (!req) return;
+    const op = uid ? getOp(uid) : null;
+    const ok = await tryWrite(Promise.all([
+        updateDoc(doc(fs, 'requests', req.id), { assignedTo: uid || null, assignedName: op ? op.name : null }),
+        updateDoc(doc(fs, 'status', req.id), { assigned: !!uid })
+    ]), 'Assegnazione aggiornata.');
+    if (ok) logAction(actorName(), `Richiesta ${req.code} assegnata a ${op ? op.name : 'nessuno'}`);
+}
+
+async function takeRequest() {
+    const req = findReq(currentRequestId);
+    if (!req || !currentOperator) return;
+    const newStatus = req.status === 'In attesa' ? 'In lavorazione' : req.status;
+    const ok = await tryWrite(Promise.all([
+        updateDoc(doc(fs, 'requests', req.id), { assignedTo: currentOperator.uid, assignedName: currentOperator.name, status: newStatus }),
+        updateDoc(doc(fs, 'status', req.id), { assigned: true, status: newStatus })
+    ]), 'Richiesta presa in carico.');
+    if (ok) logAction(actorName(), `Presa in carico la richiesta ${req.code}`);
+}
+
+async function addRequestNote() {
+    const req = findReq(currentRequestId);
+    const input = document.getElementById('rm-note-input');
+    const text = input.value.trim();
+    if (!req || !text) return;
+    const ok = await tryWrite(updateDoc(doc(fs, 'requests', req.id), { notes: arrayUnion({ ts: new Date().toISOString(), author: actorName(), text: text }) }));
+    if (ok) {
+        input.value = '';
+        logAction(actorName(), `Aggiunta nota interna alla richiesta ${req.code}`);
+    }
+}
+
+// ---------- storico ore ----------
+let historyUid = null;
+
+function openMyHistory() {
+    if (currentOperator) openHistoryModal(currentOperator.uid);
+}
+
+function historyBounds(mode) {
+    const now = new Date();
+    const sow = new Date(now);
+    sow.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    sow.setHours(0, 0, 0, 0);
+    const som = new Date(now.getFullYear(), now.getMonth(), 1);
+    const somPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    if (mode === 'week') return [sow, null];
+    if (mode === 'month') return [som, null];
+    if (mode === 'lastmonth') return [somPrev, som];
+    if (mode === 'custom') {
+        const f = document.getElementById('history-from').value;
+        const t = document.getElementById('history-to').value;
+        const from = f ? new Date(f + 'T00:00:00') : null;
+        let to = null;
+        if (t) { to = new Date(t + 'T00:00:00'); to.setDate(to.getDate() + 1); }
+        return [from, to];
+    }
+    return [null, null];
+}
+
+function openHistoryModal(uid) {
+    const op = getOp(uid);
+    if (!op) return;
+    historyUid = op.uid;
+    document.getElementById('history-title').innerText = `Storico ore - ${op.name}`;
+    document.getElementById('history-filter').value = 'all';
+    document.getElementById('history-from').value = '';
+    document.getElementById('history-to').value = '';
+    renderHistory();
+    document.getElementById('history-modal').classList.remove('hidden');
+}
+
+function renderHistory() {
+    const op = getOp(historyUid);
+    if (!op) return;
+    const mode = document.getElementById('history-filter').value;
+    document.getElementById('history-custom').classList.toggle('hidden', mode !== 'custom');
+    const hist = (op.history || []).slice().sort((a, b) => String(b.start).localeCompare(String(a.start)));
+    const inRange = (h, b) => { const t = new Date(h.start); return (!b[0] || t >= b[0]) && (!b[1] || t < b[1]); };
+    const sum = (b) => hist.filter(h => inRange(h, b)).reduce((a, h) => a + h.seconds, 0);
+    const bounds = historyBounds(mode);
+    document.getElementById('history-total-period').innerText = fmtSigned(sum(bounds));
+    document.getElementById('history-total-week').innerText = fmtSigned(sum(historyBounds('week')));
+    document.getElementById('history-total-month').innerText = fmtSigned(sum(historyBounds('month')));
+    document.getElementById('history-total-all').innerText = formatSecondsToHHMMSS(op.totalSeconds || 0);
+
+    const tbody = document.getElementById('history-tbody');
+    tbody.innerHTML = '';
+    const list = hist.filter(h => inRange(h, bounds));
+    if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500">Nessun turno registrato in questo periodo.</td></tr>';
+    }
+    list.forEach(h => {
+        const isShift = h.type === 'Turno';
+        const sign = h.seconds < 0 ? '-' : (isShift ? '' : '+');
+        const color = h.seconds < 0 ? 'text-red-400' : (isShift ? 'text-amber-300' : 'text-emerald-400');
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-700/30 transition';
+        tr.innerHTML = `
+            <td class="py-2 px-3 text-xs ${isShift ? 'text-slate-200' : 'text-blue-300'}">${esc(h.type)}</td>
+            <td class="py-2 px-3 text-xs text-slate-400">${formatDateTime(h.start)}</td>
+            <td class="py-2 px-3 text-xs text-slate-400">${isShift ? formatDateTime(h.end) : '-'}</td>
+            <td class="py-2 px-3 text-right font-mono ${color}">${sign}${formatSecondsToHHMMSS(Math.abs(h.seconds))}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function closeHistoryModal() {
+    document.getElementById('history-modal').classList.add('hidden');
+}
+
+// ---------- password operatore ----------
+let pwModalForced = false;
+
+function openPasswordModal(forced) {
+    pwModalForced = !!forced;
+    document.getElementById('fpw-current').value = '';
+    document.getElementById('fpw-new').value = '';
+    document.getElementById('fpw-confirm').value = '';
+    document.getElementById('fpw-title').innerText = forced ? 'Cambio password obbligatorio' : 'Cambia password';
+    document.getElementById('fpw-subtitle').innerText = forced
+        ? 'Stai usando una password provvisoria assegnata dal comando. Per continuare devi sceglierne una personale.'
+        : 'Scegli una nuova password personale.';
+    document.getElementById('fpw-cancel').innerText = forced ? 'Esci' : 'Annulla';
+    document.getElementById('force-pw-modal').classList.remove('hidden');
+}
+
+function cancelPasswordModal() {
+    document.getElementById('force-pw-modal').classList.add('hidden');
+    if (pwModalForced) logoutOperator();
+}
+
+async function submitPasswordChange(event) {
+    event.preventDefault();
+    const cur = document.getElementById('fpw-current').value;
+    const p1 = document.getElementById('fpw-new').value;
+    const p2 = document.getElementById('fpw-confirm').value;
+    if (!currentUser || !currentOperator) return;
+    if (p1.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
+    if (p1 !== p2) { showNotification('Le password non coincidono.', 'error'); return; }
+    if (p1 === cur) { showNotification('La nuova password deve essere diversa da quella attuale.', 'error'); return; }
+    try {
+        await reauthenticateWithCredential(currentUser, EmailAuthProvider.credential(currentUser.email, cur));
+        await updatePassword(currentUser, p1);
+        await updateDoc(doc(fs, 'operators', currentOperator.uid), { pwChanged: true });
+    } catch (e) {
+        console.error(e);
+        showNotification(['auth/invalid-credential', 'auth/wrong-password'].includes(e.code) ? 'Password attuale errata.' : authErrorText(e), 'error');
+        return;
+    }
+    pwModalForced = false;
+    document.getElementById('force-pw-modal').classList.add('hidden');
+    logAction(currentOperator.name, 'Ha cambiato la propria password');
+    showNotification('Password aggiornata con successo.');
+}
+
+// ---------- avvisi ----------
+let soundEnabled = localStorage.getItem('carabinieri_sound') !== 'off';
+
+function updateSoundButton() {
+    const b = document.getElementById('sound-btn');
+    if (b) b.innerHTML = soundEnabled ? '<i class="fa-solid fa-bell"></i>' : '<i class="fa-solid fa-bell-slash text-slate-500"></i>';
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('carabinieri_sound', soundEnabled ? 'on' : 'off');
+    updateSoundButton();
+    if (soundEnabled) playAlert();
+    showNotification(soundEnabled ? 'Avviso sonoro attivato.' : 'Avviso sonoro disattivato.');
+}
+
+function playAlert() {
+    if (!soundEnabled) return;
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [880, 1175].forEach((f, i) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = 'sine';
+            o.frequency.value = f;
+            o.connect(g);
+            g.connect(ctx.destination);
+            const t = ctx.currentTime + i * 0.18;
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+            o.start(t);
+            o.stop(t + 0.17);
+        });
+        setTimeout(() => ctx.close(), 700);
+    } catch (e) { /* audio non disponibile */ }
+}
+
+function updateNavBadge() {
+    const b = document.getElementById('nav-op-badge');
+    if (!b) return;
+    const n = sessionRole === 'operator' ? db.requests.filter(r => r.status === 'In attesa').length : 0;
+    b.textContent = n;
+    b.classList.toggle('hidden', n === 0);
+}
+
+// ================= AREA ADMIN =================
+async function handleAdminLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('admin-email-input').value.trim();
+    const pass = document.getElementById('admin-pass-input').value;
+    loginIntent = 'admin';
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        document.getElementById('admin-pass-input').value = '';
+    } catch (e) {
+        loginIntent = null;
+        showNotification(authErrorText(e), 'error');
+    }
+}
+
+function checkAdminSession() {
+    document.getElementById('admin-login-view').classList.toggle('hidden', isAdminLoggedIn);
+    document.getElementById('admin-dashboard').classList.toggle('hidden', !isAdminLoggedIn);
+    if (isAdminLoggedIn) {
+        renderAdminOperators();
+        renderAdminLog();
+        if (!adminViewInit) {
+            adminViewInit = true;
+            loadDiscordSettings();
+        }
+    }
+}
+
+async function logoutAdmin() {
+    logAction('Admin', 'Disconnessione Area Admin');
+    await signOut(auth);
+    showNotification('Disconnessione admin effettuata.');
+}
+
+function generateMatricola() {
+    return `CC-${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
+async function handleCreateOperator(event) {
+    event.preventDefault();
+    const name = document.getElementById('new-op-name').value.trim();
+    const username = document.getElementById('new-op-username').value.trim().toLowerCase();
+    const password = document.getElementById('new-op-password').value;
+    const roleText = document.getElementById('new-op-role').value.trim();
+
+    if (!/^[a-z0-9._-]{3,30}$/.test(username)) {
+        showNotification('Username non valido: usa 3-30 caratteri tra lettere minuscole, numeri, punto, trattino.', 'error');
+        return;
+    }
+    if (password.length < 6) {
+        showNotification('La password provvisoria deve avere almeno 6 caratteri.', 'error');
+        return;
+    }
+    if (db.operators.some(o => o.username === username)) {
+        showNotification('Esiste già un operatore con questo username.', 'error');
+        return;
+    }
+    let matricola = generateMatricola();
+    while (db.operators.some(o => o.matricola === matricola)) matricola = generateMatricola();
+
+    const btn = event.target.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    try {
+        if (!secondaryApp) secondaryApp = initializeApp(firebaseConfig, 'secondary');
+        const secAuth = getAuth(secondaryApp);
+        const email = usernameToEmail(username);
+        const cred = await createUserWithEmailAndPassword(secAuth, email, password);
+        const uid = cred.user.uid;
+        await signOut(secAuth);
+        await setDoc(doc(fs, 'operators', uid), {
+            matricola: matricola, name: name, username: username, email: email, role: roleText,
+            totalSeconds: 0, history: [], shift: null, pwChanged: false
+        });
+        document.getElementById('new-op-name').value = '';
+        document.getElementById('new-op-username').value = '';
+        document.getElementById('new-op-password').value = '';
+        document.getElementById('new-op-role').value = '';
+        logAction('Admin', `Creato operatore ${name} (${matricola}) con password provvisoria`);
+        showNotification(`Operatore ${name} creato con matricola ${matricola}.`);
+    } catch (e) {
+        console.error(e);
+        showNotification(e.code === 'auth/email-already-in-use'
+            ? 'Username già presente in Firebase Authentication: eliminalo prima da Authentication → Utenti.'
+            : (e.code && e.code.startsWith('auth/') ? authErrorText(e) : 'Creazione non riuscita. Riprova.'), 'error');
+    }
+    if (btn) btn.disabled = false;
+}
+
+function renderAdminOperators() {
+    const tbody = document.getElementById('admin-operators-tbody');
+    tbody.innerHTML = '';
+    document.getElementById('operators-counter').innerText = `${db.operators.length} Operatori`;
+    const pending = db.operators.filter(o => !o.pwChanged).length;
+    const pendEl = document.getElementById('pending-pw-counter');
+    pendEl.innerText = `${pending} con password provvisoria`;
+    pendEl.classList.toggle('hidden', pending === 0);
+
+    if (db.operators.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Nessun operatore registrato.</td></tr>`;
+        return;
+    }
+    db.operators.forEach(op => {
+        const pwBadge = op.pwChanged
+            ? '<span class="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border bg-emerald-900/40 text-emerald-300 border-emerald-700"><i class="fa-solid fa-check mr-1"></i>Password personale</span>'
+            : '<span class="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border bg-amber-900/40 text-amber-300 border-amber-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Password provvisoria</span>';
+        const total = (op.totalSeconds || 0);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-700/30 transition';
+        tr.innerHTML = `
+            <td class="py-3 px-4 font-mono font-bold text-amber-400">${esc(op.matricola)}</td>
+            <td class="py-3 px-4 font-medium text-white">${esc(op.name)}${op.shift ? '<div class="text-[10px] text-emerald-400 font-normal"><i class="fa-solid fa-circle text-[6px] mr-1 align-middle"></i>In servizio</div>' : ''}</td>
+            <td class="py-3 px-4 text-slate-300 font-mono text-xs">${esc(op.username)}<div>${pwBadge}</div></td>
+            <td class="py-3 px-4">
+                <input type="text" value="${esc(op.role)}" onchange="updateOperatorRole('${esc(op.uid)}', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="Ruolo libero...">
+            </td>
+            <td class="py-3 px-4 font-mono text-amber-300">${formatSecondsToHHMMSS(total)}</td>
+            <td class="py-3 px-4 text-center">
+                <div class="inline-flex gap-1">
+                    <button onclick="adjustOperatorHours('${esc(op.uid)}', 3600)" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded text-xs font-bold" title="Aggiungi 1 ora">+1h</button>
+                    <button onclick="adjustOperatorHours('${esc(op.uid)}', -3600)" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-red-400 rounded text-xs font-bold" title="Sottrai 1 ora">-1h</button>
+                    <button onclick="adjustOperatorHours('${esc(op.uid)}', 'reset')" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-xs" title="Reset ore">Res</button>
+                </div>
+            </td>
+            <td class="py-3 px-4 text-center">
+                <div class="inline-flex items-center gap-2">
+                    <button onclick="openHistoryModal('${esc(op.uid)}')" class="text-amber-400 hover:text-amber-300 p-1" title="Storico ore"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                    <button onclick="deleteOperator('${esc(op.uid)}')" class="text-red-400 hover:text-red-300 p-1" title="Elimina operatore"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function updateOperatorRole(uid, newRole) {
+    const op = getOp(uid);
+    if (!op || newRole === op.role) return;
+    const old = op.role;
+    const ok = await tryWrite(updateDoc(doc(fs, 'operators', uid), { role: newRole }));
+    if (ok) logAction('Admin', `Ruolo di ${op.name}: "${old}" -> "${newRole}"`);
+}
+
+async function adjustOperatorHours(uid, action) {
+    const op = getOp(uid);
+    if (!op) return;
+    const total = op.totalSeconds || 0;
+    const nowIso = new Date().toISOString();
+    let delta, entry, text;
+    if (action === 'reset') {
+        delta = -total;
+        entry = { type: 'Reset admin', start: nowIso, end: nowIso, seconds: delta };
+        text = `Azzerate le ore di ${op.name}`;
+    } else {
+        delta = Math.max(-total, action);
+        entry = { type: 'Rettifica admin', start: nowIso, end: nowIso, seconds: delta };
+        text = `${action > 0 ? '+1h' : '-1h'} a ${op.name}`;
+    }
+    const ok = await tryWrite(updateDoc(doc(fs, 'operators', uid), { totalSeconds: increment(delta), history: arrayUnion(entry) }), 'Ore di servizio aggiornate.');
+    if (ok) logAction('Admin', text);
+}
+
+async function deleteOperator(uid) {
+    const op = getOp(uid);
+    if (!op) return;
+    const ok = await tryWrite(deleteDoc(doc(fs, 'operators', uid)), 'Operatore rimosso dal portale (l\'account resta in Firebase Authentication).');
+    if (ok) logAction('Admin', `Eliminato operatore ${op.name}`);
+}
+
+function renderAdminLog() {
+    const tbody = document.getElementById('admin-log-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    document.getElementById('log-counter').innerText = `${db.log.length} azioni`;
+    if (db.log.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-slate-500">Nessuna azione registrata.</td></tr>';
+        return;
+    }
+    db.log.forEach(l => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-700/30 transition';
+        tr.innerHTML = `
+            <td class="py-2 px-4 text-xs text-slate-400 whitespace-nowrap">${formatDateTime(l.ts)}</td>
+            <td class="py-2 px-4 text-xs font-medium text-amber-300">${esc(l.actor)}</td>
+            <td class="py-2 px-4 text-xs text-slate-200">${esc(l.text)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function openSettingsModal() {
+    document.getElementById('settings-modal').classList.remove('hidden');
+    document.getElementById('current-admin-password').value = '';
+    document.getElementById('new-admin-password').value = '';
+    document.getElementById('confirm-admin-password').value = '';
+}
+
+function closeSettingsModal() {
+    document.getElementById('settings-modal').classList.add('hidden');
+}
+
+async function saveCommandSettings(event) {
+    event.preventDefault();
+    const cur = document.getElementById('current-admin-password').value;
+    const p1 = document.getElementById('new-admin-password').value;
+    const p2 = document.getElementById('confirm-admin-password').value;
+    if (p1.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
+    if (p1 !== p2) { showNotification('Le password non coincidono.', 'error'); return; }
+    if (p1 === cur) { showNotification('La nuova password deve essere diversa da quella attuale.', 'error'); return; }
+    try {
+        await reauthenticateWithCredential(currentUser, EmailAuthProvider.credential(currentUser.email, cur));
+        await updatePassword(currentUser, p1);
+    } catch (e) {
+        console.error(e);
+        showNotification(['auth/invalid-credential', 'auth/wrong-password'].includes(e.code) ? 'Password attuale errata.' : authErrorText(e), 'error');
+        return;
+    }
+    closeSettingsModal();
+    logAction('Admin', 'Password admin modificata');
+    showNotification('Password admin aggiornata con successo.');
+}
+
+// ================= AVVIO =================
+updateSoundButton();
+
+// Funzioni richiamate dagli attributi onclick/onsubmit dell'HTML
+Object.assign(window, { esc, showNotification, formatSecondsToHHMMSS, fmtSigned, formatDateTime, usernameToEmail, authErrorText, tryWrite, getOp, actorName, logAction, resolveRole, stopListeners, onListenError, startListeners, refreshViews, switchTab, generateTrackingCode, openCitizenModal, closeCitizenModal, toggleAccusedName, requestSummary, submitCitizenRequest, openCodeModal, closeCodeModal, copyTrackingCode, checkTrackingCode, isValidWebhook, postToDiscord, sendDenunciaToDiscord, updateDiscordStatus, loadDiscordSettings, saveDiscordWebhook, testDiscordWebhook, handleOperatorLogin, checkOperatorSession, logoutOperator, shiftSeconds, updateTimerDisplay, syncDutyTicker, setDutyButtons, startDuty, endDuty, findReq, renderOperatorRequests, updateRequestStatus, modalStatusChange, openRequestModal, refreshOpenRequest, closeRequestModal, renderRequestNotes, setRequestAssignee, takeRequest, addRequestNote, openMyHistory, historyBounds, openHistoryModal, renderHistory, closeHistoryModal, openPasswordModal, cancelPasswordModal, submitPasswordChange, updateSoundButton, toggleSound, playAlert, updateNavBadge, handleAdminLogin, checkAdminSession, logoutAdmin, generateMatricola, handleCreateOperator, renderAdminOperators, updateOperatorRole, adjustOperatorHours, deleteOperator, renderAdminLog, openSettingsModal, closeSettingsModal, saveCommandSettings });
     </script>
 </body>
 </html>
