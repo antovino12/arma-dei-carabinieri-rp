@@ -161,8 +161,10 @@
                     <!-- Live Chronometer -->
                     <div class="flex items-center space-x-4 bg-slate-900 px-5 py-3 rounded-xl border border-slate-700">
                         <div class="text-center">
-                            <span class="block text-xs text-slate-400 uppercase tracking-wider">Cronometro Servizio</span>
+                            <span class="block text-xs text-slate-400 uppercase tracking-wider">Timbro Cartellino</span>
                             <span id="live-timer" class="text-2xl font-mono font-bold text-amber-400">00:00:00</span>
+                            <span id="live-since" class="block text-xs text-slate-500 mt-0.5">Fuori servizio</span>
+                            <span class="block text-xs text-slate-500">Ore totali: <span id="live-total" class="font-mono text-slate-300">00:00:00</span></span>
                         </div>
                         <div class="flex flex-col gap-1">
                             <button id="timer-toggle-btn" onclick="startDuty()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow">
@@ -261,6 +263,27 @@
                     </div>
                 </div>
 
+                <!-- Discord Channel for Denunce -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                        <i class="fa-brands fa-discord text-amber-400"></i> Canale Discord Denunce
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Incolla il link Webhook del canale Discord dove devono arrivare le denunce (Discord: Impostazioni canale &rarr; Integrazioni &rarr; Webhook &rarr; Copia URL).</p>
+                    <div class="flex flex-col lg:flex-row gap-3 items-end">
+                        <div class="flex-1 w-full">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Link Webhook Discord</label>
+                            <input type="url" id="discord-webhook-input" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                        </div>
+                        <button type="button" onclick="saveDiscordWebhook()" class="w-full lg:w-auto px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow h-[38px] flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> <span>Salva</span>
+                        </button>
+                        <button type="button" id="discord-test-btn" onclick="testDiscordWebhook()" class="w-full lg:w-auto px-5 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl font-semibold text-sm transition border border-slate-600 h-[38px] flex items-center justify-center gap-2 disabled:opacity-50">
+                            <i class="fa-solid fa-paper-plane"></i> <span>Test</span>
+                        </button>
+                    </div>
+                    <p id="discord-status" class="text-xs mt-3 text-slate-500">Nessun canale collegato.</p>
+                </div>
+
                 <!-- Add New Operator Form on a Single Flex Row -->
                 <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
                     <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -328,7 +351,7 @@
 
     <!-- Citizen Request Modal -->
     <div id="citizen-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeCitizenModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -338,8 +361,29 @@
             <form onsubmit="submitCitizenRequest(event)" class="space-y-4">
                 <input type="hidden" id="citizen-req-type">
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome e Cognome (o Anonimo)</label>
+                    <label id="citizen-name-label" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome e Cognome (o Anonimo)</label>
                     <input type="text" id="citizen-name" required placeholder="Es. Mario Rossi o Anonimo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div id="denuncia-fields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Numero di telefono</label>
+                        <input type="tel" id="citizen-phone" placeholder="Es. 333 1234567" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Chi denuncia? (persona denunciata)</label>
+                        <select id="citizen-accused-type" onchange="toggleAccusedName()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <option value="noto">Persona conosciuta (so nome e cognome)</option>
+                            <option value="ignoto">Persona ignota</option>
+                        </select>
+                    </div>
+                    <div id="accused-name-wrap">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome e Cognome del denunciato</label>
+                        <input type="text" id="citizen-accused-name" placeholder="Es. Luigi Neri" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Cosa denuncia</label>
+                        <input type="text" id="citizen-subject" placeholder="Es. Furto, minacce, danneggiamento..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1" id="citizen-content-label">Dettagli / Contenuto</label>
@@ -428,6 +472,9 @@
     <!-- ================= APPLICATION SCRIPT ================= -->
     <script>
         // Password admin predefinita: Carabinieri2026 (chiave _v2 per ignorare la vecchia password salvata)
+        // Facoltativo: incolla qui il link webhook Discord per farlo funzionare anche dai dispositivi dei cittadini
+        const DEFAULT_DISCORD_WEBHOOK = '';
+
         let db = {
             operators: JSON.parse(localStorage.getItem('carabinieri_operators')) || [
                 { matricola: 'CC-1001', name: 'Maresciallo Capo Marco Rossi', username: 'm.rossi', password: 'password123', role: 'Maresciallo Capo', totalSeconds: 0 },
@@ -437,7 +484,8 @@
                 { id: 1, type: 'colloquio', name: 'Giuseppe Verdi', content: 'Richiesta colloquio informativo per porto d armi.', date: '29/09/2026 10:30', status: 'In attesa' },
                 { id: 2, type: 'denuncia', name: 'Anonimo', content: 'Segnalazione furto autovettura in sosta.', date: '29/09/2026 11:15', status: 'In lavorazione' }
             ],
-            adminPassword: localStorage.getItem('carabinieri_admin_pass_v2') || 'Carabinieri2026'
+            adminPassword: localStorage.getItem('carabinieri_admin_pass_v2') || 'Carabinieri2026',
+            discordWebhook: localStorage.getItem('carabinieri_discord_webhook') || DEFAULT_DISCORD_WEBHOOK
         };
 
         let currentOperator = JSON.parse(localStorage.getItem('carabinieri_current_op')) || null;
@@ -448,6 +496,7 @@
             localStorage.setItem('carabinieri_operators', JSON.stringify(db.operators));
             localStorage.setItem('carabinieri_requests', JSON.stringify(db.requests));
             localStorage.setItem('carabinieri_admin_pass_v2', db.adminPassword);
+            localStorage.setItem('carabinieri_discord_webhook', db.discordWebhook || '');
             if (currentOperator) {
                 localStorage.setItem('carabinieri_current_op', JSON.stringify(currentOperator));
             } else {
@@ -500,13 +549,43 @@
             document.getElementById('citizen-modal-subtitle').innerText = titles[type][1];
             document.getElementById('citizen-name').value = type === 'segnalazione' ? 'Anonimo' : '';
             document.getElementById('citizen-content').value = '';
+
+            const isDen = type === 'denuncia';
+            document.getElementById('denuncia-fields').classList.toggle('hidden', !isDen);
+            document.getElementById('citizen-phone').value = '';
+            document.getElementById('citizen-subject').value = '';
+            document.getElementById('citizen-accused-type').value = 'noto';
+            document.getElementById('citizen-accused-name').value = '';
+            document.getElementById('citizen-phone').required = isDen;
+            document.getElementById('citizen-subject').required = isDen;
+            toggleAccusedName();
+            document.getElementById('citizen-name-label').innerText = isDen ? 'Nome e Cognome di chi denuncia' : 'Nome e Cognome (o Anonimo)';
+            document.getElementById('citizen-content-label').innerText = isDen ? 'Più informazioni sulla denuncia' : 'Dettagli / Contenuto';
         }
 
         function closeCitizenModal() {
             document.getElementById('citizen-modal').classList.add('hidden');
         }
 
-        function submitCitizenRequest(event) {
+        function toggleAccusedName() {
+            const known = document.getElementById('citizen-accused-type').value === 'noto';
+            const isDen = !document.getElementById('denuncia-fields').classList.contains('hidden');
+            document.getElementById('accused-name-wrap').classList.toggle('hidden', !known);
+            document.getElementById('citizen-accused-name').required = known && isDen;
+        }
+
+        function esc(t) {
+            return String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function requestSummary(req) {
+            if (req.type === 'denuncia' && req.extra) {
+                return `Cosa denuncia: ${req.extra.subject}\nDenunciato: ${req.extra.accused}\nInfo: ${req.content}`;
+            }
+            return req.content;
+        }
+
+        async function submitCitizenRequest(event) {
             event.preventDefault();
             const type = document.getElementById('citizen-req-type').value;
             const name = document.getElementById('citizen-name').value;
@@ -524,13 +603,112 @@
                 status: 'In attesa'
             };
 
+            if (type === 'denuncia') {
+                const known = document.getElementById('citizen-accused-type').value === 'noto';
+                newReq.extra = {
+                    phone: document.getElementById('citizen-phone').value.trim(),
+                    accused: known ? document.getElementById('citizen-accused-name').value.trim() : 'Ignoto',
+                    subject: document.getElementById('citizen-subject').value.trim()
+                };
+            }
+
             db.requests.unshift(newReq);
             saveDB();
             closeCitizenModal();
-            showNotification('Richiesta inoltrata con successo alla stazione.');
+            showNotification(type === 'denuncia' ? 'Denuncia inoltrata con successo alla stazione.' : 'Richiesta inoltrata con successo alla stazione.');
             if (!document.getElementById('tab-operator').classList.contains('hidden')) {
                 renderOperatorRequests();
             }
+
+            if (type === 'denuncia' && db.discordWebhook) {
+                const ok = await sendDenunciaToDiscord(newReq);
+                if (!ok) showNotification('Denuncia salvata, ma invio a Discord non riuscito.', 'error');
+            }
+        }
+
+        // ---------- Discord ----------
+        function isValidWebhook(url) {
+            return /^https:\/\/(?:ptb\.|canary\.)?discord(?:app)?\.com\/api\/webhooks\/\d+\/[\w-]+/.test(url);
+        }
+
+        async function postToDiscord(url, payload) {
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                return res.ok;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function sendDenunciaToDiscord(req) {
+            const cut = (t, n = 1000) => { t = String(t || '-'); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+            const ex = req.extra || {};
+            return postToDiscord(db.discordWebhook, {
+                username: 'Portale Carabinieri RP',
+                allowed_mentions: { parse: [] },
+                embeds: [{
+                    title: '🚨 Nuova denuncia',
+                    color: 0x1e40af,
+                    fields: [
+                        { name: 'Denunciante', value: cut(req.name), inline: true },
+                        { name: 'Telefono', value: cut(ex.phone), inline: true },
+                        { name: 'Persona denunciata', value: cut(ex.accused) },
+                        { name: 'Cosa denuncia', value: cut(ex.subject) },
+                        { name: 'Ulteriori informazioni', value: cut(req.content) }
+                    ],
+                    footer: { text: 'Ricevuta il ' + req.date },
+                    timestamp: new Date().toISOString()
+                }]
+            });
+        }
+
+        function updateDiscordStatus() {
+            const el = document.getElementById('discord-status');
+            if (db.discordWebhook) {
+                el.innerText = 'Canale collegato: le nuove denunce vengono inviate su Discord.';
+                el.className = 'text-xs mt-3 text-emerald-400';
+            } else {
+                el.innerText = 'Nessun canale collegato.';
+                el.className = 'text-xs mt-3 text-slate-500';
+            }
+        }
+
+        function loadDiscordSettings() {
+            document.getElementById('discord-webhook-input').value = db.discordWebhook || '';
+            updateDiscordStatus();
+        }
+
+        function saveDiscordWebhook() {
+            const url = document.getElementById('discord-webhook-input').value.trim();
+            if (url && !isValidWebhook(url)) {
+                showNotification('Link webhook Discord non valido.', 'error');
+                return;
+            }
+            db.discordWebhook = url;
+            saveDB();
+            updateDiscordStatus();
+            showNotification(url ? 'Canale Discord salvato.' : 'Collegamento Discord rimosso.');
+        }
+
+        async function testDiscordWebhook() {
+            const url = document.getElementById('discord-webhook-input').value.trim();
+            if (!isValidWebhook(url)) {
+                showNotification('Inserisci prima un link webhook Discord valido.', 'error');
+                return;
+            }
+            const btn = document.getElementById('discord-test-btn');
+            btn.disabled = true;
+            const ok = await postToDiscord(url, {
+                username: 'Portale Carabinieri RP',
+                allowed_mentions: { parse: [] },
+                content: '✅ **Test di collegamento riuscito.** Le denunce del Portale Arma dei Carabinieri RP arriveranno in questo canale.'
+            });
+            btn.disabled = false;
+            showNotification(ok ? 'Test riuscito: controlla il canale Discord.' : 'Test fallito: controlla il link del webhook.', ok ? 'success' : 'error');
         }
 
         function handleOperatorLogin(event) {
@@ -590,9 +768,13 @@
         }
 
         function updateTimerDisplay() {
-            if (currentOperator) {
-                document.getElementById('live-timer').innerText = formatSecondsToHHMMSS(currentOperator.totalSeconds);
-            }
+            if (!currentOperator) return;
+            const sh = currentOperator.shift;
+            document.getElementById('live-timer').innerText = formatSecondsToHHMMSS(sh ? sh.seconds : 0);
+            document.getElementById('live-total').innerText = formatSecondsToHHMMSS(currentOperator.totalSeconds);
+            document.getElementById('live-since').innerText = sh
+                ? 'In servizio dalle ' + new Date(sh.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                : 'Fuori servizio';
         }
 
         function getOp(matricola) {
@@ -651,6 +833,7 @@
             op.shift = { start: new Date().toISOString(), seconds: 0 };
             saveDB();
             setDutyButtons(true);
+            updateTimerDisplay();
 
             dutyInterval = setInterval(() => {
                 op.totalSeconds++;
@@ -665,12 +848,16 @@
             if (dutyInterval) { clearInterval(dutyInterval); dutyInterval = null; }
             const wasActive = isDutyActive;
             isDutyActive = false;
+            let saved = 0;
             if (currentOperator) {
-                finalizeShift(getOp(currentOperator.matricola));
+                const op = getOp(currentOperator.matricola);
+                saved = op && op.shift ? op.shift.seconds : 0;
+                finalizeShift(op);
                 saveDB();
             }
             setDutyButtons(false);
-            if (!silent && wasActive) showNotification('Sei uscito dal servizio. Turno salvato nello storico.');
+            updateTimerDisplay(); // l'orologio torna a 00:00:00
+            if (!silent && wasActive) showNotification(`Sei uscito dal servizio. Turno di ${formatSecondsToHHMMSS(saved)} salvato nello storico.`);
         }
 
         function openHistoryModal(matricola) {
@@ -732,8 +919,8 @@
                 tr.className = 'hover:bg-slate-700/30 transition';
                 tr.innerHTML = `
                     <td class="py-3 px-4">${typeBadge}</td>
-                    <td class="py-3 px-4 font-medium text-white">${req.name}</td>
-                    <td class="py-3 px-4 text-slate-300 max-w-xs truncate">${req.content}</td>
+                    <td class="py-3 px-4 font-medium text-white">${esc(req.name)}${req.extra && req.extra.phone ? '<div class="text-xs font-normal text-slate-400"><i class="fa-solid fa-phone mr-1"></i>' + esc(req.extra.phone) + '</div>' : ''}</td>
+                    <td class="py-3 px-4 text-slate-300 max-w-md whitespace-pre-line break-words">${esc(requestSummary(req))}</td>
                     <td class="py-3 px-4 text-xs text-slate-400">${req.date}</td>
                     <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-xs border ${statusColor}">${req.status}</span></td>
                     <td class="py-3 px-4 text-center">
@@ -785,6 +972,7 @@
                 document.getElementById('admin-login-view').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 renderAdminOperators();
+                loadDiscordSettings();
             } else {
                 document.getElementById('admin-login-view').classList.remove('hidden');
                 document.getElementById('admin-dashboard').classList.add('hidden');
