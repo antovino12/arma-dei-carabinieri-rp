@@ -3,2035 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portale Arma dei Carabinieri RP</title>
+    <title>Arma dei Carabinieri - Portale Istituzionale RP</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Palette personalizzata: il rosso scuro diventa blu navy
-        tailwind.config = {
-            theme: { extend: { colors: {
-                red: { 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a', 950: '#172554' }
-            } } }
-        }
-    </script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome per le icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-image: radial-gradient(1100px 480px at 50% -120px, rgba(30,64,175,.28), transparent); background-attachment: fixed; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-        @keyframes pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
-        .fade-in { animation: fadeUp .35s ease-out both; }
-        .card-lift { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
-        .card-lift:hover { transform: translateY(-4px); box-shadow: 0 14px 30px -12px rgba(0,0,0,.7); }
-        [id$="-modal"]:not(.hidden) > div { animation: pop .18s ease-out both; }
-        button:not(:disabled):active { transform: scale(.97); }
-        @media (max-width: 640px) { input, select, textarea { font-size: 16px !important; } }
-        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-    </style>
+    
+    <!-- Firebase SDK Compat v9 -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
-    <!-- Stemma (simbolo grafico originale) -->
-    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
-        <symbol id="emblem" viewBox="0 0 48 48">
-            <path d="M24 3 42 9v13c0 11-8 19-18 23C14 41 6 33 6 22V9z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
-            <path d="M24 8c3 5 6 7 3 12-1-2-2-2.5-3-3-1 .5-2 1-3 3-3-5 0-7 3-12z" fill="currentColor"/>
-            <rect x="21" y="20" width="6" height="4" rx="1" fill="currentColor"/>
-            <circle cx="24" cy="31" r="8" fill="currentColor"/>
-            <path d="M17.5 29h13M17 33h14" stroke="#1e3a8a" stroke-width="1.2" opacity=".6"/>
-        </symbol>
-    </svg>
-
-    <header class="bg-slate-800 border-b border-red-900/40 shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
-                <div class="w-11 h-11 bg-red-800 rounded-full flex items-center justify-center border-2 border-amber-500 shadow-md">
-                    <svg viewBox="0 0 48 48" class="w-6 h-6 text-amber-400" aria-hidden="true"><use href="#emblem"/></svg>
-                </div>
-                <div>
-                    <h1 class="font-bold text-sm sm:text-lg tracking-wider text-slate-100 flex items-center gap-2">
-                        ARMA DEI CARABINIERI <span class="text-xs bg-red-950 text-red-300 px-2 py-0.5 rounded border border-red-800">RP PORTALE</span>
-                    </h1>
-                    <p class="text-xs text-slate-400">Servizio Telematico Unificato</p>
-                </div>
-            </div>
-
-            <nav class="flex items-center space-x-2 mt-2 sm:mt-0">
-                <button onclick="switchTab('home')" id="nav-home" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-900/60 text-amber-300 border border-red-700 transition">
-                    <i class="fa-solid fa-house sm:mr-1.5"></i><span class="hidden sm:inline">Home Cittadini</span>
-                </button>
-                <button onclick="switchTab('operator')" id="nav-operator" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-700/50 text-slate-300 hover:bg-slate-700 transition">
-                    <i class="fa-solid fa-user-shield sm:mr-1.5"></i><span class="hidden sm:inline">Area Operatori</span><span id="nav-op-badge" class="hidden ml-1.5 bg-amber-500 text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full"></span>
-                </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-700/50 text-slate-300 hover:bg-slate-700 transition">
-                    <i class="fa-solid fa-lock sm:mr-1.5"></i><span class="hidden sm:inline">Area Admin</span>
-                </button>
-            </nav>
-        </div>
-    </header>
-
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6">
-
-        <!-- ================= HOME TAB ================= -->
-        <div id="tab-home" class="space-y-6">
-            <div class="bg-gradient-to-r from-red-950 via-slate-900 to-slate-900 border border-red-900/40 rounded-2xl p-6 sm:p-8 shadow-xl text-center">
-                <div class="inline-block p-3 bg-red-900/30 rounded-full border border-red-700/50 mb-4">
-                    <svg viewBox="0 0 48 48" class="w-12 h-12 text-amber-400" aria-hidden="true"><use href="#emblem"/></svg>
-                </div>
-                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">Benvenuti al Portale dei Servizi ai Cittadini</h2>
-                <p class="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base">
-                    Da questo portale è possibile inoltrare richieste di colloquio, presentare denunce formali o inviare segnalazioni in totale anonimato alle stazioni territoriali dell'Arma.
-                </p>
-            </div>
-
-            <!-- 3 Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Card 1: Colloqui -->
-                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 card-lift shadow-lg">
-                    <div>
-                        <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-400 mb-4 border border-amber-500/20">
-                            <i class="fa-solid fa-handshake text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-white mb-2">Prenotazione Colloqui</h3>
-                        <p class="text-slate-400 text-sm mb-6">
-                            Richiedi un appuntamento o un colloquio informativo con gli operatori di servizio presso i nostri uffici.
-                        </p>
-                    </div>
-                    <button onclick="openCitizenModal('colloquio')" class="w-full py-2.5 bg-red-800 hover:bg-red-700 text-white rounded-xl font-medium text-sm transition shadow flex items-center justify-center gap-2">
-                        <span>Compila Richiesta</span> <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </div>
-
-                <!-- Card 2: Denunce -->
-                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 card-lift shadow-lg">
-                    <div>
-                        <div class="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-400 mb-4 border border-red-500/20">
-                            <i class="fa-solid fa-file-shield text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-white mb-2">Presentazione Denunce</h3>
-                        <p class="text-slate-400 text-sm mb-6">
-                            Inoltra una denuncia formale descrivendo l'accaduto e allegando eventuali dettagli utili alle indagini.
-                        </p>
-                    </div>
-                    <button onclick="openCitizenModal('denuncia')" class="w-full py-2.5 bg-red-800 hover:bg-red-700 text-white rounded-xl font-medium text-sm transition shadow flex items-center justify-center gap-2">
-                        <span>Compila Denuncia</span> <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </div>
-
-                <!-- Card 3: Segnalazioni -->
-                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/50 card-lift shadow-lg">
-                    <div>
-                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-4 border border-blue-500/20">
-                            <i class="fa-solid fa-user-secret text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-white mb-2">Segnalazioni Anonime</h3>
-                        <p class="text-slate-400 text-sm mb-6">
-                            Segnala attività illecite, situazioni sospette o emergenze in totale riservatezza e anonimato garantito.
-                        </p>
-                    </div>
-                    <button onclick="openCitizenModal('segnalazione')" class="w-full py-2.5 bg-red-800 hover:bg-red-700 text-white rounded-xl font-medium text-sm transition shadow flex items-center justify-center gap-2">
-                        <span>Invia Segnalazione</span> <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Controllo stato richiesta -->
-            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 shadow-lg">
-                <div class="flex flex-col md:flex-row md:items-end gap-4">
-                    <div class="md:w-1/3">
-                        <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-magnifying-glass text-amber-400"></i> Controlla lo stato</h3>
-                        <p class="text-slate-400 text-sm mt-1">Inserisci il codice di tracciamento ricevuto dopo l'invio.</p>
-                    </div>
-                    <div class="flex-1 flex gap-2">
-                        <input type="text" id="track-input" placeholder="Es. DEN-7K2M9Q" onkeydown="if(event.key==='Enter')checkTrackingCode()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 font-mono uppercase">
-                        <button onclick="checkTrackingCode()" class="px-5 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow">Verifica</button>
-                    </div>
-                </div>
-                <div id="track-result" class="hidden"></div>
-            </div>
-
-        </div>
-
-        <!-- ================= OPERATOR TAB ================= -->
-        <div id="tab-operator" class="hidden space-y-6">
-            <!-- Operator Login Card -->
-            <div id="operator-login-view" class="max-w-md mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-xl mt-10">
-                <div class="text-center mb-6">
-                    <div class="w-14 h-14 bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-3 border border-red-700">
-                        <i class="fa-solid fa-user-lock text-amber-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white">Accesso Area Operatori</h3>
-                    <p class="text-slate-400 text-xs mt-1">Inserisci le credenziali assegnate dal comando</p>
-                    <p class="text-amber-400/90 text-xs mt-2"><i class="fa-solid fa-key mr-1"></i>Al primo accesso dovrai sostituire la password provvisoria con una personale.</p>
-                </div>
-                <form onsubmit="handleOperatorLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Username</label>
-                        <input type="text" id="op-user" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+    <div>
+        <!-- Header / Navbar Istituzionale -->
+        <header class="bg-slate-950 border-b border-red-800 shadow-lg sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-red-800 text-white p-2 rounded-lg shadow">
+                        <i class="fa-solid fa-shield-halved text-2xl"></i>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password</label>
-                        <input type="password" id="op-pass" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <h1 class="text-xl font-bold tracking-wider text-white">ARMA DEI CARABINIERI</h1>
+                        <p class="text-xs text-red-500 font-semibold uppercase tracking-widest">Portale Istituzionale & Servizi RP</p>
                     </div>
-                    <button type="submit" class="w-full py-3 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow">
-                        Effettua Login
-                    </button>
-                </form>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span id="firebase-status" class="text-xs px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Connessione Cloud...
+                    </span>
+                    <button onclick="switchTab('cittadino')" id="btn-tab-cittadino" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded transition shadow">Area Cittadino</button>
+                    <button onclick="switchTab('operatore')" id="btn-tab-operatore" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded transition border border-slate-700">Area Operatore</button>
+                    <button onclick="switchTab('admin')" id="btn-tab-admin" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded transition border border-slate-700">Area Admin</button>
+                </div>
             </div>
+        </header>
 
-            <!-- Operator Dashboard (Hidden initially) -->
-            <div id="operator-dashboard" class="hidden space-y-6">
-                <!-- Top Status Bar with Live Timer -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 sm:p-6 flex flex-wrap justify-between items-center gap-4 shadow-lg">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-red-900/40 rounded-xl flex items-center justify-center border border-red-700">
-                            <i class="fa-solid fa-id-badge text-amber-400 text-xl"></i>
-                        </div>
+        <!-- Contenuto Principale -->
+        <main class="max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+            <!------------------------------------------------ -->
+            <!-- TAB 1: AREA CITTADINO                          -->
+            <!------------------------------------------------ -->
+            <section id="tab-cittadino" class="space-y-6">
+                <div class="bg-slate-800/60 border border-slate-700 p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-white mb-2"><i class="fa-solid fa-building-shield text-blue-500 mr-2"></i> Servizi Telematici per il Cittadino</h2>
+                    <p class="text-slate-400 text-sm">Da questa sezione puoi inoltrare denunce formali, inviare segnalazioni riservate o prenotare un colloquio con un comando stazione.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Denunce -->
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col justify-between">
                         <div>
-                            <h4 id="op-welcome-name" class="font-bold text-white text-lg">Operatore</h4>
-                            <p id="op-welcome-role" class="text-xs text-amber-400 font-medium">Ruolo</p>
+                            <div class="text-red-500 text-3xl mb-3"><i class="fa-solid fa-file-shield"></i></div>
+                            <h3 class="text-lg font-bold text-white">Presenta Denuncia</h3>
+                            <p class="text-slate-400 text-sm mt-2">Sporgi querela o denuncia reati, furti, danneggiamenti o truffe subite.</p>
                         </div>
+                        <button onclick="openFormModal('denuncia')" class="mt-6 w-full bg-red-800 hover:bg-red-700 text-white py-2 rounded font-medium transition">Compila Denuncia</button>
                     </div>
 
-                    <!-- Live Chronometer -->
-                    <div class="flex items-center space-x-4 bg-slate-900 px-5 py-3 rounded-xl border border-slate-700">
-                        <div class="text-center">
-                            <span class="block text-xs text-slate-400 uppercase tracking-wider">Timbro Cartellino</span>
-                            <span id="live-timer" class="text-2xl font-mono font-bold text-amber-400">00:00:00</span>
-                            <span id="live-since" class="block text-xs text-slate-500 mt-0.5">Fuori servizio</span>
-                            <span class="block text-xs text-slate-500">Ore totali: <span id="live-total" class="font-mono text-slate-300">00:00:00</span></span>
+                    <!-- Segnalazioni -->
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <div class="text-amber-500 text-3xl mb-3"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <h3 class="text-lg font-bold text-white">Invia Segnalazione</h3>
+                            <p class="text-slate-400 text-sm mt-2">Segnala situazioni di pericolo, attività sospette o illeciti alle pattuglie.</p>
                         </div>
-                        <div class="flex flex-col gap-1">
-                            <button id="timer-toggle-btn" onclick="startDuty()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow">
-                                <i class="fa-solid fa-play mr-1"></i> Inizia Servizio
-                            </button>
-                            <button id="duty-exit-btn" onclick="endDuty()" disabled class="px-3 py-1 bg-slate-700 text-slate-500 text-xs font-semibold rounded-lg transition cursor-not-allowed">
-                                <i class="fa-solid fa-stop mr-1"></i> Esci dal Servizio
-                            </button>
-                        </div>
+                        <button onclick="openFormModal('segnalazione')" class="mt-6 w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-medium transition">Invia Segnalazione</button>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-2">
-                        <button id="sound-btn" onclick="toggleSound()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm border border-slate-600" title="Avviso sonoro per nuove richieste"><i class="fa-solid fa-bell"></i></button>
-                        <button onclick="openPasswordModal(false)" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-sm font-semibold transition border border-slate-600" title="Cambia password"><i class="fa-solid fa-key sm:mr-1.5"></i><span class="hidden sm:inline">Password</span></button>
-                        <button onclick="openMyHistory()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition border border-slate-600">
-                            <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Storico Turni
-                        </button>
-                        <button onclick="logoutOperator()" class="px-4 py-2 bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-white rounded-xl text-sm font-semibold transition border border-slate-600">
-                            <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Esci
-                        </button>
+                    <!-- Prenotazioni Colloqui -->
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <div class="text-blue-500 text-3xl mb-3"><i class="fa-solid fa-calendar-days"></i></div>
+                            <h3 class="text-lg font-bold text-white">Prenota Colloquio</h3>
+                            <p class="text-slate-400 text-sm mt-2">Fissa un appuntamento in caserma per pratiche o colloqui informativi.</p>
+                        </div>
+                        <button onclick="openFormModal('colloquio')" class="mt-6 w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-medium transition">Prenota Colloquio</button>
                     </div>
                 </div>
 
-                <!-- Citizen Requests Management -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-amber-400"></i> Gestione Richieste Cittadini
-                        </h3>
-                        <span id="requests-counter" class="text-xs bg-slate-900 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-medium">0 Richieste</span>
+                <!-- Verifica Stato Pratica -->
+                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                    <h3 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-magnifying-glass text-blue-400 mr-2"></i> Verifica Stato Pratica / Codice Unico</h3>
+                    <p class="text-slate-400 text-sm mb-4">Inserisci il codice identificativo ricevuto (es. `DEN-8492`, `SEG-1029`, `COL-3041`) per controllare lo stato.</p>
+                    <div class="flex gap-3">
+                        <input type="text" id="tracking-code-input" placeholder="Inserisci codice (es. DEN-XXXX)..." class="bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white flex-grow focus:outline-none focus:border-blue-500 uppercase">
+                        <button onclick="verifyTrackingCode()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-medium transition">Verifica</button>
                     </div>
+                    <div id="tracking-result" class="mt-4 text-sm text-slate-300"></div>
+                </div>
+            </section>
 
+            <!------------------------------------------------ -->
+            <!-- TAB 2: AREA OPERATORE                          -->
+            <!------------------------------------------------ -->
+            <section id="tab-operatore" class="hidden space-y-6">
+                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-user-shield text-red-500 mr-2"></i> Terminale Operativo Militare</h2>
+                        <p class="text-slate-400 text-sm">Gestione dello stato di servizio, timbratura turni e presa in carico delle pratiche.</p>
+                    </div>
+                    <div class="flex items-center gap-4 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                        <div>
+                            <p class="text-xs text-slate-400">Stato Attuale:</p>
+                            <p id="duty-status-text" class="text-sm font-bold text-red-400">FUORI SERVIZIO</p>
+                        </div>
+                        <button id="duty-btn" onclick="toggleDuty()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm transition">Inizia Servizio</button>
+                    </div>
+                </div>
+
+                <!-- Timer -->
+                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl text-center">
+                    <span class="text-xs uppercase tracking-widest text-slate-400">Tempo del Turno Corrente</span>
+                    <div id="duty-timer" class="text-5xl font-mono font-bold text-white my-2">00:00:00</div>
+                    <p class="text-xs text-slate-500">Il tempo viene sincronizzato e salvato nel database alla chiusura del turno.</p>
+                </div>
+
+                <!-- Elenco Pratiche -->
+                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                    <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-list-check text-blue-400 mr-2"></i> Elenco Denunce, Segnalazioni & Colloqui in Coda</h3>
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[760px] text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
-                                    <th class="py-3 px-4">Tipo</th>
-                                    <th class="py-3 px-4">Mittente</th>
-                                    <th class="py-3 px-4">Contenuto / Dettagli</th>
-                                    <th class="py-3 px-4">Data / Ora</th>
-                                    <th class="py-3 px-4">Stato</th>
-                                    <th class="py-3 px-4">Assegnata a</th>
-                                    <th class="py-3 px-4 text-center">Azioni</th>
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+                                <tr>
+                                    <th class="p-3">Codice</th>
+                                    <th class="p-3">Tipo</th>
+                                    <th class="p-3">Richiedente (RP / Discord)</th>
+                                    <th class="p-3">Dettagli</th>
+                                    <th class="p-3">Stato</th>
+                                    <th class="p-3">Azioni</th>
                                 </tr>
                             </thead>
-                            <tbody id="operator-requests-tbody" class="text-sm divide-y divide-slate-700/50">
-                                <!-- Populated via JS -->
+                            <tbody id="operator-requests-table">
+                                <tr><td colspan="6" class="p-4 text-center text-slate-500">Caricamento dati dal database...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <!-- ================= ADMIN TAB ================= -->
-        <div id="tab-admin" class="hidden space-y-6">
-            <!-- Admin Login Card -->
-            <div id="admin-setup-view" class="hidden max-w-md mx-auto bg-slate-800 border border-amber-500/40 rounded-2xl p-8 shadow-xl mt-10">
-                <div class="text-center mb-6">
-                    <div class="w-14 h-14 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-amber-500/40">
-                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white">Prima configurazione</h3>
-                    <p class="text-slate-400 text-xs mt-1">Nessun amministratore è ancora configurato. Crea ora l'account che gestirà il portale.</p>
+            <!------------------------------------------------ -->
+            <!-- TAB 3: AREA ADMIN                              -->
+            <!------------------------------------------------ -->
+            <section id="tab-admin" class="hidden space-y-6">
+                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-gauge-high text-amber-500 mr-2"></i> Pannello Amministrazione Generale</h2>
+                    <p class="text-slate-400 text-sm">Controllo globale del sistema, configurazione webhook Discord e statistiche.</p>
                 </div>
-                <form onsubmit="handleAdminSetup(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email</label>
-                        <input type="email" id="setup-email" required autocomplete="username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="admin@esempio.it">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password</label>
-                        <input type="password" id="setup-pass" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Almeno 6 caratteri">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Conferma password</label>
-                        <input type="password" id="setup-pass2" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ripeti la password">
-                    </div>
-                    <p class="text-[11px] text-amber-200/90 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2"><i class="fa-solid fa-circle-info mr-1 text-amber-400"></i>Completa questo passaggio subito dopo aver pubblicato il sito: chi lo fa per primo diventa amministratore.</p>
-                    <button type="submit" class="w-full py-3 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow disabled:opacity-50">Crea amministratore</button>
-                </form>
-            </div>
 
-            <div id="admin-login-view" class="max-w-md mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-xl mt-10">
-                <div class="text-center mb-6">
-                    <div class="w-14 h-14 bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-3 border border-red-700">
-                        <i class="fa-solid fa-shield-cat text-amber-400 text-2xl"></i>
+                <!-- Statistiche -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400">Totale Denunce</p>
+                        <p id="stat-denunce" class="text-3xl font-bold text-white mt-1">0</p>
                     </div>
-                    <h3 class="text-xl font-bold text-white">Area Riservata Comando (Admin)</h3>
-                    <p class="text-slate-400 text-xs mt-1">Autenticazione richiesta per la gestione del personale</p>
+                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400">Segnalazioni</p>
+                        <p id="stat-segnalazioni" class="text-3xl font-bold text-white mt-1">0</p>
+                    </div>
+                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400">Colloqui Prenotati</p>
+                        <p id="stat-colloqui" class="text-3xl font-bold text-white mt-1">0</p>
+                    </div>
+                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400">Operatori in Servizio</p>
+                        <p id="stat-operatori" class="text-3xl font-bold text-white mt-1">0</p>
+                    </div>
                 </div>
-                <div id="admin-rules-error" class="hidden mb-4 text-[11px] text-red-200 bg-red-950/40 border border-red-800/60 rounded-xl px-3 py-2"><i class="fa-solid fa-triangle-exclamation mr-1 text-red-400"></i>Impossibile leggere la configurazione: pubblica le nuove regole di sicurezza nella console Firebase, poi ricarica la pagina.</div>
-                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email amministratore</label>
-                        <input type="email" id="admin-email-input" required autocomplete="username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="admin@esempio.it">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password</label>
-                        <input type="password" id="admin-pass-input" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Password comando...">
-                    </div>
-                    <button type="submit" class="w-full py-3 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow">
-                        Accedi come Admin
-                    </button>
-                </form>
-            </div>
 
-            <!-- Admin Dashboard (Hidden initially) -->
-            <div id="admin-dashboard" class="hidden space-y-6">
-                <!-- Admin Top Bar with Command Settings Button -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 sm:p-6 flex justify-between items-center shadow-lg relative">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-red-900/40 rounded-xl flex items-center justify-center border border-red-700">
-                            <i class="fa-solid fa-crown text-amber-400 text-xl"></i>
-                        </div>
+                <!-- Webhook Discord -->
+                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                    <h3 class="text-lg font-bold text-white mb-2"><i class="fa-brands fa-discord text-indigo-400 mr-2"></i> Configurazione Canale Discord Webhook</h3>
+                    <p class="text-slate-400 text-sm mb-4">Ricevi notifiche automatiche quando un cittadino invia una pratica.</p>
+                    <div class="space-y-4">
                         <div>
-                            <h4 class="font-bold text-white text-lg">Centro Comando Generale</h4>
-                            <p class="text-xs text-slate-400">Gestione Organico Operatori e Credenziali</p>
+                            <label class="block text-xs text-slate-400 mb-1">Webhook URL</label>
+                            <input type="text" id="webhook-url" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-sm">
                         </div>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <!-- Impostazioni di Comando in alto a destra -->
-                        <button onclick="openSettingsModal()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 hover:text-amber-300 rounded-xl text-xs font-semibold transition border border-slate-600 flex items-center gap-1.5 shadow-sm" title="Impostazioni di Comando">
-                            <i class="fa-solid fa-gear"></i> <span class="hidden sm:inline">Impostazioni di Comando</span>
-                        </button>
-                        <button onclick="logoutAdmin()" class="px-3 py-2 bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-white rounded-xl text-xs font-semibold transition border border-slate-600">
-                            <i class="fa-solid fa-right-from-bracket mr-1"></i> Esci
-                        </button>
+                        <button onclick="saveWebhookConfig()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-medium transition">Salva Webhook</button>
                     </div>
                 </div>
+            </section>
 
-                <!-- Discord Channel for Denunce -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
-                    <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                        <i class="fa-brands fa-discord text-amber-400"></i> Canale Discord Denunce
-                    </h3>
-                    <p class="text-xs text-slate-400 mb-4">Il link viene salvato nel database e vale per tutti i dispositivi. Incolla il link Webhook del canale Discord dove devono arrivare le denunce (Discord: Impostazioni canale &rarr; Integrazioni &rarr; Webhook &rarr; Copia URL).</p>
-                    <div class="flex flex-col lg:flex-row gap-3 items-end">
-                        <div class="flex-1 w-full">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Link Webhook Discord</label>
-                            <input type="url" id="discord-webhook-input" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
-                        <button type="button" onclick="saveDiscordWebhook()" class="w-full lg:w-auto px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow h-[38px] flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-floppy-disk"></i> <span>Salva</span>
-                        </button>
-                        <button type="button" id="discord-test-btn" onclick="testDiscordWebhook()" class="w-full lg:w-auto px-5 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl font-semibold text-sm transition border border-slate-600 h-[38px] flex items-center justify-center gap-2 disabled:opacity-50">
-                            <i class="fa-solid fa-paper-plane"></i> <span>Test</span>
-                        </button>
-                    </div>
-                    <p id="discord-status" class="text-xs mt-3 text-slate-500">Nessun canale collegato.</p>
-                </div>
-
-                <!-- Add New Operator Form on a Single Flex Row -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-user-plus text-amber-400"></i> Generazione Nuovo Operatore
-                    </h3>
-                    <div class="mb-4 flex gap-3 items-start bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 text-xs text-amber-200">
-                        <i class="fa-solid fa-key mt-0.5 text-amber-400"></i>
-                        <p>La password inserita qui è <strong>provvisoria</strong>: al primo accesso all'Area Operatori ogni operatore dovrà obbligatoriamente scegliere una password personale e non potrà riutilizzare quella provvisoria.</p>
-                    </div>
-                    <form onsubmit="handleCreateOperator(event)" class="flex flex-col lg:flex-row gap-3 items-end">
-                        <div class="flex-1 w-full">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome e Cognome</label>
-                            <input type="text" id="new-op-name" required placeholder="Es. Mario Rossi" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div class="flex-1 w-full">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Username</label>
-                            <input type="text" id="new-op-username" required placeholder="Es. m.rossi" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div class="flex-1 w-full">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password Provvisoria</label>
-                            <input type="text" id="new-op-password" required minlength="6" placeholder="Inserisci password..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div class="flex-1 w-full">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Ruolo Iniziale (Testo Libero)</label>
-                            <input type="text" id="new-op-role" required placeholder="Es. Appuntato Scelto / Maresciallo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div class="w-full lg:w-auto">
-                            <button type="submit" class="w-full lg:w-auto px-6 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow h-[38px] flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-check">+</i> <span>Crea Operatore</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Unified Organico Operatori Table -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-users-gear text-amber-400"></i> Organico Operatori Registrati
-                        </h3>
-                        <div class="flex items-center gap-2">
-                            <span id="pending-pw-counter" class="hidden text-xs bg-amber-900/40 text-amber-300 px-3 py-1 rounded-full border border-amber-700 font-medium"></span>
-                            <span id="operators-counter" class="text-xs bg-slate-900 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-medium">0 Operatori</span>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[760px] text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
-                                    <th class="py-3 px-4">Matricola</th>
-                                    <th class="py-3 px-4">Nome e Cognome</th>
-                                    <th class="py-3 px-4">Username</th>
-                                    <th class="py-3 px-4">Ruolo (modificabile)</th>
-                                    <th class="py-3 px-4">Ore di Servizio Totali</th>
-                                    <th class="py-3 px-4 text-center">Azioni Ore</th>
-                                    <th class="py-3 px-4 text-center">Gestione</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-operators-tbody" class="text-sm divide-y divide-slate-700/50">
-                                <!-- Populated via JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Registro Azioni -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-clipboard-list text-amber-400"></i> Registro Azioni
-                        </h3>
-                        <span id="log-counter" class="text-xs bg-slate-900 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-medium">0 azioni</span>
-                    </div>
-                    <div class="overflow-auto max-h-80">
-                        <table class="w-full min-w-[560px] text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
-                                    <th class="py-2 px-4">Data / Ora</th>
-                                    <th class="py-2 px-4">Autore</th>
-                                    <th class="py-2 px-4">Azione</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-log-tbody" class="text-sm divide-y divide-slate-700/50"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- ================= MODALS ================= -->
-
-    <!-- Citizen Request Modal -->
-    <div id="citizen-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeCitizenModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <h3 id="citizen-modal-title" class="text-xl font-bold text-white mb-1">Nuova Richiesta</h3>
-            <p id="citizen-modal-subtitle" class="text-xs text-slate-400 mb-4">Compila i campi sottostanti per inoltrare la richiesta.</p>
-
-            <form onsubmit="submitCitizenRequest(event)" class="space-y-4">
-                <input type="hidden" id="citizen-req-type">
-                <div>
-                    <label id="citizen-name-label" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome e Cognome (o Anonimo)</label>
-                    <input type="text" id="citizen-name" required maxlength="100" placeholder="Es. Mario Rossi o Anonimo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div id="denuncia-fields" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Numero di telefono</label>
-                        <input type="tel" id="citizen-phone" placeholder="Es. 333 1234567" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Chi denuncia? (persona denunciata)</label>
-                        <select id="citizen-accused-type" onchange="toggleAccusedName()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="noto">Persona conosciuta (so nome e cognome)</option>
-                            <option value="ignoto">Persona ignota</option>
-                        </select>
-                    </div>
-                    <div id="accused-name-wrap">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nome e Cognome del denunciato</label>
-                        <input type="text" id="citizen-accused-name" placeholder="Es. Luigi Neri" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Cosa denuncia</label>
-                        <input type="text" id="citizen-subject" placeholder="Es. Furto, minacce, danneggiamento..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Data e ora del fatto</label>
-                        <input type="datetime-local" id="citizen-fact-when" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Luogo del fatto</label>
-                        <input type="text" id="citizen-fact-place" placeholder="Es. Via Roma 12, Bari" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1" id="citizen-content-label">Dettagli / Contenuto</label>
-                    <textarea id="citizen-content" rows="4" required maxlength="3000" placeholder="Scrivi qui i dettagli..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeCitizenModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">
-                        Annulla
-                    </button>
-                    <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">
-                        Inoltra Richiesta
-                    </button>
-                </div>
-            </form>
-        </div>
+        </main>
     </div>
 
-    <!-- Command Settings Modal (Impostazioni di Comando) -->
-    <div id="settings-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <h3 class="text-xl font-bold text-white mb-1">Impostazioni di Comando</h3>
-            <p class="text-xs text-slate-400 mb-4">Modifica la password del tuo account amministratore.</p>
-
-            <form onsubmit="saveCommandSettings(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password attuale</label>
-                    <input type="password" id="current-admin-password" required autocomplete="current-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Password attuale...">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nuova Password Admin</label>
-                    <input type="password" id="new-admin-password" required placeholder="Inserisci nuova password admin..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Conferma Password Admin</label>
-                    <input type="password" id="confirm-admin-password" required placeholder="Ripeti password..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">
-                        Annulla
-                    </button>
-                    <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">
-                        Salva Impostazioni
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Hours History Modal -->
-    <div id="history-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeHistoryModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <h3 id="history-title" class="text-xl font-bold text-white mb-4 pr-8">Storico ore</h3>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3"><span class="block text-[10px] uppercase tracking-wider text-slate-400">Periodo selezionato</span><span id="history-total-period" class="font-mono font-bold text-amber-300">00:00:00</span></div>
-                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3"><span class="block text-[10px] uppercase tracking-wider text-slate-400">Questa settimana</span><span id="history-total-week" class="font-mono font-bold text-slate-100">00:00:00</span></div>
-                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3"><span class="block text-[10px] uppercase tracking-wider text-slate-400">Questo mese</span><span id="history-total-month" class="font-mono font-bold text-slate-100">00:00:00</span></div>
-                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3"><span class="block text-[10px] uppercase tracking-wider text-slate-400">Totale generale</span><span id="history-total-all" class="font-mono font-bold text-slate-100">00:00:00</span></div>
-            </div>
-
-            <div class="flex flex-wrap items-end gap-3 mb-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Periodo</label>
-                    <select id="history-filter" onchange="renderHistory()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <option value="all">Tutto lo storico</option>
-                        <option value="week">Questa settimana</option>
-                        <option value="month">Questo mese</option>
-                        <option value="lastmonth">Mese scorso</option>
-                        <option value="custom">Intervallo personalizzato</option>
-                    </select>
-                </div>
-                <div id="history-custom" class="hidden flex flex-wrap items-end gap-3">
-                    <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Dal</label><input type="date" id="history-from" onchange="renderHistory()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"></div>
-                    <div><label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Al</label><input type="date" id="history-to" onchange="renderHistory()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"></div>
-                </div>
-            </div>
-
-            <div class="overflow-auto max-h-72">
-                <table class="w-full min-w-[520px] text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
-                            <th class="py-2 px-3">Tipo</th>
-                            <th class="py-2 px-3">Inizio</th>
-                            <th class="py-2 px-3">Fine</th>
-                            <th class="py-2 px-3 text-right">Durata</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-tbody" class="text-sm divide-y divide-slate-700/50"></tbody>
-                </table>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-2">I totali comprendono turni e rettifiche dell'admin.</p>
-            <div class="flex justify-end pt-3">
-                <button onclick="closeHistoryModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Chiudi</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tracking Code Modal -->
-    <div id="code-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl text-center">
-            <div class="w-14 h-14 bg-emerald-900/40 rounded-full flex items-center justify-center mx-auto mb-3 border border-emerald-700"><i class="fa-solid fa-circle-check text-emerald-400 text-2xl"></i></div>
-            <h3 id="code-title" class="text-xl font-bold text-white mb-1">Richiesta inoltrata</h3>
-            <p class="text-xs text-slate-400 mb-4">Conserva questo codice: ti permette di controllare lo stato della richiesta dalla Home.</p>
-            <div id="code-value" class="font-mono text-2xl font-bold tracking-widest text-amber-300 bg-slate-900 border border-slate-700 rounded-xl py-3 mb-4 select-all">-</div>
-            <div class="flex justify-center gap-3">
-                <button onclick="copyTrackingCode()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition"><i class="fa-regular fa-copy mr-1.5"></i>Copia codice</button>
-                <button onclick="closeCodeModal()" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">Chiudi</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Request Detail Modal -->
-    <div id="request-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeRequestModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <div class="flex flex-wrap items-center gap-2 mb-1 pr-8">
-                <h3 id="rm-title" class="text-xl font-bold text-white">Dettagli richiesta</h3>
-                <span id="rm-code" class="font-mono text-xs bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-amber-300"></span>
-            </div>
-            <p id="rm-meta" class="text-xs text-slate-400 mb-4"></p>
-            <div id="rm-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4"></div>
-            <label id="rm-content-label" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Dettagli</label>
-            <div id="rm-content" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 whitespace-pre-line break-words mb-4"></div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Stato</label>
-                    <select id="rm-status" onchange="modalStatusChange(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <option value="In attesa">In attesa</option>
-                        <option value="In lavorazione">In lavorazione</option>
-                        <option value="Completata">Completata</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Assegnata a</label>
-                    <select id="rm-assignee" onchange="setRequestAssignee(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></select>
-                </div>
-            </div>
-            <button onclick="takeRequest()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow mb-5"><i class="fa-solid fa-hand mr-1.5"></i>Prendi in carico</button>
-
-            <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2"><i class="fa-solid fa-lock text-amber-400 text-xs"></i> Note interne <span class="text-[11px] font-normal text-slate-500">(visibili solo agli operatori)</span></h4>
-            <div id="rm-notes" class="space-y-2 max-h-40 overflow-y-auto mb-3"></div>
-            <textarea id="rm-note-input" rows="2" placeholder="Scrivi una nota interna..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
-            <div class="flex justify-end pt-3">
-                <button onclick="addRequestNote()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-xl text-sm font-semibold transition">Aggiungi nota</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Password change (operators) -->
-    <div id="force-pw-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-amber-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="text-center mb-4">
-                <div class="w-14 h-14 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-amber-500/40"><i class="fa-solid fa-key text-amber-400 text-2xl"></i></div>
-                <h3 id="fpw-title" class="text-xl font-bold text-white">Cambio password obbligatorio</h3>
-                <p id="fpw-subtitle" class="text-xs text-slate-400 mt-1">Stai usando una password provvisoria assegnata dal comando. Per continuare devi sceglierne una personale.</p>
-            </div>
-            <form onsubmit="submitPasswordChange(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password attuale (provvisoria)</label>
-                    <input type="password" id="fpw-current" required autocomplete="current-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Password ricevuta dal comando">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Nuova password</label>
-                    <input type="password" id="fpw-new" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Almeno 6 caratteri">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Conferma nuova password</label>
-                    <input type="password" id="fpw-confirm" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ripeti la password">
-                </div>
-                <p class="text-[11px] text-slate-500">Non puoi riutilizzare la password attuale.</p>
-                <div class="flex justify-end gap-3 pt-1">
-                    <button type="button" id="fpw-cancel" onclick="cancelPasswordModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Esci</button>
-                    <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">Salva password</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Admin: set provisional password for an operator -->
-    <div id="admin-pw-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeAdminPwModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <h3 class="text-xl font-bold text-white mb-1">Reimposta password</h3>
-            <p id="apw-subtitle" class="text-xs text-slate-400 mb-4"></p>
-            <form onsubmit="saveAdminPw(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password provvisoria</label>
-                    <input type="text" id="apw-input" required minlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Inserisci password provvisoria...">
-                </div>
-                <div class="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 text-[11px] text-amber-200"><i class="fa-solid fa-circle-info mt-0.5 text-amber-400"></i><span>Verrà creato un nuovo accesso: ore e storico restano, e l'operatore dovrà scegliere una password personale al prossimo accesso.</span></div>
-                <div class="flex justify-end gap-3 pt-1">
-                    <button type="button" onclick="closeAdminPwModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Annulla</button>
-                    <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">Reimposta</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Custom Notification Box (Instead of alert) -->
-    <div id="notification-box" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-800 border border-amber-500/50 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
-        <i id="notif-icon" class="fa-solid fa-circle-check text-amber-400 text-lg"></i>
-        <span id="notif-text" class="text-sm font-medium">Messaggio di notifica</span>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
-        &copy; Arma dei Carabinieri - Reparto Operativo (RP). Tutti i diritti riservati. Sistema protetto.
+    <!-- FOOTER ISTITUZIONALE CON FIRMA -->
+    <footer class="bg-slate-950 border-t border-slate-800 mt-12 py-4 px-6 text-center text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full">
+        <p>© 2026 Arma dei Carabinieri RP - Tutti i diritti riservati.</p>
+        <p class="text-slate-400 font-medium mt-2 md:mt-0">Sito ideato e creato da <span class="text-red-500 font-bold">Antovino</span></p>
     </footer>
 
-    <!-- ================= APPLICATION SCRIPT ================= -->
-    <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    <!-- MODALE COMPILAZIONE FORM (Denuncia / Segnalazione / Colloquio) -->
+    <div id="form-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-xl p-6 space-y-4">
+            <h3 id="modal-title" class="text-xl font-bold text-white">Compila Modulo</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Nome e Cognome (RP)</label>
+                    <input type="text" id="form-name" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Mario Rossi">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Tag Discord</label>
+                    <input type="text" id="form-discord" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="mariorossi#0000">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1" id="form-desc-label">Descrizione / Motivo</label>
+                    <textarea id="form-desc" rows="4" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Scrivi i dettagli..."></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeFormModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition">Annulla</button>
+                <button onclick="submitUserForm()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-bold transition">Invia Pratica</button>
+            </div>
+        </div>
+    </div>
 
-// ================= FIREBASE =================
-const firebaseConfig = {
-    apiKey: "AIzaSyBktjEygi9VKCtKYqLABnucTaX2vPuCzts",
-    authDomain: "cc-rp-ae56e.firebaseapp.com",
-    projectId: "cc-rp-ae56e",
-    storageBucket: "cc-rp-ae56e.firebasestorage.app",
-    messagingSenderId: "225517187546",
-    appId: "1:225517187546:web:2f65110d5cc8e7918ad0e3"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const fs = getFirestore(app);
-let secondaryApp = null; // usata solo per creare account operatore senza uscire dall'admin
+    <!-- LOGICA FIREBASE & APPLICAZIONE -->
+    <script>
+        // Configurazione Firebase fornita
+        const firebaseConfig = {
+            apiKey: "AIzaSyChsIsU6q6H163mqhScFnKoQm-jca6c4Yo",
+            authDomain: "arma-dei-carabinieri.firebaseapp.com",
+            projectId: "arma-dei-carabinieri",
+            storageBucket: "arma-dei-carabinieri.firebasestorage.app",
+            messagingSenderId: "318291768733",
+            appId: "1:318291768733:web:282e33719e6f5778d0ab74",
+            measurementId: "G-CDT4GPGP5R",
+            databaseURL: "https://arma-dei-carabinieri-default-rtdb.firebaseio.com"
+        };
 
-const EMAIL_DOMAIN = 'portale.local'; // gli username diventano username@portale.local
+        // Inizializzazione Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-// Cache locali alimentate in tempo reale da Firestore
-let db = {
-    requests: [],
-    operators: [],
-    log: [],
-    discordWebhook: ''
-};
-let currentUser = null;
-let sessionRole = null;      // 'operator' | 'admin' | null
-let currentOperator = null;  // documento dell'operatore collegato
-let isAdminLoggedIn = false;
-let loginIntent = null;      // 'operator' | 'admin' durante un login manuale
-let unsubs = [];
-let firstRequestsSnap = true;
-let adminViewInit = false;
-let dutyInterval = null;
-let isDutyActive = false;
-let setupDone = null;    // true se esiste già un amministratore
-let setupError = false;  // true se le regole non permettono di leggere la configurazione
-let setupBusy = false;
+        // Controllo stato connessione
+        db.ref(".info/connected").on("value", (snap) => {
+            const statusBadge = document.getElementById('firebase-status');
+            if (snap.val() === true) {
+                statusBadge.className = "text-xs px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full flex items-center gap-1.5";
+                statusBadge.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i> Firebase Online`;
+            } else {
+                statusBadge.className = "text-xs px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-full flex items-center gap-1.5";
+                statusBadge.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i> Disconnesso`;
+            }
+        });
 
-const TYPE_BADGE = {
-    'colloquio': '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-semibold">Colloquio</span>',
-    'denuncia': '<span class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-xs font-semibold">Denuncia</span>',
-    'segnalazione': '<span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-semibold">Segnalazione</span>'
-};
-const STATUS_STYLE = {
-    'In attesa': 'bg-amber-900/40 text-amber-300 border-amber-700',
-    'In lavorazione': 'bg-blue-900/40 text-blue-300 border-blue-700',
-    'Completata': 'bg-emerald-900/40 text-emerald-300 border-emerald-700'
-};
-const TYPE_LABEL = { colloquio: 'Colloquio', denuncia: 'Denuncia', segnalazione: 'Segnalazione' };
-const CODE_PREFIX = { colloquio: 'COL', denuncia: 'DEN', segnalazione: 'SEG' };
+        // Gestione Tab
+        function switchTab(tabName) {
+            ['cittadino', 'operatore', 'admin'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('btn-tab-' + t).className = "px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded transition border border-slate-700";
+            });
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            document.getElementById('btn-tab-' + tabName).className = "px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded transition shadow";
+        }
 
-// ================= UTILITA' =================
-function esc(t) {
-    return String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+        // Modale form cittadini
+        let currentFormType = '';
+        function openFormModal(type) {
+            currentFormType = type;
+            document.getElementById('form-name').value = '';
+            document.getElementById('form-discord').value = '';
+            document.getElementById('form-desc').value = '';
+            
+            const titles = { denuncia: 'Presenta Denuncia Formale', segnalazione: 'Invia Segnalazione', colloquio: 'Prenota Colloquio in Caserma' };
+            document.getElementById('modal-title').textContent = titles[type];
+            document.getElementById('form-modal').classList.remove('hidden');
+        }
 
-function showNotification(msg, type = 'success') {
-    const box = document.getElementById('notification-box');
-    const text = document.getElementById('notif-text');
-    const icon = document.getElementById('notif-icon');
-    text.innerText = msg;
-    icon.className = type === 'success' ? 'fa-solid fa-circle-check text-amber-400 text-lg' : 'fa-solid fa-triangle-exclamation text-red-400 text-lg';
-    box.classList.remove('translate-y-24', 'opacity-0');
-    clearTimeout(showNotification.t);
-    showNotification.t = setTimeout(() => box.classList.add('translate-y-24', 'opacity-0'), 3500);
-}
+        function closeFormModal() {
+            document.getElementById('form-modal').classList.add('hidden');
+        }
 
-function formatSecondsToHHMMSS(totalSecs) {
-    const h = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
-    const m = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
-    const s = String(totalSecs % 60).padStart(2, '0');
-    return `${h}:${m}:${s}`;
-}
+        // Invio Pratica a Firebase
+        function submitUserForm() {
+            const name = document.getElementById('form-name').value.trim();
+            const discord = document.getElementById('form-discord').value.trim();
+            const desc = document.getElementById('form-desc').value.trim();
 
-function fmtSigned(sec) {
-    return (sec < 0 ? '-' : '') + formatSecondsToHHMMSS(Math.abs(sec));
-}
-
-function formatDateTime(iso) {
-    if (!iso) return '-';
-    const d = new Date(iso);
-    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-
-// Ogni accesso operatore ha un'email tecnica casuale; la corrispondenza username -> email è nel database
-function newAccountEmail(username) {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    const tag = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-    return `${username}.${tag}@${EMAIL_DOMAIN}`;
-}
-
-function authErrorText(e) {
-    const c = e && e.code;
-    if (['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found', 'auth/invalid-email'].includes(c)) return 'Credenziali non valide.';
-    if (c === 'auth/operation-not-allowed') return 'Accesso Email/Password non attivo nel progetto Firebase.';
-    if (c === 'auth/too-many-requests') return 'Troppi tentativi: riprova tra qualche minuto.';
-    if (c === 'auth/network-request-failed') return 'Connessione assente.';
-    if (c === 'auth/weak-password') return 'Password troppo debole (minimo 6 caratteri).';
-    return 'Errore di autenticazione' + (c ? ` (${c})` : '.');
-}
-
-async function tryWrite(promise, okMsg) {
-    try {
-        await promise;
-        if (okMsg) showNotification(okMsg);
-        return true;
-    } catch (e) {
-        console.error(e);
-        showNotification(e && e.code === 'permission-denied' ? 'Operazione non consentita dalle regole di sicurezza.' : 'Operazione non riuscita. Riprova.', 'error');
-        return false;
-    }
-}
-
-function getOp(id) {
-    return db.operators.find(o => o.uid === id || o.matricola === id);
-}
-
-function actorName() {
-    if (currentOperator) return currentOperator.name;
-    return isAdminLoggedIn ? 'Admin' : 'Sistema';
-}
-
-function logAction(actor, text) {
-    if (!currentUser) return;
-    addDoc(collection(fs, 'log'), { ts: serverTimestamp(), actor: actor, text: text }).catch(e => console.error(e));
-}
-
-// ================= SESSIONE / AUTH =================
-async function resolveRole(user) {
-    try {
-        const adm = await getDoc(doc(fs, 'admins', user.uid));
-        if (adm.exists()) return 'admin';
-    } catch (e) { /* non admin */ }
-    try {
-        const op = await getDoc(doc(fs, 'operators', user.uid));
-        if (op.exists()) return 'operator';
-    } catch (e) { /* non operatore */ }
-    return null;
-}
-
-function stopListeners() {
-    unsubs.forEach(f => { try { f(); } catch (e) {} });
-    unsubs = [];
-    db.requests = [];
-    db.operators = [];
-    db.log = [];
-    firstRequestsSnap = true;
-    adminViewInit = false;
-}
-
-function onListenError(err) {
-    console.error(err);
-    showNotification('Errore di sincronizzazione con il database.', 'error');
-}
-
-function startListeners(user) {
-    unsubs.push(onSnapshot(collection(fs, 'operators'), snap => {
-        db.operators = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
-        if (sessionRole === 'operator') {
-            currentOperator = db.operators.find(o => o.uid === user.uid) || null;
-            if (!currentOperator) {
-                showNotification('Il tuo account operatore è stato rimosso.', 'error');
-                signOut(auth);
+            if(!name || !discord || !desc) {
+                alert("Compila tutti i campi obbligatori.");
                 return;
             }
-            if (loginIntent === 'operator') {
-                loginIntent = null;
-                showNotification(`Benvenuto, ${currentOperator.name}`);
-                logAction(currentOperator.name, 'Accesso Area Operatori');
-            }
-        }
-        refreshViews();
-    }, onListenError));
 
-    if (sessionRole === 'operator') {
-        unsubs.push(onSnapshot(query(collection(fs, 'requests'), orderBy('createdAt', 'desc')), snap => {
-            db.requests = snap.docs.map(d => ({ id: d.id, code: d.id, notes: [], ...d.data() }));
-            if (!firstRequestsSnap) {
-                const added = snap.docChanges().filter(c => c.type === 'added');
-                if (added.length) {
-                    playAlert();
-                    const first = added[0].doc.data();
-                    showNotification(added.length === 1
-                        ? `Nuova richiesta ricevuta: ${added[0].doc.id} (${TYPE_LABEL[first.type] || ''})`
-                        : `${added.length} nuove richieste ricevute.`);
+            const prefixMap = { denuncia: 'DEN', segnalazione: 'SEG', colloquio: 'COL' };
+            const code = prefixMap[currentFormType] + '-' + Math.floor(1000 + Math.random() * 9000);
+
+            const praticaData = {
+                code: code,
+                type: currentFormType,
+                name: name,
+                discord: discord,
+                description: desc,
+                date: new Date().toLocaleString(),
+                status: 'In Attesa'
+            };
+
+            db.ref('pratiche/' + code).set(praticaData).then(() => {
+                alert(`Pratica inviata con successo! Il tuo codice univoco è: ${code}`);
+                closeFormModal();
+            }).catch(err => {
+                alert("Errore durante l'invio: " + err.message);
+            });
+        }
+
+        // Verifica Tracking Cittadino
+        function verifyTrackingCode() {
+            const code = document.getElementById('tracking-code-input').value.trim().toUpperCase();
+            const resDiv = document.getElementById('tracking-result');
+            if(!code) return;
+
+            db.ref('pratiche/' + code).once('value').then(snapshot => {
+                const data = snapshot.val();
+                if(data) {
+                    resDiv.innerHTML = `<div class='bg-slate-900 p-3 rounded border border-slate-700 space-y-1'>
+                        <p><b>Codice:</b> ${data.code} (${data.type.toUpperCase()})</p>
+                        <p><b>Richiedente:</b> ${data.name}</p>
+                        <p><b>Stato Attuale:</b> <span class='text-amber-400 font-bold'>${data.status}</span></p>
+                        <p><b>Data:</b> ${data.date}</p>
+                    </div>`;
+                } else {
+                    resDiv.innerHTML = `<span class='text-red-400'>Nessuna pratica trovata con il codice ${code}.</span>`;
                 }
+            });
+        }
+
+        // Ascolta in tempo reale le pratiche per Operatore e Admin
+        db.ref('pratiche').on('value', snapshot => {
+            const data = snapshot.val() || {};
+            const tbody = document.getElementById('operator-requests-table');
+            tbody.innerHTML = '';
+
+            let countDen = 0, countSeg = 0, countCol = 0;
+            const keys = Object.keys(data);
+
+            if(keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Nessuna pratica in coda.</td></tr>`;
             }
-            firstRequestsSnap = false;
-            if (currentRequestId) refreshOpenRequest();
-            refreshViews();
-        }, onListenError));
-    }
 
-    if (sessionRole === 'admin') {
-        unsubs.push(onSnapshot(query(collection(fs, 'log'), orderBy('ts', 'desc'), limit(100)), snap => {
-            db.log = snap.docs.map(d => {
-                const x = d.data();
-                const t = x.ts && x.ts.toDate ? x.ts.toDate().toISOString() : new Date().toISOString();
-                return { ts: t, actor: x.actor, text: x.text };
+            keys.forEach(key => {
+                const p = data[key];
+                if(p.type === 'denuncia') countDen++;
+                if(p.type === 'segnalazione') countSeg++;
+                if(p.type === 'colloquio') countCol++;
+
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-700/50 hover:bg-slate-900/40";
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-blue-400">${p.code}</td>
+                    <td class="p-3 uppercase text-xs font-semibold">${p.type}</td>
+                    <td class="p-3">${p.name} <br><span class="text-xs text-slate-500">${p.discord}</span></td>
+                    <td class="p-3 text-xs text-slate-400 max-w-xs truncate">${p.description}</td>
+                    <td class="p-3"><span class="px-2 py-1 bg-amber-500/20 text-amber-400 text-xs rounded">${p.status}</span></td>
+                    <td class="p-3 space-x-2">
+                        <button onclick="updateStatus('${p.code}', 'Completata')" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded">Completa</button>
+                        <button onclick="deletePratica('${p.code}')" class="text-xs bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
-            if (isAdminLoggedIn) renderAdminLog();
-        }, onListenError));
-        if (loginIntent === 'admin') {
-            loginIntent = null;
-            showNotification('Accesso admin effettuato con successo.');
-            logAction('Admin', 'Accesso Area Admin');
-        }
-    }
-}
 
-async function applyAuthUser(user) {
-    stopListeners();
-    currentUser = user;
-    sessionRole = null;
-    currentOperator = null;
-    isAdminLoggedIn = false;
-    if (user) {
-        sessionRole = await resolveRole(user);
-        if (!sessionRole) {
-            loginIntent = null;
-            showNotification('Account non abilitato: contatta il comando.', 'error');
-            await signOut(auth);
-            return;
-        }
-        if (loginIntent && loginIntent !== sessionRole) {
-            const wanted = loginIntent;
-            loginIntent = null;
-            showNotification(wanted === 'admin' ? 'Questo account non è un amministratore.' : 'Questo account non è un operatore.', 'error');
-            await signOut(auth);
-            return;
-        }
-        isAdminLoggedIn = sessionRole === 'admin';
-        startListeners(user);
-    }
-    refreshViews();
-}
-
-onAuthStateChanged(auth, (user) => {
-    if (setupBusy) return; // durante la prima configurazione gestisco io la sessione
-    applyAuthUser(user);
-});
-
-function refreshViews() {
-    checkOperatorSession();
-    checkAdminSession();
-    updateNavBadge();
-}
-
-// ================= NAVIGAZIONE =================
-function switchTab(tabId) {
-    ['home', 'operator', 'admin'].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.add('hidden');
-        document.getElementById(`nav-${t}`).classList.remove('bg-red-900/60', 'text-amber-300', 'border', 'border-red-700');
-        document.getElementById(`nav-${t}`).classList.add('bg-slate-700/50', 'text-slate-300');
-    });
-    document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-    document.getElementById(`nav-${tabId}`).classList.remove('bg-slate-700/50', 'text-slate-300');
-    document.getElementById(`nav-${tabId}`).classList.add('bg-red-900/60', 'text-amber-300', 'border', 'border-red-700');
-
-    const tabEl = document.getElementById(`tab-${tabId}`);
-    tabEl.classList.remove('fade-in');
-    void tabEl.offsetWidth;
-    tabEl.classList.add('fade-in');
-
-    if (tabId === 'operator') checkOperatorSession();
-    if (tabId === 'admin') checkAdminSession();
-}
-
-// ================= CITTADINI =================
-function generateTrackingCode(type) {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return (CODE_PREFIX[type] || 'REQ') + '-' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-}
-
-function openCitizenModal(type) {
-    document.getElementById('citizen-modal').classList.remove('hidden');
-    document.getElementById('citizen-req-type').value = type;
-    const titles = {
-        'colloquio': ['Prenotazione Colloquio', 'Inserisci i tuoi dati per richiedere un appuntamento.'],
-        'denuncia': ['Presentazione Denuncia', 'Fornisci dettagli precisi in merito alla denuncia da presentare.'],
-        'segnalazione': ['Segnalazione Anonima', 'Le informazioni inviate rimarranno rigorosamente anonime.']
-    };
-    document.getElementById('citizen-modal-title').innerText = titles[type][0];
-    document.getElementById('citizen-modal-subtitle').innerText = titles[type][1];
-    document.getElementById('citizen-name').value = type === 'segnalazione' ? 'Anonimo' : '';
-    document.getElementById('citizen-content').value = '';
-
-    const isDen = type === 'denuncia';
-    document.getElementById('denuncia-fields').classList.toggle('hidden', !isDen);
-    document.getElementById('citizen-phone').value = '';
-    document.getElementById('citizen-subject').value = '';
-    const nowLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    const whenEl = document.getElementById('citizen-fact-when');
-    whenEl.value = '';
-    whenEl.max = nowLocal;
-    whenEl.required = isDen;
-    document.getElementById('citizen-fact-place').value = '';
-    document.getElementById('citizen-fact-place').required = isDen;
-    document.getElementById('citizen-accused-type').value = 'noto';
-    document.getElementById('citizen-accused-name').value = '';
-    document.getElementById('citizen-phone').required = isDen;
-    document.getElementById('citizen-subject').required = isDen;
-    toggleAccusedName();
-    document.getElementById('citizen-name-label').innerText = isDen ? 'Nome e Cognome di chi denuncia' : 'Nome e Cognome (o Anonimo)';
-    document.getElementById('citizen-content-label').innerText = isDen ? 'Più informazioni sulla denuncia' : 'Dettagli / Contenuto';
-}
-
-function closeCitizenModal() {
-    document.getElementById('citizen-modal').classList.add('hidden');
-}
-
-function toggleAccusedName() {
-    const known = document.getElementById('citizen-accused-type').value === 'noto';
-    const isDen = !document.getElementById('denuncia-fields').classList.contains('hidden');
-    document.getElementById('accused-name-wrap').classList.toggle('hidden', !known);
-    document.getElementById('citizen-accused-name').required = known && isDen;
-}
-
-function requestSummary(req) {
-    if (req.type === 'denuncia' && req.extra) {
-        return `Cosa denuncia: ${req.extra.subject}\nFatto: ${req.extra.when || '-'} - ${req.extra.place || '-'}\nDenunciato: ${req.extra.accused}\nInfo: ${req.content}`;
-    }
-    return req.content;
-}
-
-async function submitCitizenRequest(event) {
-    event.preventDefault();
-    const type = document.getElementById('citizen-req-type').value;
-    const name = document.getElementById('citizen-name').value.trim();
-    const content = document.getElementById('citizen-content').value.trim();
-    const now = new Date();
-    const dateStr = formatDateTime(now.toISOString());
-
-    const data = { type: type, name: name, content: content, status: 'In attesa', date: dateStr, assignedTo: null, assignedName: null, notes: [], createdAt: serverTimestamp() };
-    if (type === 'denuncia') {
-        const known = document.getElementById('citizen-accused-type').value === 'noto';
-        data.extra = {
-            phone: document.getElementById('citizen-phone').value.trim(),
-            accused: known ? document.getElementById('citizen-accused-name').value.trim() : 'Ignoto',
-            subject: document.getElementById('citizen-subject').value.trim(),
-            when: formatDateTime(document.getElementById('citizen-fact-when').value),
-            place: document.getElementById('citizen-fact-place').value.trim()
-        };
-    }
-
-    const submitBtn = event.target.querySelector('button[type="submit"]');
-    if (submitBtn) submitBtn.disabled = true;
-    let code = null;
-    for (let i = 0; i < 3 && !code; i++) {
-        const candidate = generateTrackingCode(type);
-        try {
-            await setDoc(doc(fs, 'requests', candidate), data);
-            code = candidate;
-        } catch (e) {
-            console.error(e);
-            if (e.code !== 'permission-denied') break; // il codice può già esistere: riprova solo in quel caso
-        }
-    }
-    if (submitBtn) submitBtn.disabled = false;
-    if (!code) {
-        showNotification('Invio non riuscito. Controlla la connessione e riprova.', 'error');
-        return;
-    }
-    try {
-        await setDoc(doc(fs, 'status', code), { type: type, date: dateStr, status: 'In attesa', assigned: false });
-    } catch (e) {
-        console.error(e);
-    }
-
-    const newReq = { ...data, id: code, code: code };
-    closeCitizenModal();
-    openCodeModal(newReq);
-    if (type === 'denuncia') {
-        const hook = await fetchWebhook();
-        if (hook) {
-            const ok = await sendDenunciaToDiscord(hook, newReq);
-            if (!ok) showNotification('Denuncia salvata, ma invio a Discord non riuscito.', 'error');
-        }
-    }
-}
-
-// ---------- codice di tracciamento ----------
-let lastTrackingCode = '';
-
-function openCodeModal(req) {
-    lastTrackingCode = req.code;
-    document.getElementById('code-title').innerText = (TYPE_LABEL[req.type] || 'Richiesta') + ' inoltrata con successo';
-    document.getElementById('code-value').innerText = req.code;
-    document.getElementById('code-modal').classList.remove('hidden');
-}
-
-function closeCodeModal() {
-    document.getElementById('code-modal').classList.add('hidden');
-}
-
-function copyTrackingCode() {
-    const done = () => showNotification('Codice copiato negli appunti.');
-    const fail = () => showNotification('Copia non riuscita: seleziona e copia il codice a mano.', 'error');
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(lastTrackingCode).then(done, fail);
-    } else {
-        fail();
-    }
-}
-
-async function checkTrackingCode() {
-    const code = document.getElementById('track-input').value.trim().toUpperCase();
-    const box = document.getElementById('track-result');
-    box.innerHTML = '';
-    let data = null;
-    let failed = false;
-    if (code) {
-        try {
-            const snap = await getDoc(doc(fs, 'status', code));
-            if (snap.exists()) data = snap.data();
-        } catch (e) {
-            console.error(e);
-            failed = true;
-        }
-    }
-    if (!data) {
-        box.className = 'mt-4 text-sm rounded-xl border border-red-800/60 bg-red-950/30 text-red-300 px-4 py-3';
-        box.textContent = failed ? 'Impossibile controllare il codice in questo momento. Riprova.' : 'Nessuna richiesta trovata con questo codice. Controlla di averlo scritto correttamente.';
-        return;
-    }
-    box.className = 'mt-4 text-sm rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2';
-    [['Tipo', TYPE_LABEL[data.type]], ['Inviata il', data.date], ['Presa in carico', data.assigned ? 'Sì' : 'Non ancora']].forEach(([k, v]) => {
-        const d = document.createElement('div');
-        const a = document.createElement('span');
-        a.className = 'text-slate-400 text-xs uppercase tracking-wider mr-2';
-        a.textContent = k;
-        const b = document.createElement('span');
-        b.className = 'text-white font-medium';
-        b.textContent = v;
-        d.append(a, b);
-        box.appendChild(d);
-    });
-    const st = document.createElement('span');
-    st.className = 'px-2 py-0.5 rounded text-xs border ' + (STATUS_STYLE[data.status] || '');
-    st.textContent = 'Stato: ' + data.status;
-    box.appendChild(st);
-}
-
-// ================= DISCORD =================
-function isValidWebhook(url) {
-    return /^https:\/\/(?:ptb\.|canary\.)?discord(?:app)?\.com\/api\/webhooks\/\d+\/[\w-]+/.test(url);
-}
-
-async function postToDiscord(url, payload) {
-    try {
-        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        return res.ok;
-    } catch (e) {
-        return false;
-    }
-}
-
-function sendDenunciaToDiscord(url, req) {
-    const cut = (t, n = 1000) => { t = String(t || '-'); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
-    const ex = req.extra || {};
-    return postToDiscord(url, {
-        username: 'Portale Carabinieri RP',
-        allowed_mentions: { parse: [] },
-        embeds: [{
-            title: '🚨 Nuova denuncia',
-            color: 0x1e40af,
-            fields: [
-                { name: 'Denunciante', value: cut(req.name), inline: true },
-                { name: 'Telefono', value: cut(ex.phone), inline: true },
-                { name: 'Codice', value: cut(req.code), inline: true },
-                { name: 'Data e luogo del fatto', value: cut((ex.when || '-') + ' - ' + (ex.place || '-')) },
-                { name: 'Persona denunciata', value: cut(ex.accused) },
-                { name: 'Cosa denuncia', value: cut(ex.subject) },
-                { name: 'Ulteriori informazioni', value: cut(req.content) }
-            ],
-            footer: { text: 'Ricevuta il ' + req.date },
-            timestamp: new Date().toISOString()
-        }]
-    });
-}
-
-function updateDiscordStatus() {
-    const el = document.getElementById('discord-status');
-    if (db.discordWebhook) {
-        el.innerText = 'Canale collegato: le nuove denunce vengono inviate su Discord.';
-        el.className = 'text-xs mt-3 text-emerald-400';
-    } else {
-        el.innerText = 'Nessun canale collegato.';
-        el.className = 'text-xs mt-3 text-slate-500';
-    }
-}
-
-async function fetchWebhook() {
-    try {
-        const snap = await getDoc(doc(fs, 'config', 'discord'));
-        db.discordWebhook = snap.exists() ? (snap.data().webhook || '') : '';
-    } catch (e) {
-        console.error(e);
-    }
-    return db.discordWebhook;
-}
-
-async function loadDiscordSettings() {
-    await fetchWebhook();
-    document.getElementById('discord-webhook-input').value = db.discordWebhook || '';
-    updateDiscordStatus();
-}
-
-async function saveDiscordWebhook() {
-    const url = document.getElementById('discord-webhook-input').value.trim();
-    if (url && !isValidWebhook(url)) {
-        showNotification('Link webhook Discord non valido.', 'error');
-        return;
-    }
-    const ok = await tryWrite(setDoc(doc(fs, 'config', 'discord'), { webhook: url }), url ? 'Canale Discord salvato.' : 'Collegamento Discord rimosso.');
-    if (!ok) return;
-    db.discordWebhook = url;
-    updateDiscordStatus();
-    logAction('Admin', url ? 'Canale Discord denunce aggiornato' : 'Collegamento Discord rimosso');
-}
-
-async function testDiscordWebhook() {
-    const url = document.getElementById('discord-webhook-input').value.trim();
-    if (!isValidWebhook(url)) {
-        showNotification('Inserisci prima un link webhook Discord valido.', 'error');
-        return;
-    }
-    const btn = document.getElementById('discord-test-btn');
-    btn.disabled = true;
-    const ok = await postToDiscord(url, {
-        username: 'Portale Carabinieri RP',
-        allowed_mentions: { parse: [] },
-        content: '✅ **Test di collegamento riuscito.** Le denunce del Portale Arma dei Carabinieri RP arriveranno in questo canale.'
-    });
-    btn.disabled = false;
-    showNotification(ok ? 'Test riuscito: controlla il canale Discord.' : 'Test fallito: controlla il link del webhook.', ok ? 'success' : 'error');
-}
-
-// ================= AREA OPERATORI =================
-async function handleOperatorLogin(event) {
-    event.preventDefault();
-    const u = document.getElementById('op-user').value.trim().toLowerCase();
-    const p = document.getElementById('op-pass').value;
-    loginIntent = 'operator';
-    try {
-        const snap = await getDoc(doc(fs, 'usernames', u));
-        if (!snap.exists()) throw { code: 'auth/invalid-credential' };
-        await signInWithEmailAndPassword(auth, snap.data().email, p);
-        document.getElementById('op-pass').value = '';
-    } catch (e) {
-        loginIntent = null;
-        showNotification(e && e.code === 'permission-denied' ? 'Regole di sicurezza non aggiornate: avvisa l\'amministratore.' : authErrorText(e), 'error');
-    }
-}
-
-function checkOperatorSession() {
-    const on = sessionRole === 'operator' && currentOperator;
-    document.getElementById('operator-login-view').classList.toggle('hidden', !!on);
-    document.getElementById('operator-dashboard').classList.toggle('hidden', !on);
-    if (!on) {
-        syncDutyTicker();
-        return;
-    }
-    document.getElementById('op-welcome-name').innerText = currentOperator.name;
-    document.getElementById('op-welcome-role').innerText = `${currentOperator.role} (${currentOperator.matricola})`;
-    syncDutyTicker();
-    setDutyButtons(isDutyActive);
-    updateSoundButton();
-    updateTimerDisplay();
-    renderOperatorRequests();
-    if (!currentOperator.pwChanged && document.getElementById('force-pw-modal').classList.contains('hidden')) {
-        openPasswordModal(true);
-    }
-}
-
-async function logoutOperator() {
-    try {
-        await endDuty(true);
-        logAction(actorName(), 'Disconnessione Area Operatori');
-    } catch (e) { console.error(e); }
-    await signOut(auth);
-    showNotification('Disconnessione effettuata.');
-}
-
-function shiftSeconds(op) {
-    return op && op.shift ? Math.max(0, Math.floor((Date.now() - new Date(op.shift.start).getTime()) / 1000)) : 0;
-}
-
-function updateTimerDisplay() {
-    if (!currentOperator) return;
-    const sh = currentOperator.shift;
-    document.getElementById('live-timer').innerText = formatSecondsToHHMMSS(shiftSeconds(currentOperator));
-    document.getElementById('live-total').innerText = formatSecondsToHHMMSS((currentOperator.totalSeconds || 0) + shiftSeconds(currentOperator));
-    document.getElementById('live-since').innerText = sh
-        ? 'In servizio dalle ' + new Date(sh.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
-        : 'Fuori servizio';
-}
-
-function syncDutyTicker() {
-    const active = !!(currentOperator && currentOperator.shift);
-    isDutyActive = active;
-    if (active && !dutyInterval) dutyInterval = setInterval(updateTimerDisplay, 1000);
-    if (!active && dutyInterval) { clearInterval(dutyInterval); dutyInterval = null; }
-}
-
-function setDutyButtons(active) {
-    const startBtn = document.getElementById('timer-toggle-btn');
-    const exitBtn = document.getElementById('duty-exit-btn');
-    if (active) {
-        startBtn.disabled = true;
-        startBtn.innerHTML = '<i class="fa-solid fa-circle text-xs mr-1 animate-pulse"></i> In Servizio';
-        startBtn.className = 'px-3 py-1 bg-amber-600 text-white text-xs font-semibold rounded-lg shadow cursor-default';
-        exitBtn.disabled = false;
-        exitBtn.className = 'px-3 py-1 bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold rounded-lg transition shadow';
-    } else {
-        startBtn.disabled = false;
-        startBtn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Inizia Servizio';
-        startBtn.className = 'px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow';
-        exitBtn.disabled = true;
-        exitBtn.className = 'px-3 py-1 bg-slate-700 text-slate-500 text-xs font-semibold rounded-lg transition cursor-not-allowed';
-    }
-}
-
-async function startDuty() {
-    if (!currentOperator || currentOperator.shift) return;
-    const ok = await tryWrite(updateDoc(doc(fs, 'operators', currentOperator.uid), { shift: { start: new Date().toISOString() } }));
-    if (ok) showNotification('Servizio iniziato.');
-}
-
-async function endDuty(silent) {
-    const op = currentOperator;
-    if (!op || !op.shift) return 0;
-    const seconds = shiftSeconds(op);
-    const upd = { shift: null, totalSeconds: increment(seconds) };
-    if (seconds > 0) upd.history = arrayUnion({ type: 'Turno', start: op.shift.start, end: new Date().toISOString(), seconds: seconds });
-    const ok = await tryWrite(updateDoc(doc(fs, 'operators', op.uid), upd));
-    if (ok && !silent) showNotification(`Sei uscito dal servizio. Turno di ${formatSecondsToHHMMSS(seconds)} salvato nello storico.`);
-    return seconds;
-}
-
-// ---------- richieste ----------
-function findReq(id) {
-    return db.requests.find(r => r.id === id);
-}
-
-function renderOperatorRequests() {
-    const tbody = document.getElementById('operator-requests-tbody');
-    tbody.innerHTML = '';
-    document.getElementById('requests-counter').innerText = `${db.requests.length} Richieste`;
-    if (db.requests.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Nessuna richiesta pervenuta.</td></tr>`;
-        return;
-    }
-    db.requests.forEach(req => {
-        const assignee = req.assignedTo ? getOp(req.assignedTo) : null;
-        const assigneeText = req.assignedTo ? (assignee ? assignee.name : (req.assignedName || 'Operatore rimosso')) : '-';
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-700/30 transition';
-        tr.innerHTML = `
-            <td class="py-3 px-4">${TYPE_BADGE[req.type] || ''}<div class="font-mono text-[10px] text-slate-500 mt-1">${esc(req.code)}</div></td>
-            <td class="py-3 px-4 font-medium text-white">${esc(req.name)}${req.extra && req.extra.phone ? '<div class="text-xs font-normal text-slate-400"><i class="fa-solid fa-phone mr-1"></i>' + esc(req.extra.phone) + '</div>' : ''}</td>
-            <td class="py-3 px-4 text-slate-300 max-w-xs"><div class="line-clamp-3 whitespace-pre-line break-words">${esc(requestSummary(req))}</div></td>
-            <td class="py-3 px-4 text-xs text-slate-400">${esc(req.date)}</td>
-            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-xs border ${STATUS_STYLE[req.status] || ''}">${esc(req.status)}</span></td>
-            <td class="py-3 px-4 text-xs ${req.assignedTo ? 'text-slate-200' : 'text-slate-500'}">${esc(assigneeText)}</td>
-            <td class="py-3 px-4 text-center whitespace-nowrap">
-                <select onchange="updateRequestStatus('${esc(req.id)}', this.value)" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1 focus:outline-none">
-                    <option value="In attesa" ${req.status === 'In attesa' ? 'selected' : ''}>In attesa</option>
-                    <option value="In lavorazione" ${req.status === 'In lavorazione' ? 'selected' : ''}>In lavorazione</option>
-                    <option value="Completata" ${req.status === 'Completata' ? 'selected' : ''}>Completata</option>
-                </select>
-                <button onclick="openRequestModal('${esc(req.id)}')" class="ml-2 text-amber-400 hover:text-amber-300" title="Dettagli, assegnazione e note"><i class="fa-solid fa-folder-open text-xs"></i></button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-async function updateRequestStatus(id, newStatus) {
-    const req = findReq(id);
-    if (!req) return;
-    const old = req.status;
-    const ok = await tryWrite(Promise.all([
-        updateDoc(doc(fs, 'requests', id), { status: newStatus }),
-        updateDoc(doc(fs, 'status', id), { status: newStatus })
-    ]), 'Stato richiesta aggiornato.');
-    if (ok) logAction(actorName(), `Richiesta ${req.code}: stato "${old}" -> "${newStatus}"`);
-}
-
-function modalStatusChange(value) {
-    updateRequestStatus(currentRequestId, value);
-}
-
-let currentRequestId = null;
-
-function openRequestModal(id) {
-    const req = findReq(id);
-    if (!req) return;
-    currentRequestId = id;
-    document.getElementById('rm-title').textContent = TYPE_LABEL[req.type] || 'Richiesta';
-    document.getElementById('rm-code').textContent = req.code || '';
-    document.getElementById('rm-meta').textContent = `Ricevuta il ${req.date}`;
-    const fields = [['Mittente', req.name]];
-    if (req.extra) {
-        fields.push(['Telefono', req.extra.phone || '-'], ['Data e ora del fatto', req.extra.when || '-'], ['Luogo del fatto', req.extra.place || '-'], ['Persona denunciata', req.extra.accused || '-'], ['Cosa denuncia', req.extra.subject || '-']);
-    }
-    const box = document.getElementById('rm-fields');
-    box.innerHTML = '';
-    fields.forEach(([k, v]) => {
-        const d = document.createElement('div');
-        d.className = 'bg-slate-900 border border-slate-700 rounded-xl px-3 py-2';
-        const a = document.createElement('span');
-        a.className = 'block text-[10px] uppercase tracking-wider text-slate-400';
-        a.textContent = k;
-        const b = document.createElement('span');
-        b.className = 'text-slate-100 break-words';
-        b.textContent = v;
-        d.append(a, b);
-        box.appendChild(d);
-    });
-    document.getElementById('rm-content-label').textContent = req.type === 'denuncia' ? 'Più informazioni sulla denuncia' : 'Dettagli';
-    document.getElementById('rm-content').textContent = req.content;
-
-    const sel = document.getElementById('rm-assignee');
-    sel.innerHTML = '';
-    const none = document.createElement('option');
-    none.value = '';
-    none.textContent = 'Nessuno';
-    sel.appendChild(none);
-    db.operators.forEach(o => {
-        const opt = document.createElement('option');
-        opt.value = o.uid;
-        opt.textContent = `${o.name} (${o.matricola})`;
-        sel.appendChild(opt);
-    });
-    document.getElementById('rm-note-input').value = '';
-    refreshOpenRequest();
-    document.getElementById('request-modal').classList.remove('hidden');
-}
-
-function refreshOpenRequest() {
-    const req = findReq(currentRequestId);
-    if (!req) return;
-    document.getElementById('rm-status').value = req.status;
-    document.getElementById('rm-assignee').value = req.assignedTo || '';
-    renderRequestNotes(req);
-}
-
-function closeRequestModal() {
-    document.getElementById('request-modal').classList.add('hidden');
-    currentRequestId = null;
-}
-
-function renderRequestNotes(req) {
-    const box = document.getElementById('rm-notes');
-    box.innerHTML = '';
-    const notes = (req.notes || []).slice().sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
-    if (notes.length === 0) {
-        const e = document.createElement('p');
-        e.className = 'text-xs text-slate-500';
-        e.textContent = 'Nessuna nota interna.';
-        box.appendChild(e);
-        return;
-    }
-    notes.forEach(n => {
-        const d = document.createElement('div');
-        d.className = 'bg-slate-900 border border-slate-700 rounded-xl px-3 py-2';
-        const h = document.createElement('div');
-        h.className = 'text-[10px] text-slate-400 mb-0.5';
-        h.textContent = `${n.author} - ${formatDateTime(n.ts)}`;
-        const t = document.createElement('div');
-        t.className = 'text-sm text-slate-200 whitespace-pre-line break-words';
-        t.textContent = n.text;
-        d.append(h, t);
-        box.appendChild(d);
-    });
-}
-
-async function setRequestAssignee(uid) {
-    const req = findReq(currentRequestId);
-    if (!req) return;
-    const op = uid ? getOp(uid) : null;
-    const ok = await tryWrite(Promise.all([
-        updateDoc(doc(fs, 'requests', req.id), { assignedTo: uid || null, assignedName: op ? op.name : null }),
-        updateDoc(doc(fs, 'status', req.id), { assigned: !!uid })
-    ]), 'Assegnazione aggiornata.');
-    if (ok) logAction(actorName(), `Richiesta ${req.code} assegnata a ${op ? op.name : 'nessuno'}`);
-}
-
-async function takeRequest() {
-    const req = findReq(currentRequestId);
-    if (!req || !currentOperator) return;
-    const newStatus = req.status === 'In attesa' ? 'In lavorazione' : req.status;
-    const ok = await tryWrite(Promise.all([
-        updateDoc(doc(fs, 'requests', req.id), { assignedTo: currentOperator.uid, assignedName: currentOperator.name, status: newStatus }),
-        updateDoc(doc(fs, 'status', req.id), { assigned: true, status: newStatus })
-    ]), 'Richiesta presa in carico.');
-    if (ok) logAction(actorName(), `Presa in carico la richiesta ${req.code}`);
-}
-
-async function addRequestNote() {
-    const req = findReq(currentRequestId);
-    const input = document.getElementById('rm-note-input');
-    const text = input.value.trim();
-    if (!req || !text) return;
-    const ok = await tryWrite(updateDoc(doc(fs, 'requests', req.id), { notes: arrayUnion({ ts: new Date().toISOString(), author: actorName(), text: text }) }));
-    if (ok) {
-        input.value = '';
-        logAction(actorName(), `Aggiunta nota interna alla richiesta ${req.code}`);
-    }
-}
-
-// ---------- storico ore ----------
-let historyUid = null;
-
-function openMyHistory() {
-    if (currentOperator) openHistoryModal(currentOperator.uid);
-}
-
-function historyBounds(mode) {
-    const now = new Date();
-    const sow = new Date(now);
-    sow.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    sow.setHours(0, 0, 0, 0);
-    const som = new Date(now.getFullYear(), now.getMonth(), 1);
-    const somPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    if (mode === 'week') return [sow, null];
-    if (mode === 'month') return [som, null];
-    if (mode === 'lastmonth') return [somPrev, som];
-    if (mode === 'custom') {
-        const f = document.getElementById('history-from').value;
-        const t = document.getElementById('history-to').value;
-        const from = f ? new Date(f + 'T00:00:00') : null;
-        let to = null;
-        if (t) { to = new Date(t + 'T00:00:00'); to.setDate(to.getDate() + 1); }
-        return [from, to];
-    }
-    return [null, null];
-}
-
-function openHistoryModal(uid) {
-    const op = getOp(uid);
-    if (!op) return;
-    historyUid = op.uid;
-    document.getElementById('history-title').innerText = `Storico ore - ${op.name}`;
-    document.getElementById('history-filter').value = 'all';
-    document.getElementById('history-from').value = '';
-    document.getElementById('history-to').value = '';
-    renderHistory();
-    document.getElementById('history-modal').classList.remove('hidden');
-}
-
-function renderHistory() {
-    const op = getOp(historyUid);
-    if (!op) return;
-    const mode = document.getElementById('history-filter').value;
-    document.getElementById('history-custom').classList.toggle('hidden', mode !== 'custom');
-    const hist = (op.history || []).slice().sort((a, b) => String(b.start).localeCompare(String(a.start)));
-    const inRange = (h, b) => { const t = new Date(h.start); return (!b[0] || t >= b[0]) && (!b[1] || t < b[1]); };
-    const sum = (b) => hist.filter(h => inRange(h, b)).reduce((a, h) => a + h.seconds, 0);
-    const bounds = historyBounds(mode);
-    document.getElementById('history-total-period').innerText = fmtSigned(sum(bounds));
-    document.getElementById('history-total-week').innerText = fmtSigned(sum(historyBounds('week')));
-    document.getElementById('history-total-month').innerText = fmtSigned(sum(historyBounds('month')));
-    document.getElementById('history-total-all').innerText = formatSecondsToHHMMSS(op.totalSeconds || 0);
-
-    const tbody = document.getElementById('history-tbody');
-    tbody.innerHTML = '';
-    const list = hist.filter(h => inRange(h, bounds));
-    if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500">Nessun turno registrato in questo periodo.</td></tr>';
-    }
-    list.forEach(h => {
-        const isShift = h.type === 'Turno';
-        const sign = h.seconds < 0 ? '-' : (isShift ? '' : '+');
-        const color = h.seconds < 0 ? 'text-red-400' : (isShift ? 'text-amber-300' : 'text-emerald-400');
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-700/30 transition';
-        tr.innerHTML = `
-            <td class="py-2 px-3 text-xs ${isShift ? 'text-slate-200' : 'text-blue-300'}">${esc(h.type)}</td>
-            <td class="py-2 px-3 text-xs text-slate-400">${formatDateTime(h.start)}</td>
-            <td class="py-2 px-3 text-xs text-slate-400">${isShift ? formatDateTime(h.end) : '-'}</td>
-            <td class="py-2 px-3 text-right font-mono ${color}">${sign}${formatSecondsToHHMMSS(Math.abs(h.seconds))}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function closeHistoryModal() {
-    document.getElementById('history-modal').classList.add('hidden');
-}
-
-// ---------- password operatore ----------
-let pwModalForced = false;
-
-function openPasswordModal(forced) {
-    pwModalForced = !!forced;
-    document.getElementById('fpw-current').value = '';
-    document.getElementById('fpw-new').value = '';
-    document.getElementById('fpw-confirm').value = '';
-    document.getElementById('fpw-title').innerText = forced ? 'Cambio password obbligatorio' : 'Cambia password';
-    document.getElementById('fpw-subtitle').innerText = forced
-        ? 'Stai usando una password provvisoria assegnata dal comando. Per continuare devi sceglierne una personale.'
-        : 'Scegli una nuova password personale.';
-    document.getElementById('fpw-cancel').innerText = forced ? 'Esci' : 'Annulla';
-    document.getElementById('force-pw-modal').classList.remove('hidden');
-}
-
-function cancelPasswordModal() {
-    document.getElementById('force-pw-modal').classList.add('hidden');
-    if (pwModalForced) logoutOperator();
-}
-
-async function submitPasswordChange(event) {
-    event.preventDefault();
-    const cur = document.getElementById('fpw-current').value;
-    const p1 = document.getElementById('fpw-new').value;
-    const p2 = document.getElementById('fpw-confirm').value;
-    if (!currentUser || !currentOperator) return;
-    if (p1.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
-    if (p1 !== p2) { showNotification('Le password non coincidono.', 'error'); return; }
-    if (p1 === cur) { showNotification('La nuova password deve essere diversa da quella attuale.', 'error'); return; }
-    try {
-        await reauthenticateWithCredential(currentUser, EmailAuthProvider.credential(currentUser.email, cur));
-        await updatePassword(currentUser, p1);
-        await updateDoc(doc(fs, 'operators', currentOperator.uid), { pwChanged: true });
-    } catch (e) {
-        console.error(e);
-        showNotification(['auth/invalid-credential', 'auth/wrong-password'].includes(e.code) ? 'Password attuale errata.' : authErrorText(e), 'error');
-        return;
-    }
-    pwModalForced = false;
-    document.getElementById('force-pw-modal').classList.add('hidden');
-    logAction(currentOperator.name, 'Ha cambiato la propria password');
-    showNotification('Password aggiornata con successo.');
-}
-
-// ---------- avvisi ----------
-let soundEnabled = localStorage.getItem('carabinieri_sound') !== 'off';
-
-function updateSoundButton() {
-    const b = document.getElementById('sound-btn');
-    if (b) b.innerHTML = soundEnabled ? '<i class="fa-solid fa-bell"></i>' : '<i class="fa-solid fa-bell-slash text-slate-500"></i>';
-}
-
-function toggleSound() {
-    soundEnabled = !soundEnabled;
-    localStorage.setItem('carabinieri_sound', soundEnabled ? 'on' : 'off');
-    updateSoundButton();
-    if (soundEnabled) playAlert();
-    showNotification(soundEnabled ? 'Avviso sonoro attivato.' : 'Avviso sonoro disattivato.');
-}
-
-function playAlert() {
-    if (!soundEnabled) return;
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        [880, 1175].forEach((f, i) => {
-            const o = ctx.createOscillator();
-            const g = ctx.createGain();
-            o.type = 'sine';
-            o.frequency.value = f;
-            o.connect(g);
-            g.connect(ctx.destination);
-            const t = ctx.currentTime + i * 0.18;
-            g.gain.setValueAtTime(0.0001, t);
-            g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
-            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-            o.start(t);
-            o.stop(t + 0.17);
+            // Aggiorna statistiche admin
+            document.getElementById('stat-denunce').textContent = countDen;
+            document.getElementById('stat-segnalazioni').textContent = countSeg;
+            document.getElementById('stat-colloqui').textContent = countCol;
         });
-        setTimeout(() => ctx.close(), 700);
-    } catch (e) { /* audio non disponibile */ }
-}
 
-function updateNavBadge() {
-    const b = document.getElementById('nav-op-badge');
-    if (!b) return;
-    const n = sessionRole === 'operator' ? db.requests.filter(r => r.status === 'In attesa').length : 0;
-    b.textContent = n;
-    b.classList.toggle('hidden', n === 0);
-}
-
-// ================= AREA ADMIN =================
-async function handleAdminLogin(event) {
-    event.preventDefault();
-    const email = document.getElementById('admin-email-input').value.trim();
-    const pass = document.getElementById('admin-pass-input').value;
-    loginIntent = 'admin';
-    try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        document.getElementById('admin-pass-input').value = '';
-    } catch (e) {
-        loginIntent = null;
-        showNotification(authErrorText(e), 'error');
-    }
-}
-
-async function checkSetup() {
-    try {
-        const snap = await getDoc(doc(fs, 'config', 'setup'));
-        setupDone = snap.exists();
-        setupError = false;
-    } catch (e) {
-        console.error(e);
-        setupError = true;
-    }
-    checkAdminSession();
-}
-
-function checkAdminSession() {
-    const showSetup = !isAdminLoggedIn && setupDone === false && !setupError;
-    document.getElementById('admin-setup-view').classList.toggle('hidden', !showSetup);
-    document.getElementById('admin-login-view').classList.toggle('hidden', isAdminLoggedIn || showSetup);
-    document.getElementById('admin-rules-error').classList.toggle('hidden', !setupError);
-    document.getElementById('admin-dashboard').classList.toggle('hidden', !isAdminLoggedIn);
-    if (isAdminLoggedIn) {
-        renderAdminOperators();
-        renderAdminLog();
-        if (!adminViewInit) {
-            adminViewInit = true;
-            loadDiscordSettings();
+        function updateStatus(code, newStatus) {
+            db.ref('pratiche/' + code).update({ status: newStatus });
         }
-    }
-}
 
-// Prima configurazione: il primo account creato qui diventa amministratore
-async function handleAdminSetup(event) {
-    event.preventDefault();
-    const email = document.getElementById('setup-email').value.trim();
-    const p1 = document.getElementById('setup-pass').value;
-    const p2 = document.getElementById('setup-pass2').value;
-    if (p1.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
-    if (p1 !== p2) { showNotification('Le password non coincidono.', 'error'); return; }
-    const btn = event.target.querySelector('button[type="submit"]');
-    if (btn) btn.disabled = true;
-    setupBusy = true;
-    try {
-        let cred;
-        try {
-            cred = await createUserWithEmailAndPassword(auth, email, p1);
-        } catch (e) {
-            if (e.code !== 'auth/email-already-in-use') throw e;
-            cred = await signInWithEmailAndPassword(auth, email, p1); // account già creato in precedenza
+        function deletePratica(code) {
+            if(confirm("Sei sicuro di voler eliminare questa pratica?")) {
+                db.ref('pratiche/' + code).remove();
+            }
         }
-        const uid = cred.user.uid;
-        const adminRef = doc(fs, 'admins', uid);
-        const existing = await getDoc(adminRef).catch(() => null);
-        if (!existing || !existing.exists()) await setDoc(adminRef, { email: email, createdAt: serverTimestamp() });
-        await setDoc(doc(fs, 'config', 'setup'), { done: true, by: uid, at: serverTimestamp() });
-        setupDone = true;
-        setupBusy = false;
-        loginIntent = 'admin';
-        await applyAuthUser(cred.user);
-        showNotification('Amministratore creato: configurazione completata.');
-    } catch (e) {
-        console.error(e);
-        setupBusy = false;
-        showNotification(e.code === 'permission-denied'
-            ? 'Permesso negato: pubblica prima le nuove regole di sicurezza nella console Firebase.'
-            : (e.code && e.code.startsWith('auth/') ? authErrorText(e) : 'Configurazione non riuscita. Riprova.'), 'error');
-        try { await signOut(auth); } catch (x) {}
-    }
-    if (btn) btn.disabled = false;
-}
 
-async function logoutAdmin() {
-    logAction('Admin', 'Disconnessione Area Admin');
-    await signOut(auth);
-    showNotification('Disconnessione admin effettuata.');
-}
+        // Timer Servizio Operatore
+        let isOnDuty = false;
+        let secondsOnDuty = 0;
+        let timerInterval = null;
 
-function generateMatricola() {
-    return `CC-${Math.floor(1000 + Math.random() * 9000)}`;
-}
+        function toggleDuty() {
+            isOnDuty = !isOnDuty;
+            const btn = document.getElementById('duty-btn');
+            const statusText = document.getElementById('duty-status-text');
 
-async function createOperatorAccount(email, password) {
-    if (!secondaryApp) secondaryApp = initializeApp(firebaseConfig, 'secondary');
-    const secAuth = getAuth(secondaryApp);
-    const cred = await createUserWithEmailAndPassword(secAuth, email, password);
-    const uid = cred.user.uid;
-    await signOut(secAuth);
-    return uid;
-}
+            if (isOnDuty) {
+                btn.textContent = "Termina Servizio";
+                btn.className = "bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold text-sm transition";
+                statusText.textContent = "IN SERVIZIO";
+                statusText.className = "text-sm font-bold text-emerald-400";
+                document.getElementById('stat-operatori').textContent = "1";
+                
+                timerInterval = setInterval(() => {
+                    secondsOnDuty++;
+                    let hrs = Math.floor(secondsOnDuty / 3600).toString().padStart(2, '0');
+                    let mins = Math.floor((secondsOnDuty % 3600) / 60).toString().padStart(2, '0');
+                    let secs = (secondsOnDuty % 60).toString().padStart(2, '0');
+                    document.getElementById('duty-timer').textContent = `${hrs}:${mins}:${secs}`;
+                }, 1000);
+            } else {
+                btn.textContent = "Inizia Servizio";
+                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm transition";
+                statusText.textContent = "FUORI SERVIZIO";
+                statusText.className = "text-sm font-bold text-red-400";
+                document.getElementById('stat-operatori').textContent = "0";
+                
+                clearInterval(timerInterval);
+                alert("Turno terminato e registrato con successo!");
+                secondsOnDuty = 0;
+                document.getElementById('duty-timer').textContent = "00:00:00";
+            }
+        }
 
-async function handleCreateOperator(event) {
-    event.preventDefault();
-    const name = document.getElementById('new-op-name').value.trim();
-    const username = document.getElementById('new-op-username').value.trim().toLowerCase();
-    const password = document.getElementById('new-op-password').value;
-    const roleText = document.getElementById('new-op-role').value.trim();
-
-    if (!/^[a-z0-9._-]{3,30}$/.test(username)) {
-        showNotification('Username non valido: usa 3-30 caratteri tra lettere minuscole, numeri, punto, trattino.', 'error');
-        return;
-    }
-    if (password.length < 6) {
-        showNotification('La password provvisoria deve avere almeno 6 caratteri.', 'error');
-        return;
-    }
-    if (db.operators.some(o => o.username === username)) {
-        showNotification('Esiste già un operatore con questo username.', 'error');
-        return;
-    }
-    let matricola = generateMatricola();
-    while (db.operators.some(o => o.matricola === matricola)) matricola = generateMatricola();
-
-    const btn = event.target.querySelector('button[type="submit"]');
-    if (btn) btn.disabled = true;
-    try {
-        const taken = await getDoc(doc(fs, 'usernames', username));
-        if (taken.exists()) {
-            showNotification('Username già in uso.', 'error');
-        } else {
-            const email = newAccountEmail(username);
-            const uid = await createOperatorAccount(email, password);
-            await setDoc(doc(fs, 'operators', uid), {
-                matricola: matricola, name: name, username: username, email: email, role: roleText,
-                totalSeconds: 0, history: [], shift: null, pwChanged: false
+        function saveWebhookConfig() {
+            const url = document.getElementById('webhook-url').value.trim();
+            db.ref('config/webhook').set(url).then(() => {
+                alert("Webhook Discord salvato con successo!");
             });
-            await setDoc(doc(fs, 'usernames', username), { email: email });
-            document.getElementById('new-op-name').value = '';
-            document.getElementById('new-op-username').value = '';
-            document.getElementById('new-op-password').value = '';
-            document.getElementById('new-op-role').value = '';
-            logAction('Admin', `Creato operatore ${name} (${matricola}) con password provvisoria`);
-            showNotification(`Operatore ${name} creato con matricola ${matricola}.`);
         }
-    } catch (e) {
-        console.error(e);
-        showNotification(e.code && e.code.startsWith('auth/') ? authErrorText(e) : 'Creazione non riuscita. Riprova.', 'error');
-    }
-    if (btn) btn.disabled = false;
-}
-
-function renderAdminOperators() {
-    const tbody = document.getElementById('admin-operators-tbody');
-    tbody.innerHTML = '';
-    document.getElementById('operators-counter').innerText = `${db.operators.length} Operatori`;
-    const pending = db.operators.filter(o => !o.pwChanged).length;
-    const pendEl = document.getElementById('pending-pw-counter');
-    pendEl.innerText = `${pending} con password provvisoria`;
-    pendEl.classList.toggle('hidden', pending === 0);
-
-    if (db.operators.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Nessun operatore registrato.</td></tr>`;
-        return;
-    }
-    db.operators.forEach(op => {
-        const pwBadge = op.pwChanged
-            ? '<span class="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border bg-emerald-900/40 text-emerald-300 border-emerald-700"><i class="fa-solid fa-check mr-1"></i>Password personale</span>'
-            : '<span class="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border bg-amber-900/40 text-amber-300 border-amber-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Password provvisoria</span>';
-        const total = (op.totalSeconds || 0);
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-700/30 transition';
-        tr.innerHTML = `
-            <td class="py-3 px-4 font-mono font-bold text-amber-400">${esc(op.matricola)}</td>
-            <td class="py-3 px-4 font-medium text-white">${esc(op.name)}${op.shift ? '<div class="text-[10px] text-emerald-400 font-normal"><i class="fa-solid fa-circle text-[6px] mr-1 align-middle"></i>In servizio</div>' : ''}</td>
-            <td class="py-3 px-4 text-slate-300 font-mono text-xs">${esc(op.username)}<div>${pwBadge}</div></td>
-            <td class="py-3 px-4">
-                <input type="text" value="${esc(op.role)}" onchange="updateOperatorRole('${esc(op.uid)}', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="Ruolo libero...">
-            </td>
-            <td class="py-3 px-4 font-mono text-amber-300">${formatSecondsToHHMMSS(total)}</td>
-            <td class="py-3 px-4 text-center">
-                <div class="inline-flex gap-1">
-                    <button onclick="adjustOperatorHours('${esc(op.uid)}', 3600)" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded text-xs font-bold" title="Aggiungi 1 ora">+1h</button>
-                    <button onclick="adjustOperatorHours('${esc(op.uid)}', -3600)" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-red-400 rounded text-xs font-bold" title="Sottrai 1 ora">-1h</button>
-                    <button onclick="adjustOperatorHours('${esc(op.uid)}', 'reset')" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-xs" title="Reset ore">Res</button>
-                </div>
-            </td>
-            <td class="py-3 px-4 text-center">
-                <div class="inline-flex items-center gap-2">
-                    <button onclick="openHistoryModal('${esc(op.uid)}')" class="text-amber-400 hover:text-amber-300 p-1" title="Storico ore"><i class="fa-solid fa-clock-rotate-left"></i></button>
-                    <button onclick="openAdminPwModal('${esc(op.uid)}')" class="text-slate-300 hover:text-white p-1" title="Reimposta password"><i class="fa-solid fa-key"></i></button>
-                    <button onclick="deleteOperator('${esc(op.uid)}')" class="text-red-400 hover:text-red-300 p-1" title="Elimina operatore"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-async function updateOperatorRole(uid, newRole) {
-    const op = getOp(uid);
-    if (!op || newRole === op.role) return;
-    const old = op.role;
-    const ok = await tryWrite(updateDoc(doc(fs, 'operators', uid), { role: newRole }));
-    if (ok) logAction('Admin', `Ruolo di ${op.name}: "${old}" -> "${newRole}"`);
-}
-
-async function adjustOperatorHours(uid, action) {
-    const op = getOp(uid);
-    if (!op) return;
-    const total = op.totalSeconds || 0;
-    const nowIso = new Date().toISOString();
-    let delta, entry, text;
-    if (action === 'reset') {
-        delta = -total;
-        entry = { type: 'Reset admin', start: nowIso, end: nowIso, seconds: delta };
-        text = `Azzerate le ore di ${op.name}`;
-    } else {
-        delta = Math.max(-total, action);
-        entry = { type: 'Rettifica admin', start: nowIso, end: nowIso, seconds: delta };
-        text = `${action > 0 ? '+1h' : '-1h'} a ${op.name}`;
-    }
-    const ok = await tryWrite(updateDoc(doc(fs, 'operators', uid), { totalSeconds: increment(delta), history: arrayUnion(entry) }), 'Ore di servizio aggiornate.');
-    if (ok) logAction('Admin', text);
-}
-
-async function deleteOperator(uid) {
-    const op = getOp(uid);
-    if (!op) return;
-    const ok = await tryWrite(Promise.all([deleteDoc(doc(fs, 'operators', uid)), deleteDoc(doc(fs, 'usernames', op.username))]), 'Operatore eliminato dal portale.');
-    if (ok) logAction('Admin', `Eliminato operatore ${op.name}`);
-}
-
-function renderAdminLog() {
-    const tbody = document.getElementById('admin-log-tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    document.getElementById('log-counter').innerText = `${db.log.length} azioni`;
-    if (db.log.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-slate-500">Nessuna azione registrata.</td></tr>';
-        return;
-    }
-    db.log.forEach(l => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-700/30 transition';
-        tr.innerHTML = `
-            <td class="py-2 px-4 text-xs text-slate-400 whitespace-nowrap">${formatDateTime(l.ts)}</td>
-            <td class="py-2 px-4 text-xs font-medium text-amber-300">${esc(l.actor)}</td>
-            <td class="py-2 px-4 text-xs text-slate-200">${esc(l.text)}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function openSettingsModal() {
-    document.getElementById('settings-modal').classList.remove('hidden');
-    document.getElementById('current-admin-password').value = '';
-    document.getElementById('new-admin-password').value = '';
-    document.getElementById('confirm-admin-password').value = '';
-}
-
-function closeSettingsModal() {
-    document.getElementById('settings-modal').classList.add('hidden');
-}
-
-async function saveCommandSettings(event) {
-    event.preventDefault();
-    const cur = document.getElementById('current-admin-password').value;
-    const p1 = document.getElementById('new-admin-password').value;
-    const p2 = document.getElementById('confirm-admin-password').value;
-    if (p1.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
-    if (p1 !== p2) { showNotification('Le password non coincidono.', 'error'); return; }
-    if (p1 === cur) { showNotification('La nuova password deve essere diversa da quella attuale.', 'error'); return; }
-    try {
-        await reauthenticateWithCredential(currentUser, EmailAuthProvider.credential(currentUser.email, cur));
-        await updatePassword(currentUser, p1);
-    } catch (e) {
-        console.error(e);
-        showNotification(['auth/invalid-credential', 'auth/wrong-password'].includes(e.code) ? 'Password attuale errata.' : authErrorText(e), 'error');
-        return;
-    }
-    closeSettingsModal();
-    logAction('Admin', 'Password admin modificata');
-    showNotification('Password admin aggiornata con successo.');
-}
-
-// ---------- reimpostazione password operatore (nuovo accesso, stessi dati) ----------
-let adminPwTarget = null;
-
-function openAdminPwModal(uid) {
-    const op = getOp(uid);
-    if (!op) return;
-    adminPwTarget = uid;
-    document.getElementById('apw-subtitle').innerText = `Operatore: ${op.name} (${op.matricola}). Mantiene ore e storico.`;
-    document.getElementById('apw-input').value = '';
-    document.getElementById('admin-pw-modal').classList.remove('hidden');
-}
-
-function closeAdminPwModal() {
-    document.getElementById('admin-pw-modal').classList.add('hidden');
-    adminPwTarget = null;
-}
-
-async function saveAdminPw(event) {
-    event.preventDefault();
-    const old = getOp(adminPwTarget);
-    const pw = document.getElementById('apw-input').value;
-    if (!old) return;
-    if (pw.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
-    const btn = event.target.querySelector('button[type="submit"]');
-    if (btn) btn.disabled = true;
-    try {
-        const email = newAccountEmail(old.username);
-        const newUid = await createOperatorAccount(email, pw);
-        await setDoc(doc(fs, 'operators', newUid), {
-            matricola: old.matricola, name: old.name, username: old.username, email: email, role: old.role,
-            totalSeconds: old.totalSeconds || 0, history: old.history || [], shift: old.shift || null, pwChanged: false
-        });
-        await setDoc(doc(fs, 'usernames', old.username), { email: email });
-        await deleteDoc(doc(fs, 'operators', old.uid));
-        closeAdminPwModal();
-        logAction('Admin', `Reimpostata la password di ${old.name}`);
-        showNotification('Password reimpostata: l\'operatore dovrà cambiarla al prossimo accesso.');
-    } catch (e) {
-        console.error(e);
-        showNotification(e.code && e.code.startsWith('auth/') ? authErrorText(e) : 'Reimpostazione non riuscita. Riprova.', 'error');
-    }
-    if (btn) btn.disabled = false;
-}
-
-// ================= AVVIO =================
-updateSoundButton();
-checkSetup();
-
-// Funzioni richiamate dagli attributi onclick/onsubmit dell'HTML
-Object.assign(window, { esc, showNotification, formatSecondsToHHMMSS, fmtSigned, formatDateTime, newAccountEmail, authErrorText, tryWrite, getOp, actorName, logAction, resolveRole, stopListeners, onListenError, startListeners, applyAuthUser, refreshViews, switchTab, generateTrackingCode, openCitizenModal, closeCitizenModal, toggleAccusedName, requestSummary, submitCitizenRequest, openCodeModal, closeCodeModal, copyTrackingCode, checkTrackingCode, isValidWebhook, postToDiscord, sendDenunciaToDiscord, updateDiscordStatus, fetchWebhook, loadDiscordSettings, saveDiscordWebhook, testDiscordWebhook, handleOperatorLogin, checkOperatorSession, logoutOperator, shiftSeconds, updateTimerDisplay, syncDutyTicker, setDutyButtons, startDuty, endDuty, findReq, renderOperatorRequests, updateRequestStatus, modalStatusChange, openRequestModal, refreshOpenRequest, closeRequestModal, renderRequestNotes, setRequestAssignee, takeRequest, addRequestNote, openMyHistory, historyBounds, openHistoryModal, renderHistory, closeHistoryModal, openPasswordModal, cancelPasswordModal, submitPasswordChange, updateSoundButton, toggleSound, playAlert, updateNavBadge, handleAdminLogin, checkSetup, checkAdminSession, handleAdminSetup, logoutAdmin, generateMatricola, createOperatorAccount, handleCreateOperator, renderAdminOperators, updateOperatorRole, adjustOperatorHours, deleteOperator, renderAdminLog, openSettingsModal, closeSettingsModal, saveCommandSettings, openAdminPwModal, closeAdminPwModal, saveAdminPw });
     </script>
 </body>
 </html>
