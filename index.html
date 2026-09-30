@@ -96,92 +96,116 @@
             </section>
 
             <!------------------------------------------------ -->
-            <!-- TAB 2: AREA OPERATORE                          -->
+            <!-- TAB 2: AREA OPERATORE (Con Login)             -->
             <!------------------------------------------------ -->
             <section id="tab-operatore" class="hidden space-y-6">
-                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div>
-                        <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-user-shield text-red-500 mr-2"></i> Terminale Operativo Militare</h2>
-                        <p class="text-slate-400 text-sm">Gestione dello stato di servizio, timbratura turni e presa in carico delle pratiche.</p>
-                    </div>
-                    <div class="flex items-center gap-4 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                <!-- Box Login Operatore -->
+                <div id="operatore-login-box" class="bg-slate-800 border border-slate-700 p-8 rounded-xl max-w-md mx-auto text-center space-y-4 shadow-xl">
+                    <div class="text-red-500 text-4xl mb-2"><i class="fa-solid fa-lock"></i></div>
+                    <h3 class="text-xl font-bold text-white">Accesso Riservato Operatori</h3>
+                    <p class="text-slate-400 text-sm">Inserisci la password di servizio per accedere al terminale militare.</p>
+                    <input type="password" id="operatore-pass-input" placeholder="Password Operatore..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-red-500">
+                    <button onclick="loginOperatore()" class="w-full bg-red-800 hover:bg-red-700 text-white py-2 rounded font-bold transition">Accedi al Terminale</button>
+                </div>
+
+                <!-- Contenuto Sbloccato Operatore -->
+                <div id="operatore-content" class="hidden space-y-6">
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <p class="text-xs text-slate-400">Stato Attuale:</p>
-                            <p id="duty-status-text" class="text-sm font-bold text-red-400">FUORI SERVIZIO</p>
+                            <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-user-shield text-red-500 mr-2"></i> Terminale Operativo Militare</h2>
+                            <p class="text-slate-400 text-sm">Gestione dello stato di servizio, timbratura turni e presa in carico delle pratiche.</p>
                         </div>
-                        <button id="duty-btn" onclick="toggleDuty()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm transition">Inizia Servizio</button>
+                        <div class="flex items-center gap-4 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                            <div>
+                                <p class="text-xs text-slate-400">Stato Attuale:</p>
+                                <p id="duty-status-text" class="text-sm font-bold text-red-400">FUORI SERVIZIO</p>
+                            </div>
+                            <button id="duty-btn" onclick="toggleDuty()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm transition">Inizia Servizio</button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Timer -->
-                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl text-center">
-                    <span class="text-xs uppercase tracking-widest text-slate-400">Tempo del Turno Corrente</span>
-                    <div id="duty-timer" class="text-5xl font-mono font-bold text-white my-2">00:00:00</div>
-                    <p class="text-xs text-slate-500">Il tempo viene sincronizzato e salvato nel database alla chiusura del turno.</p>
-                </div>
+                    <!-- Timer -->
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl text-center">
+                        <span class="text-xs uppercase tracking-widest text-slate-400">Tempo del Turno Corrente</span>
+                        <div id="duty-timer" class="text-5xl font-mono font-bold text-white my-2">00:00:00</div>
+                        <p class="text-xs text-slate-500">Il tempo viene sincronizzato e salvato nel database alla chiusura del turno.</p>
+                    </div>
 
-                <!-- Elenco Pratiche -->
-                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
-                    <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-list-check text-blue-400 mr-2"></i> Elenco Denunce, Segnalazioni & Colloqui in Coda</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-slate-300">
-                            <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
-                                <tr>
-                                    <th class="p-3">Codice</th>
-                                    <th class="p-3">Tipo</th>
-                                    <th class="p-3">Richiedente (RP / Discord)</th>
-                                    <th class="p-3">Dettagli</th>
-                                    <th class="p-3">Stato</th>
-                                    <th class="p-3">Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="operator-requests-table">
-                                <tr><td colspan="6" class="p-4 text-center text-slate-500">Caricamento dati dal database...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Elenco Pratiche -->
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-list-check text-blue-400 mr-2"></i> Elenco Denunce, Segnalazioni & Colloqui in Coda</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+                                    <tr>
+                                        <th class="p-3">Codice</th>
+                                        <th class="p-3">Tipo</th>
+                                        <th class="p-3">Richiedente (RP / Discord)</th>
+                                        <th class="p-3">Dettagli</th>
+                                        <th class="p-3">Stato</th>
+                                        <th class="p-3">Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="operator-requests-table">
+                                    <tr><td colspan="6" class="p-4 text-center text-slate-500">Caricamento dati dal database...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!------------------------------------------------ -->
-            <!-- TAB 3: AREA ADMIN                              -->
+            <!-- TAB 3: AREA ADMIN (Con Login)                 -->
             <!------------------------------------------------ -->
             <section id="tab-admin" class="hidden space-y-6">
-                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
-                    <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-gauge-high text-amber-500 mr-2"></i> Pannello Amministrazione Generale</h2>
-                    <p class="text-slate-400 text-sm">Controllo globale del sistema, configurazione webhook Discord e statistiche.</p>
+                <!-- Box Login Admin -->
+                <div id="admin-login-box" class="bg-slate-800 border border-slate-700 p-8 rounded-xl max-w-md mx-auto text-center space-y-4 shadow-xl">
+                    <div class="text-amber-500 text-4xl mb-2"><i class="fa-solid fa-shield-cat"></i></div>
+                    <h3 class="text-xl font-bold text-white">Accesso Pannello Amministrazione</h3>
+                    <p class="text-slate-400 text-sm">Inserisci la password di comando per gestire il sistema.</p>
+                    <input type="password" id="admin-pass-input" placeholder="Password Admin (default: admin123)..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-amber-500">
+                    <button onclick="loginAdmin()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-bold transition">Accedi come Admin</button>
                 </div>
 
-                <!-- Statistiche -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                        <p class="text-xs text-slate-400">Totale Denunce</p>
-                        <p id="stat-denunce" class="text-3xl font-bold text-white mt-1">0</p>
+                <!-- Contenuto Sbloccato Admin -->
+                <div id="admin-content" class="hidden space-y-6">
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                        <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-gauge-high text-amber-500 mr-2"></i> Pannello Amministrazione Generale</h2>
+                        <p class="text-slate-400 text-sm">Controllo globale del sistema, configurazione webhook Discord e statistiche.</p>
                     </div>
-                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                        <p class="text-xs text-slate-400">Segnalazioni</p>
-                        <p id="stat-segnalazioni" class="text-3xl font-bold text-white mt-1">0</p>
-                    </div>
-                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                        <p class="text-xs text-slate-400">Colloqui Prenotati</p>
-                        <p id="stat-colloqui" class="text-3xl font-bold text-white mt-1">0</p>
-                    </div>
-                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                        <p class="text-xs text-slate-400">Operatori in Servizio</p>
-                        <p id="stat-operatori" class="text-3xl font-bold text-white mt-1">0</p>
-                    </div>
-                </div>
 
-                <!-- Webhook Discord -->
-                <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
-                    <h3 class="text-lg font-bold text-white mb-2"><i class="fa-brands fa-discord text-indigo-400 mr-2"></i> Configurazione Canale Discord Webhook</h3>
-                    <p class="text-slate-400 text-sm mb-4">Ricevi notifiche automatiche quando un cittadino invia una pratica.</p>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">Webhook URL</label>
-                            <input type="text" id="webhook-url" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-sm">
+                    <!-- Statistiche -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                            <p class="text-xs text-slate-400">Totale Denunce</p>
+                            <p id="stat-denunce" class="text-3xl font-bold text-white mt-1">0</p>
                         </div>
-                        <button onclick="saveWebhookConfig()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-medium transition">Salva Webhook</button>
+                        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                            <p class="text-xs text-slate-400">Segnalazioni</p>
+                            <p id="stat-segnalazioni" class="text-3xl font-bold text-white mt-1">0</p>
+                        </div>
+                        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                            <p class="text-xs text-slate-400">Colloqui Prenotati</p>
+                            <p id="stat-colloqui" class="text-3xl font-bold text-white mt-1">0</p>
+                        </div>
+                        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                            <p class="text-xs text-slate-400">Operatori in Servizio</p>
+                            <p id="stat-operatori" class="text-3xl font-bold text-white mt-1">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Webhook Discord -->
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-2"><i class="fa-brands fa-discord text-indigo-400 mr-2"></i> Configurazione Canale Discord Webhook</h3>
+                        <p class="text-slate-400 text-sm mb-4">Ricevi notifiche automatiche quando un cittadino invia una pratica.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Webhook URL</label>
+                                <input type="text" id="webhook-url" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-sm">
+                            </div>
+                            <button onclick="saveWebhookConfig()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-medium transition">Salva Webhook</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -195,7 +219,7 @@
         <p class="text-slate-400 font-medium mt-2 md:mt-0">Sito ideato e creato da <span class="text-red-500 font-bold">Antovino</span></p>
     </footer>
 
-    <!-- MODALE COMPILAZIONE FORM (Denuncia / Segnalazione / Colloquio) -->
+    <!-- MODALE COMPILAZIONE FORM -->
     <div id="form-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-xl p-6 space-y-4">
             <h3 id="modal-title" class="text-xl font-bold text-white">Compila Modulo</h3>
@@ -209,7 +233,7 @@
                     <input type="text" id="form-discord" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="mariorossi#0000">
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1" id="form-desc-label">Descrizione / Motivo</label>
+                    <label class="block text-xs text-slate-400 mb-1">Descrizione / Motivo</label>
                     <textarea id="form-desc" rows="4" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Scrivi i dettagli..."></textarea>
                 </div>
             </div>
@@ -222,7 +246,6 @@
 
     <!-- LOGICA FIREBASE & APPLICAZIONE -->
     <script>
-        // Configurazione Firebase fornita
         const firebaseConfig = {
             apiKey: "AIzaSyChsIsU6q6H163mqhScFnKoQm-jca6c4Yo",
             authDomain: "arma-dei-carabinieri.firebaseapp.com",
@@ -234,11 +257,9 @@
             databaseURL: "https://arma-dei-carabinieri-default-rtdb.firebaseio.com"
         };
 
-        // Inizializzazione Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Controllo stato connessione
         db.ref(".info/connected").on("value", (snap) => {
             const statusBadge = document.getElementById('firebase-status');
             if (snap.val() === true) {
@@ -250,7 +271,6 @@
             }
         });
 
-        // Gestione Tab
         function switchTab(tabName) {
             ['cittadino', 'operatore', 'admin'].forEach(t => {
                 document.getElementById('tab-' + t).classList.add('hidden');
@@ -260,7 +280,27 @@
             document.getElementById('btn-tab-' + tabName).className = "px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded transition shadow";
         }
 
-        // Modale form cittadini
+        // Funzioni Login Operatore & Admin
+        function loginOperatore() {
+            const pass = document.getElementById('operatore-pass-input').value;
+            if(pass === "carabinieri2026") { // Puoi cambiare la password qui
+                document.getElementById('operatore-login-box').classList.add('hidden');
+                document.getElementById('operatore-content').classList.remove('hidden');
+            } else {
+                alert("Password operatore errata!");
+            }
+        }
+
+        function loginAdmin() {
+            const pass = document.getElementById('admin-pass-input').value;
+            if(pass === "admin123") { // Puoi cambiare la password qui
+                document.getElementById('admin-login-box').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+            } else {
+                alert("Password amministratore errata!");
+            }
+        }
+
         let currentFormType = '';
         function openFormModal(type) {
             currentFormType = type;
@@ -277,7 +317,6 @@
             document.getElementById('form-modal').classList.add('hidden');
         }
 
-        // Invio Pratica a Firebase
         function submitUserForm() {
             const name = document.getElementById('form-name').value.trim();
             const discord = document.getElementById('form-discord').value.trim();
@@ -309,7 +348,6 @@
             });
         }
 
-        // Verifica Tracking Cittadino
         function verifyTrackingCode() {
             const code = document.getElementById('tracking-code-input').value.trim().toUpperCase();
             const resDiv = document.getElementById('tracking-result');
@@ -330,7 +368,6 @@
             });
         }
 
-        // Ascolta in tempo reale le pratiche per Operatore e Admin
         db.ref('pratiche').on('value', snapshot => {
             const data = snapshot.val() || {};
             const tbody = document.getElementById('operator-requests-table');
@@ -365,7 +402,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Aggiorna statistiche admin
             document.getElementById('stat-denunce').textContent = countDen;
             document.getElementById('stat-segnalazioni').textContent = countSeg;
             document.getElementById('stat-colloqui').textContent = countCol;
@@ -381,7 +417,6 @@
             }
         }
 
-        // Timer Servizio Operatore
         let isOnDuty = false;
         let secondsOnDuty = 0;
         let timerInterval = null;
