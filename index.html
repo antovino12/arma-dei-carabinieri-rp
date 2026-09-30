@@ -259,6 +259,32 @@
         <!-- ================= ADMIN TAB ================= -->
         <div id="tab-admin" class="hidden space-y-6">
             <!-- Admin Login Card -->
+            <div id="admin-setup-view" class="hidden max-w-md mx-auto bg-slate-800 border border-amber-500/40 rounded-2xl p-8 shadow-xl mt-10">
+                <div class="text-center mb-6">
+                    <div class="w-14 h-14 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-amber-500/40">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Prima configurazione</h3>
+                    <p class="text-slate-400 text-xs mt-1">Nessun amministratore è ancora configurato. Crea ora l'account che gestirà il portale.</p>
+                </div>
+                <form onsubmit="handleAdminSetup(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email</label>
+                        <input type="email" id="setup-email" required autocomplete="username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="admin@esempio.it">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password</label>
+                        <input type="password" id="setup-pass" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Almeno 6 caratteri">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Conferma password</label>
+                        <input type="password" id="setup-pass2" required minlength="6" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ripeti la password">
+                    </div>
+                    <p class="text-[11px] text-amber-200/90 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2"><i class="fa-solid fa-circle-info mr-1 text-amber-400"></i>Completa questo passaggio subito dopo aver pubblicato il sito: chi lo fa per primo diventa amministratore.</p>
+                    <button type="submit" class="w-full py-3 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow disabled:opacity-50">Crea amministratore</button>
+                </form>
+            </div>
+
             <div id="admin-login-view" class="max-w-md mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-xl mt-10">
                 <div class="text-center mb-6">
                     <div class="w-14 h-14 bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-3 border border-red-700">
@@ -267,6 +293,7 @@
                     <h3 class="text-xl font-bold text-white">Area Riservata Comando (Admin)</h3>
                     <p class="text-slate-400 text-xs mt-1">Autenticazione richiesta per la gestione del personale</p>
                 </div>
+                <div id="admin-rules-error" class="hidden mb-4 text-[11px] text-red-200 bg-red-950/40 border border-red-800/60 rounded-xl px-3 py-2"><i class="fa-solid fa-triangle-exclamation mr-1 text-red-400"></i>Impossibile leggere la configurazione: pubblica le nuove regole di sicurezza nella console Firebase, poi ricarica la pagina.</div>
                 <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email amministratore</label>
@@ -312,7 +339,7 @@
                     <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
                         <i class="fa-brands fa-discord text-amber-400"></i> Canale Discord Denunce
                     </h3>
-                    <p class="text-xs text-slate-400 mb-4">Incolla il link Webhook del canale Discord dove devono arrivare le denunce (Discord: Impostazioni canale &rarr; Integrazioni &rarr; Webhook &rarr; Copia URL).</p>
+                    <p class="text-xs text-slate-400 mb-4">Il link viene salvato nel database e vale per tutti i dispositivi. Incolla il link Webhook del canale Discord dove devono arrivare le denunce (Discord: Impostazioni canale &rarr; Integrazioni &rarr; Webhook &rarr; Copia URL).</p>
                     <div class="flex flex-col lg:flex-row gap-3 items-end">
                         <div class="flex-1 w-full">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Link Webhook Discord</label>
@@ -650,7 +677,27 @@
         </div>
     </div>
 
-        <!-- Custom Notification Box (Instead of alert) -->
+    <!-- Admin: set provisional password for an operator -->
+    <div id="admin-pw-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeAdminPwModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="text-xl font-bold text-white mb-1">Reimposta password</h3>
+            <p id="apw-subtitle" class="text-xs text-slate-400 mb-4"></p>
+            <form onsubmit="saveAdminPw(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password provvisoria</label>
+                    <input type="text" id="apw-input" required minlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Inserisci password provvisoria...">
+                </div>
+                <div class="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 text-[11px] text-amber-200"><i class="fa-solid fa-circle-info mt-0.5 text-amber-400"></i><span>Verrà creato un nuovo accesso: ore e storico restano, e l'operatore dovrà scegliere una password personale al prossimo accesso.</span></div>
+                <div class="flex justify-end gap-3 pt-1">
+                    <button type="button" onclick="closeAdminPwModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold transition">Annulla</button>
+                    <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition shadow">Reimposta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Notification Box (Instead of alert) -->
     <div id="notification-box" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-800 border border-amber-500/50 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
         <i id="notif-icon" class="fa-solid fa-circle-check text-amber-400 text-lg"></i>
         <span id="notif-text" class="text-sm font-medium">Messaggio di notifica</span>
@@ -682,15 +729,13 @@ const fs = getFirestore(app);
 let secondaryApp = null; // usata solo per creare account operatore senza uscire dall'admin
 
 const EMAIL_DOMAIN = 'portale.local'; // gli username diventano username@portale.local
-// Facoltativo: link webhook Discord valido per tutti i dispositivi (visibile a chi legge il codice della pagina)
-const DEFAULT_DISCORD_WEBHOOK = '';
 
 // Cache locali alimentate in tempo reale da Firestore
 let db = {
     requests: [],
     operators: [],
     log: [],
-    discordWebhook: localStorage.getItem('carabinieri_discord_webhook') || DEFAULT_DISCORD_WEBHOOK
+    discordWebhook: ''
 };
 let currentUser = null;
 let sessionRole = null;      // 'operator' | 'admin' | null
@@ -702,6 +747,9 @@ let firstRequestsSnap = true;
 let adminViewInit = false;
 let dutyInterval = null;
 let isDutyActive = false;
+let setupDone = null;    // true se esiste già un amministratore
+let setupError = false;  // true se le regole non permettono di leggere la configurazione
+let setupBusy = false;
 
 const TYPE_BADGE = {
     'colloquio': '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-semibold">Colloquio</span>',
@@ -749,8 +797,11 @@ function formatDateTime(iso) {
     return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-function usernameToEmail(u) {
-    return u.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '') + '@' + EMAIL_DOMAIN;
+// Ogni accesso operatore ha un'email tecnica casuale; la corrispondenza username -> email è nel database
+function newAccountEmail(username) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const tag = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    return `${username}.${tag}@${EMAIL_DOMAIN}`;
 }
 
 function authErrorText(e) {
@@ -872,7 +923,7 @@ function startListeners(user) {
     }
 }
 
-onAuthStateChanged(auth, async (user) => {
+async function applyAuthUser(user) {
     stopListeners();
     currentUser = user;
     sessionRole = null;
@@ -897,6 +948,11 @@ onAuthStateChanged(auth, async (user) => {
         startListeners(user);
     }
     refreshViews();
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (setupBusy) return; // durante la prima configurazione gestisco io la sessione
+    applyAuthUser(user);
 });
 
 function refreshViews() {
@@ -1029,9 +1085,12 @@ async function submitCitizenRequest(event) {
     const newReq = { ...data, id: code, code: code };
     closeCitizenModal();
     openCodeModal(newReq);
-    if (type === 'denuncia' && db.discordWebhook) {
-        const ok = await sendDenunciaToDiscord(newReq);
-        if (!ok) showNotification('Denuncia salvata, ma invio a Discord non riuscito.', 'error');
+    if (type === 'denuncia') {
+        const hook = await fetchWebhook();
+        if (hook) {
+            const ok = await sendDenunciaToDiscord(hook, newReq);
+            if (!ok) showNotification('Denuncia salvata, ma invio a Discord non riuscito.', 'error');
+        }
     }
 }
 
@@ -1111,10 +1170,10 @@ async function postToDiscord(url, payload) {
     }
 }
 
-function sendDenunciaToDiscord(req) {
+function sendDenunciaToDiscord(url, req) {
     const cut = (t, n = 1000) => { t = String(t || '-'); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
     const ex = req.extra || {};
-    return postToDiscord(db.discordWebhook, {
+    return postToDiscord(url, {
         username: 'Portale Carabinieri RP',
         allowed_mentions: { parse: [] },
         embeds: [{
@@ -1146,22 +1205,33 @@ function updateDiscordStatus() {
     }
 }
 
-function loadDiscordSettings() {
+async function fetchWebhook() {
+    try {
+        const snap = await getDoc(doc(fs, 'config', 'discord'));
+        db.discordWebhook = snap.exists() ? (snap.data().webhook || '') : '';
+    } catch (e) {
+        console.error(e);
+    }
+    return db.discordWebhook;
+}
+
+async function loadDiscordSettings() {
+    await fetchWebhook();
     document.getElementById('discord-webhook-input').value = db.discordWebhook || '';
     updateDiscordStatus();
 }
 
-function saveDiscordWebhook() {
+async function saveDiscordWebhook() {
     const url = document.getElementById('discord-webhook-input').value.trim();
     if (url && !isValidWebhook(url)) {
         showNotification('Link webhook Discord non valido.', 'error');
         return;
     }
+    const ok = await tryWrite(setDoc(doc(fs, 'config', 'discord'), { webhook: url }), url ? 'Canale Discord salvato.' : 'Collegamento Discord rimosso.');
+    if (!ok) return;
     db.discordWebhook = url;
-    localStorage.setItem('carabinieri_discord_webhook', url);
     updateDiscordStatus();
     logAction('Admin', url ? 'Canale Discord denunce aggiornato' : 'Collegamento Discord rimosso');
-    showNotification(url ? 'Canale Discord salvato.' : 'Collegamento Discord rimosso.');
 }
 
 async function testDiscordWebhook() {
@@ -1184,15 +1254,17 @@ async function testDiscordWebhook() {
 // ================= AREA OPERATORI =================
 async function handleOperatorLogin(event) {
     event.preventDefault();
-    const u = document.getElementById('op-user').value.trim();
+    const u = document.getElementById('op-user').value.trim().toLowerCase();
     const p = document.getElementById('op-pass').value;
     loginIntent = 'operator';
     try {
-        await signInWithEmailAndPassword(auth, usernameToEmail(u), p);
+        const snap = await getDoc(doc(fs, 'usernames', u));
+        if (!snap.exists()) throw { code: 'auth/invalid-credential' };
+        await signInWithEmailAndPassword(auth, snap.data().email, p);
         document.getElementById('op-pass').value = '';
     } catch (e) {
         loginIntent = null;
-        showNotification(authErrorText(e), 'error');
+        showNotification(e && e.code === 'permission-denied' ? 'Regole di sicurezza non aggiornate: avvisa l\'amministratore.' : authErrorText(e), 'error');
     }
 }
 
@@ -1639,8 +1711,23 @@ async function handleAdminLogin(event) {
     }
 }
 
+async function checkSetup() {
+    try {
+        const snap = await getDoc(doc(fs, 'config', 'setup'));
+        setupDone = snap.exists();
+        setupError = false;
+    } catch (e) {
+        console.error(e);
+        setupError = true;
+    }
+    checkAdminSession();
+}
+
 function checkAdminSession() {
-    document.getElementById('admin-login-view').classList.toggle('hidden', isAdminLoggedIn);
+    const showSetup = !isAdminLoggedIn && setupDone === false && !setupError;
+    document.getElementById('admin-setup-view').classList.toggle('hidden', !showSetup);
+    document.getElementById('admin-login-view').classList.toggle('hidden', isAdminLoggedIn || showSetup);
+    document.getElementById('admin-rules-error').classList.toggle('hidden', !setupError);
     document.getElementById('admin-dashboard').classList.toggle('hidden', !isAdminLoggedIn);
     if (isAdminLoggedIn) {
         renderAdminOperators();
@@ -1652,6 +1739,46 @@ function checkAdminSession() {
     }
 }
 
+// Prima configurazione: il primo account creato qui diventa amministratore
+async function handleAdminSetup(event) {
+    event.preventDefault();
+    const email = document.getElementById('setup-email').value.trim();
+    const p1 = document.getElementById('setup-pass').value;
+    const p2 = document.getElementById('setup-pass2').value;
+    if (p1.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
+    if (p1 !== p2) { showNotification('Le password non coincidono.', 'error'); return; }
+    const btn = event.target.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    setupBusy = true;
+    try {
+        let cred;
+        try {
+            cred = await createUserWithEmailAndPassword(auth, email, p1);
+        } catch (e) {
+            if (e.code !== 'auth/email-already-in-use') throw e;
+            cred = await signInWithEmailAndPassword(auth, email, p1); // account già creato in precedenza
+        }
+        const uid = cred.user.uid;
+        const adminRef = doc(fs, 'admins', uid);
+        const existing = await getDoc(adminRef).catch(() => null);
+        if (!existing || !existing.exists()) await setDoc(adminRef, { email: email, createdAt: serverTimestamp() });
+        await setDoc(doc(fs, 'config', 'setup'), { done: true, by: uid, at: serverTimestamp() });
+        setupDone = true;
+        setupBusy = false;
+        loginIntent = 'admin';
+        await applyAuthUser(cred.user);
+        showNotification('Amministratore creato: configurazione completata.');
+    } catch (e) {
+        console.error(e);
+        setupBusy = false;
+        showNotification(e.code === 'permission-denied'
+            ? 'Permesso negato: pubblica prima le nuove regole di sicurezza nella console Firebase.'
+            : (e.code && e.code.startsWith('auth/') ? authErrorText(e) : 'Configurazione non riuscita. Riprova.'), 'error');
+        try { await signOut(auth); } catch (x) {}
+    }
+    if (btn) btn.disabled = false;
+}
+
 async function logoutAdmin() {
     logAction('Admin', 'Disconnessione Area Admin');
     await signOut(auth);
@@ -1660,6 +1787,15 @@ async function logoutAdmin() {
 
 function generateMatricola() {
     return `CC-${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
+async function createOperatorAccount(email, password) {
+    if (!secondaryApp) secondaryApp = initializeApp(firebaseConfig, 'secondary');
+    const secAuth = getAuth(secondaryApp);
+    const cred = await createUserWithEmailAndPassword(secAuth, email, password);
+    const uid = cred.user.uid;
+    await signOut(secAuth);
+    return uid;
 }
 
 async function handleCreateOperator(event) {
@@ -1687,27 +1823,27 @@ async function handleCreateOperator(event) {
     const btn = event.target.querySelector('button[type="submit"]');
     if (btn) btn.disabled = true;
     try {
-        if (!secondaryApp) secondaryApp = initializeApp(firebaseConfig, 'secondary');
-        const secAuth = getAuth(secondaryApp);
-        const email = usernameToEmail(username);
-        const cred = await createUserWithEmailAndPassword(secAuth, email, password);
-        const uid = cred.user.uid;
-        await signOut(secAuth);
-        await setDoc(doc(fs, 'operators', uid), {
-            matricola: matricola, name: name, username: username, email: email, role: roleText,
-            totalSeconds: 0, history: [], shift: null, pwChanged: false
-        });
-        document.getElementById('new-op-name').value = '';
-        document.getElementById('new-op-username').value = '';
-        document.getElementById('new-op-password').value = '';
-        document.getElementById('new-op-role').value = '';
-        logAction('Admin', `Creato operatore ${name} (${matricola}) con password provvisoria`);
-        showNotification(`Operatore ${name} creato con matricola ${matricola}.`);
+        const taken = await getDoc(doc(fs, 'usernames', username));
+        if (taken.exists()) {
+            showNotification('Username già in uso.', 'error');
+        } else {
+            const email = newAccountEmail(username);
+            const uid = await createOperatorAccount(email, password);
+            await setDoc(doc(fs, 'operators', uid), {
+                matricola: matricola, name: name, username: username, email: email, role: roleText,
+                totalSeconds: 0, history: [], shift: null, pwChanged: false
+            });
+            await setDoc(doc(fs, 'usernames', username), { email: email });
+            document.getElementById('new-op-name').value = '';
+            document.getElementById('new-op-username').value = '';
+            document.getElementById('new-op-password').value = '';
+            document.getElementById('new-op-role').value = '';
+            logAction('Admin', `Creato operatore ${name} (${matricola}) con password provvisoria`);
+            showNotification(`Operatore ${name} creato con matricola ${matricola}.`);
+        }
     } catch (e) {
         console.error(e);
-        showNotification(e.code === 'auth/email-already-in-use'
-            ? 'Username già presente in Firebase Authentication: eliminalo prima da Authentication → Utenti.'
-            : (e.code && e.code.startsWith('auth/') ? authErrorText(e) : 'Creazione non riuscita. Riprova.'), 'error');
+        showNotification(e.code && e.code.startsWith('auth/') ? authErrorText(e) : 'Creazione non riuscita. Riprova.', 'error');
     }
     if (btn) btn.disabled = false;
 }
@@ -1750,6 +1886,7 @@ function renderAdminOperators() {
             <td class="py-3 px-4 text-center">
                 <div class="inline-flex items-center gap-2">
                     <button onclick="openHistoryModal('${esc(op.uid)}')" class="text-amber-400 hover:text-amber-300 p-1" title="Storico ore"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                    <button onclick="openAdminPwModal('${esc(op.uid)}')" class="text-slate-300 hover:text-white p-1" title="Reimposta password"><i class="fa-solid fa-key"></i></button>
                     <button onclick="deleteOperator('${esc(op.uid)}')" class="text-red-400 hover:text-red-300 p-1" title="Elimina operatore"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </td>
@@ -1788,7 +1925,7 @@ async function adjustOperatorHours(uid, action) {
 async function deleteOperator(uid) {
     const op = getOp(uid);
     if (!op) return;
-    const ok = await tryWrite(deleteDoc(doc(fs, 'operators', uid)), 'Operatore rimosso dal portale (l\'account resta in Firebase Authentication).');
+    const ok = await tryWrite(Promise.all([deleteDoc(doc(fs, 'operators', uid)), deleteDoc(doc(fs, 'usernames', op.username))]), 'Operatore eliminato dal portale.');
     if (ok) logAction('Admin', `Eliminato operatore ${op.name}`);
 }
 
@@ -1845,11 +1982,56 @@ async function saveCommandSettings(event) {
     showNotification('Password admin aggiornata con successo.');
 }
 
+// ---------- reimpostazione password operatore (nuovo accesso, stessi dati) ----------
+let adminPwTarget = null;
+
+function openAdminPwModal(uid) {
+    const op = getOp(uid);
+    if (!op) return;
+    adminPwTarget = uid;
+    document.getElementById('apw-subtitle').innerText = `Operatore: ${op.name} (${op.matricola}). Mantiene ore e storico.`;
+    document.getElementById('apw-input').value = '';
+    document.getElementById('admin-pw-modal').classList.remove('hidden');
+}
+
+function closeAdminPwModal() {
+    document.getElementById('admin-pw-modal').classList.add('hidden');
+    adminPwTarget = null;
+}
+
+async function saveAdminPw(event) {
+    event.preventDefault();
+    const old = getOp(adminPwTarget);
+    const pw = document.getElementById('apw-input').value;
+    if (!old) return;
+    if (pw.length < 6) { showNotification('La password deve avere almeno 6 caratteri.', 'error'); return; }
+    const btn = event.target.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    try {
+        const email = newAccountEmail(old.username);
+        const newUid = await createOperatorAccount(email, pw);
+        await setDoc(doc(fs, 'operators', newUid), {
+            matricola: old.matricola, name: old.name, username: old.username, email: email, role: old.role,
+            totalSeconds: old.totalSeconds || 0, history: old.history || [], shift: old.shift || null, pwChanged: false
+        });
+        await setDoc(doc(fs, 'usernames', old.username), { email: email });
+        await deleteDoc(doc(fs, 'operators', old.uid));
+        closeAdminPwModal();
+        logAction('Admin', `Reimpostata la password di ${old.name}`);
+        showNotification('Password reimpostata: l\'operatore dovrà cambiarla al prossimo accesso.');
+    } catch (e) {
+        console.error(e);
+        showNotification(e.code && e.code.startsWith('auth/') ? authErrorText(e) : 'Reimpostazione non riuscita. Riprova.', 'error');
+    }
+    if (btn) btn.disabled = false;
+}
+
 // ================= AVVIO =================
 updateSoundButton();
+checkSetup();
 
 // Funzioni richiamate dagli attributi onclick/onsubmit dell'HTML
-Object.assign(window, { esc, showNotification, formatSecondsToHHMMSS, fmtSigned, formatDateTime, usernameToEmail, authErrorText, tryWrite, getOp, actorName, logAction, resolveRole, stopListeners, onListenError, startListeners, refreshViews, switchTab, generateTrackingCode, openCitizenModal, closeCitizenModal, toggleAccusedName, requestSummary, submitCitizenRequest, openCodeModal, closeCodeModal, copyTrackingCode, checkTrackingCode, isValidWebhook, postToDiscord, sendDenunciaToDiscord, updateDiscordStatus, loadDiscordSettings, saveDiscordWebhook, testDiscordWebhook, handleOperatorLogin, checkOperatorSession, logoutOperator, shiftSeconds, updateTimerDisplay, syncDutyTicker, setDutyButtons, startDuty, endDuty, findReq, renderOperatorRequests, updateRequestStatus, modalStatusChange, openRequestModal, refreshOpenRequest, closeRequestModal, renderRequestNotes, setRequestAssignee, takeRequest, addRequestNote, openMyHistory, historyBounds, openHistoryModal, renderHistory, closeHistoryModal, openPasswordModal, cancelPasswordModal, submitPasswordChange, updateSoundButton, toggleSound, playAlert, updateNavBadge, handleAdminLogin, checkAdminSession, logoutAdmin, generateMatricola, handleCreateOperator, renderAdminOperators, updateOperatorRole, adjustOperatorHours, deleteOperator, renderAdminLog, openSettingsModal, closeSettingsModal, saveCommandSettings });
+Object.assign(window, { esc, showNotification, formatSecondsToHHMMSS, fmtSigned, formatDateTime, newAccountEmail, authErrorText, tryWrite, getOp, actorName, logAction, resolveRole, stopListeners, onListenError, startListeners, applyAuthUser, refreshViews, switchTab, generateTrackingCode, openCitizenModal, closeCitizenModal, toggleAccusedName, requestSummary, submitCitizenRequest, openCodeModal, closeCodeModal, copyTrackingCode, checkTrackingCode, isValidWebhook, postToDiscord, sendDenunciaToDiscord, updateDiscordStatus, fetchWebhook, loadDiscordSettings, saveDiscordWebhook, testDiscordWebhook, handleOperatorLogin, checkOperatorSession, logoutOperator, shiftSeconds, updateTimerDisplay, syncDutyTicker, setDutyButtons, startDuty, endDuty, findReq, renderOperatorRequests, updateRequestStatus, modalStatusChange, openRequestModal, refreshOpenRequest, closeRequestModal, renderRequestNotes, setRequestAssignee, takeRequest, addRequestNote, openMyHistory, historyBounds, openHistoryModal, renderHistory, closeHistoryModal, openPasswordModal, cancelPasswordModal, submitPasswordChange, updateSoundButton, toggleSound, playAlert, updateNavBadge, handleAdminLogin, checkSetup, checkAdminSession, handleAdminSetup, logoutAdmin, generateMatricola, createOperatorAccount, handleCreateOperator, renderAdminOperators, updateOperatorRole, adjustOperatorHours, deleteOperator, renderAdminLog, openSettingsModal, closeSettingsModal, saveCommandSettings, openAdminPwModal, closeAdminPwModal, saveAdminPw });
     </script>
 </body>
 </html>
