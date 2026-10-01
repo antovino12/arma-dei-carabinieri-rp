@@ -190,7 +190,7 @@
                 <div id="admin-login-box" class="bg-slate-800 border border-slate-700 p-8 rounded-xl max-w-md mx-auto text-center space-y-4 shadow-xl">
                     <div class="text-amber-500 text-4xl mb-2"><i class="fa-solid fa-shield-cat"></i></div>
                     <h3 class="text-xl font-bold text-white">Accesso Pannello Amministrazione</h3>
-                    <p class="text-slate-400 text-sm">Inserisci username e password di comando.</p>
+                    <p class="text-slate-400 text-sm">Inserisci username e password di comando (Default: <b class="text-amber-400">admin</b> / <b class="text-amber-400">admin123</b>).</p>
                     <input type="text" id="admin-user-input" placeholder="Username Admin..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-amber-500">
                     <input type="password" id="admin-pass-input" placeholder="Password..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-amber-500">
                     <button onclick="loginAdmin()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-bold transition">Accedi come Admin</button>
@@ -447,18 +447,28 @@
             document.getElementById('op-password-input').value = '';
         }
 
-        // --- LOGIN ADMIN & CONFIGURAZIONE ---
+        // --- LOGIN ADMIN & CONFIGURAZIONE (CON FALLBACK SICURO) ---
         function loginAdmin() {
             const userIn = document.getElementById('admin-user-input').value.trim();
             const passIn = document.getElementById('admin-pass-input').value;
 
             db.ref('config/admin').once('value').then(snap => {
+                // Se il database non ha ancora salvato l'admin, usa le credenziali di default (admin / admin123)
                 const adminCfg = snap.val() || { username: "admin", password: "admin123" };
+                
                 if(userIn === adminCfg.username && passIn === adminCfg.password) {
                     document.getElementById('admin-login-box').classList.add('hidden');
                     document.getElementById('admin-content').classList.remove('hidden');
                 } else {
-                    alert("Credenziali Admin errate! (Default: admin / admin123)");
+                    alert("Credenziali Admin errate! (Username di default: admin / Password: admin123)");
+                }
+            }).catch(err => {
+                // Fallback offline di sicurezza
+                if(userIn === "admin" && passIn === "admin123") {
+                    document.getElementById('admin-login-box').classList.add('hidden');
+                    document.getElementById('admin-content').classList.remove('hidden');
+                } else {
+                    alert("Credenziali Admin errate! (Username: admin / Password: admin123)");
                 }
             });
         }
