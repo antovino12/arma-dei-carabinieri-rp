@@ -283,7 +283,7 @@
                     <!-- Webhook Discord & Test -->
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
                         <h3 class="text-lg font-bold text-white mb-2"><i class="fa-brands fa-discord text-indigo-400 mr-2"></i> Configurazione Canale Discord Webhook</h3>
-                        <p class="text-slate-400 text-sm mb-4">Ricevi notifiche automatiche quando un cittadino invia una pratica.</p>
+                        <p class="text-slate-400 text-sm mb-4">Ricevi notifiche in stile embed avanzato quando viene inoltrata una pratica.</p>
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">Webhook URL</label>
@@ -307,7 +307,7 @@
         <p class="text-slate-400 font-medium mt-2 md:mt-0">Sito ideato e creato da <span class="text-red-500 font-bold">Antovino</span></p>
     </footer>
 
-    <!-- MODALE COMPILAZIONE FORM CITTADINO (REALISTICO) -->
+    <!-- MODALE COMPILAZIONE FORM CITTADINO -->
     <div id="form-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-xl rounded-xl p-6 space-y-4 my-8">
             <h3 id="modal-title" class="text-xl font-bold text-white border-b border-slate-700 pb-3">Compila Modulo</h3>
@@ -333,12 +333,12 @@
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Luogo Specifico in Città</label>
-                        <input type="text" id="form-location" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm focus:outline-none focus:border-blue-500" placeholder="Es. Legions Square / Vinewood">
+                        <input type="text" id="form-location" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm focus:outline-none focus:border-blue-500" placeholder="Es. Legions Square">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Descrizione Dettagliata dei Fatti *</label>
-                    <textarea id="form-desc" rows="4" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm focus:outline-none focus:border-blue-500" placeholder="Racconta nel dettaglio cosa è successo, eventuali targhe o descrizioni dei sospetti..."></textarea>
+                    <textarea id="form-desc" rows="4" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm focus:outline-none focus:border-blue-500" placeholder="Racconta nel dettaglio cosa è successo..."></textarea>
                 </div>
             </div>
             <div class="flex justify-end gap-3 pt-3 border-t border-slate-700">
@@ -348,15 +348,13 @@
         </div>
     </div>
 
-    <!-- MODALE VISUALIZZA DETTAGLI PRATICA (OPERATORE / ADMIN) -->
+    <!-- MODALE VISUALIZZA DETTAGLI PRATICA -->
     <div id="details-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-xl p-6 space-y-4">
             <h3 class="text-xl font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
                 <i class="fa-solid fa-file-lines text-blue-400"></i> Dettagli Pratica / Denuncia
             </h3>
-            <div id="details-content" class="space-y-2 text-sm text-slate-300 bg-slate-900 p-4 rounded-lg border border-slate-700">
-                <!-- Popolato dinamicamente -->
-            </div>
+            <div id="details-content" class="space-y-2 text-sm text-slate-300 bg-slate-900 p-4 rounded-lg border border-slate-700"></div>
             <div class="flex justify-end gap-3 pt-2">
                 <button type="button" onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition cursor-pointer">Chiudi</button>
             </div>
@@ -634,8 +632,8 @@
             let h = Math.floor(secs / 3600);
             let m = Math.floor((secs % 3600) / 60);
             let s = secs % 60;
-            if(h > 0) return `${h} ore e ${m} min`;
-            if(m > 0) return `${m} min e ${s} sec`;
+            if(h > 0) return `${h} ore e${m} min`;
+            if(m > 0) return `${m} min e${s} sec`;
             return `${s} sec`;
         }
 
@@ -736,7 +734,7 @@
                 const turni = op.storicoTurni || {};
                 let msg = `Storico turni di ${op.nome || op.username}:\n\n`;
                 Object.values(turni).forEach(t => {
-                    msg += `- ${t.data} | Entrata: ${t.entrata} | Uscita: ${t.uscita} (${t.durataFormattata})\n`;
+                    msg += `- ${t.data} \vert{} Entrata:${t.entrata} | Uscita: ${t.uscita} (${t.durataFormattata})\n`;
                 });
                 if(Object.keys(turni).length === 0) msg += "Nessun turno registrato.";
                 alert(msg);
@@ -763,7 +761,7 @@
             }
         }
 
-        // --- GESTIONE PRATICHE REALISTICHE & DISCORD ---
+        // --- GESTIONE PRATICHE & DISCORD EMBED ---
         let currentFormType = '';
         function openFormModal(type) {
             currentFormType = type;
@@ -812,7 +810,7 @@
             db.ref('pratiche/' + code).set(praticaData).then(() => {
                 alert(`Pratica inoltrata con successo!\nConservate con cura il vostro Codice Unico: ${code}`);
                 closeFormModal();
-                sendDiscordNotification(praticaData);
+                sendDiscordEmbed(praticaData);
             }).catch(err => {
                 alert("Errore invio pratica: " + err.message);
             });
@@ -852,39 +850,73 @@
             const url = document.getElementById('webhook-url').value.trim();
             if(!url) { alert("Inserisci prima un URL Webhook valido."); return; }
             
-            const payload = {
-                content: "🚨 **TEST PORTALE CARABINIERI** - Il webhook Discord è configurato e funzionante correttamente!"
+            const testData = {
+                code: "DEN-TEST",
+                type: "denuncia",
+                name: "Mario Rossi (TEST)",
+                phone: "555-999999",
+                discord: "@test_user",
+                eventDate: "Oggi, 12:00",
+                location: "Piazza Centrale (TEST)",
+                description: "Messaggio di test dal gestore del Portale Arma dei Carabinieri RP.",
+                date: new Date().toLocaleString()
             };
 
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).then(res => {
-                if(res.ok || res.status === 204) {
-                    alert("Test inviato con successo su Discord!");
-                } else {
-                    alert("Errore durante l'invio del test (controlla che l'URL del webhook sia corretto).");
-                }
-            }).catch(err => {
-                alert("Errore di rete / CORS durante l'invio del test.");
-            });
+            sendDiscordEmbed(testData, true);
         }
 
-        function sendDiscordNotification(p) {
+        function sendDiscordEmbed(p, isTest = false) {
             db.ref('config/webhook').once('value').then(snap => {
                 const url = snap.val();
-                if(!url) return;
+                if(!url) {
+                    if(isTest) alert("Imposta e salva prima un URL Webhook valido!");
+                    return;
+                }
 
-                const payload = {
-                    content: `📢 **NUOVA PRATICA UFFICIALE (${p.type.toUpperCase()})**\n> **Codice:** \`${p.code}\`\n> **Richiedente:** ${p.name} (Tel: ${p.phone} | Discord: ${p.discord})\n> **Luogo:** ${p.location} | **Quando:** ${p.eventDate}\n> **Dettagli:** ${p.description}`
+                // Titoli ed emoji personalizzati in base al tipo di pratica
+                let titlePrefix = "🚨 Nuova Denuncia Formale";
+                let colorCode = 15158332; // Rosso Carabinieri
+                if(p.type === 'segnalazione') {
+                    titlePrefix = "⚠️ Nuova Segnalazione Riservata";
+                    colorCode = 16776960; // Giallo/Ambra
+                } else if(p.type === 'colloquio') {
+                    titlePrefix = "📅 Nuova Prenotazione Colloquio";
+                    colorCode = 3447003; // Blu istituzionale
+                }
+
+                if(isTest) titlePrefix += " [TEST DISCORD]";
+
+                const embedPayload = {
+                    embeds: [{
+                        title: titlePrefix,
+                        color: colorCode,
+                        fields: [
+                            { name: "Codice Pratica", value: `\`${p.code}\``, inline: true },
+                            { name: "Nome RP", value: p.name, inline: true },
+                            { name: "Tag Discord", value: p.discord, inline: true },
+                            { name: "Telefono", value: p.phone, inline: true },
+                            { name: "Data / Ora Fatti", value: p.eventDate, inline: true },
+                            { name: "Luogo", value: p.location, inline: true },
+                            { name: "Descrizione / Dettagli", value: p.description, inline: false }
+                        ],
+                        footer: {
+                            text: `Arma dei Carabinieri RP • Data: ${p.date}`
+                        }
+                    }]
                 };
 
                 fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).catch(e => console.log("Errore webhook discord"));
+                    body: JSON.stringify(embedPayload)
+                }).then(res => {
+                    if(isTest) {
+                        if(res.ok || res.status === 204) alert("Test embed inviato con successo su Discord!");
+                        else alert("Errore invio test (verifica l'URL del webhook).");
+                    }
+                }).catch(err => {
+                    if(isTest) alert("Errore di rete / CORS durante l'invio del test.");
+                });
             });
         }
 
