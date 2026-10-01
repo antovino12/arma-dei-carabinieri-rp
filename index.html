@@ -33,9 +33,9 @@
                     <span id="firebase-status" class="text-xs px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full flex items-center gap-1.5">
                         <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Connessione Cloud...
                     </span>
-                    <button onclick="switchTab('cittadino')" id="btn-tab-cittadino" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded transition shadow">Area Cittadino</button>
-                    <button onclick="switchTab('operatore')" id="btn-tab-operatore" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded transition border border-slate-700">Area Operatore</button>
-                    <button onclick="switchTab('admin')" id="btn-tab-admin" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded transition border border-slate-700">Area Admin</button>
+                    <button onclick="switchTab('cittadino')" id="btn-tab-cittadino" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded transition shadow cursor-pointer">Area Cittadino</button>
+                    <button onclick="switchTab('operatore')" id="btn-tab-operatore" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded transition border border-slate-700 cursor-pointer">Area Operatore</button>
+                    <button onclick="switchTab('admin')" id="btn-tab-admin" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded transition border border-slate-700 cursor-pointer">Area Admin</button>
                 </div>
             </div>
         </header>
@@ -226,26 +226,57 @@
                         </div>
                     </div>
 
-                    <!-- Gestione Operatori (Aggiunta & Lista con modifica ore) -->
+                    <!-- STILE AGGIUNGI OPERATORE IN LINEA (COME DA SCREENSHOT) -->
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl space-y-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users-gear text-red-500 mr-2"></i> Gestione Personale e Ore di Servizio</h3>
-                            <button onclick="openAddOperatorModal()" class="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-bold transition cursor-pointer"><i class="fa-solid fa-user-plus mr-1"></i> Aggiungi Operatore</button>
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-users text-red-500"></i> Creazione e Gestione Operatori
+                            </h3>
+                            <button onclick="resetAllOperatorsHours()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow">
+                                <i class="fa-solid fa-rotate-right"></i> Resetta Ore Settimanali Tutti
+                            </button>
                         </div>
 
-                        <div class="overflow-x-auto">
+                        <!-- Form di inserimento rapido in linea -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 pt-2 items-end">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Nome Operatore</label>
+                                <input type="text" id="new-op-name" placeholder="Es. Marco Rossi" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm focus:outline-none focus:border-red-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Username Accesso</label>
+                                <input type="text" id="new-op-username" placeholder="Es. m.rossi" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm focus:outline-none focus:border-red-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Ruolo / Qualifica (Testo Libero)</label>
+                                <input type="text" id="new-op-ruolo" placeholder="Es. Appuntato, Maresciallo..." class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm focus:outline-none focus:border-red-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Password Provvisoria</label>
+                                <input type="text" id="new-op-pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm focus:outline-none focus:border-red-500">
+                            </div>
+                            <div>
+                                <button onclick="createNewOperator()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded text-sm font-bold transition cursor-pointer flex items-center justify-center gap-1.5 shadow h-[38px]">
+                                    <i class="fa-solid fa-user-plus"></i> Aggiungi Operatore
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tabella Elenco Operatori stile Dashboard -->
+                        <div class="overflow-x-auto pt-4">
                             <table class="w-full text-left text-sm text-slate-300">
-                                <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+                                <thead class="bg-slate-900 text-slate-400 uppercase text-xs border-b border-slate-700">
                                     <tr>
-                                        <th class="p-3">Matricola</th>
-                                        <th class="p-3">Nome Utente</th>
-                                        <th class="p-3">Ruolo</th>
-                                        <th class="p-3">Ore Totali Accumulate</th>
-                                        <th class="p-3">Azioni Ore / Gestione</th>
+                                        <th class="p-3">Nome</th>
+                                        <th class="p-3">Username</th>
+                                        <th class="p-3">Ruolo attuale</th>
+                                        <th class="p-3">Stato Pass</th>
+                                        <th class="p-3">Tempo Servizio Preciso</th>
+                                        <th class="p-3 text-right">Azioni / Gestione Ore</th>
                                     </tr>
                                 </thead>
                                 <tbody id="admin-operators-table">
-                                    <tr><td colspan="5" class="p-4 text-center text-slate-500">Nessun operatore registrato.</td></tr>
+                                    <tr><td colspan="6" class="p-4 text-center text-slate-500">Nessun operatore registrato.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -299,31 +330,6 @@
             <div class="flex justify-end gap-3 pt-2">
                 <button type="button" onclick="closeFormModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition cursor-pointer">Annulla</button>
                 <button type="button" onclick="submitUserForm()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-bold transition cursor-pointer">Invia Pratica</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODALE AGGIUNGI OPERATORE (Admin) -->
-    <div id="add-operator-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-xl p-6 space-y-4">
-            <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-user-plus text-red-500 mr-2"></i> Registra Nuovo Operatore</h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Nome Utente</label>
-                    <input type="text" id="new-op-username" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="m.rossi">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Ruolo / Grado</label>
-                    <input type="text" id="new-op-ruolo" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Appuntato / Maresciallo">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Password Provvisoria</label>
-                    <input type="text" id="new-op-pass" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Es. pass1234">
-                </div>
-            </div>
-            <div class="flex justify-end gap-3 pt-2">
-                <button type="button" onclick="closeAddOperatorModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition cursor-pointer">Annulla</button>
-                <button type="button" onclick="createNewOperator()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded text-sm font-bold transition cursor-pointer">Crea Operatore</button>
             </div>
         </div>
     </div>
@@ -427,7 +433,7 @@
                     currentOperator = { key: foundKey, ...foundData };
                     document.getElementById('operatore-login-box').classList.add('hidden');
                     document.getElementById('operatore-content').classList.remove('hidden');
-                    document.getElementById('op-display-name').textContent = currentOperator.username;
+                    document.getElementById('op-display-name').textContent = currentOperator.nome || currentOperator.username;
                     document.getElementById('op-display-matricola').textContent = currentOperator.matricola;
                     document.getElementById('op-display-ruolo').textContent = currentOperator.ruolo;
                     renderOperatorStorico();
@@ -498,37 +504,35 @@
             });
         }
 
-        // --- GESTIONE OPERATORI DA ADMIN ---
-        function openAddOperatorModal() {
-            document.getElementById('new-op-username').value = '';
-            document.getElementById('new-op-ruolo').value = '';
-            document.getElementById('new-op-pass').value = '';
-            document.getElementById('add-operator-modal').classList.remove('hidden');
-        }
-        function closeAddOperatorModal() { document.getElementById('add-operator-modal').classList.add('hidden'); }
-
+        // --- CREAZIONE OPERATORE IN LINEA ---
         function createNewOperator() {
+            const nome = document.getElementById('new-op-name').value.trim();
             const username = document.getElementById('new-op-username').value.trim();
             const ruolo = document.getElementById('new-op-ruolo').value.trim();
             const password = document.getElementById('new-op-pass').value;
 
-            if(!username || !ruolo || !password) {
-                alert("Compila tutti i campi.");
+            if(!nome || !username || !ruolo || !password) {
+                alert("Compila tutti i campi per aggiungere l'operatore.");
                 return;
             }
 
             const matricola = 'CC-' + Math.floor(1000 + Math.random() * 9000);
             const opData = {
                 matricola: matricola,
+                nome: nome,
                 username: username,
                 ruolo: ruolo,
                 password: password,
+                isProvvisoria: true,
                 totaleOreSecondi: 0
             };
 
             db.ref('operatori/' + matricola).set(opData).then(() => {
-                alert(`Operatore creato con successo!\nMatricola generata: ${matricola}`);
-                closeAddOperatorModal();
+                alert(`Operatore registrato con successo!\nMatricola generata: ${matricola}`);
+                document.getElementById('new-op-name').value = '';
+                document.getElementById('new-op-username').value = '';
+                document.getElementById('new-op-ruolo').value = '';
+                document.getElementById('new-op-pass').value = '';
             }).catch(err => {
                 alert("Errore salvataggio: " + err.message);
             });
@@ -540,9 +544,10 @@
         function updateOperatorPassword() {
             const newPass = document.getElementById('op-new-pass-input').value;
             if(!newPass) { alert("Inserisci una password valida"); return; }
-            db.ref('operatori/' + currentOperator.key).update({ password: newPass }).then(() => {
+            db.ref('operatori/' + currentOperator.key).update({ password: newPass, isProvvisoria: false }).then(() => {
                 alert("Password aggiornata con successo!");
                 currentOperator.password = newPass;
+                currentOperator.isProvvisoria = false;
                 closeChangePasswordModal();
             });
         }
@@ -600,7 +605,9 @@
             let h = Math.floor(secs / 3600);
             let m = Math.floor((secs % 3600) / 60);
             let s = secs % 60;
-            return `${h}h ${m}m ${s}s`;
+            if(h > 0) return `${h} ore e ${m} min`;
+            if(m > 0) return `${m} min e ${s} sec`;
+            return `${s} sec`;
         }
 
         function renderOperatorStorico() {
@@ -634,48 +641,95 @@
             document.getElementById('stat-operatori').textContent = keys.length;
 
             if(keys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nessun operatore registrato.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Nessun operatore registrato.</td></tr>`;
                 return;
             }
 
             keys.forEach(k => {
                 const op = ops[k];
                 const oreFmt = formatSeconds(op.totaleOreSecondi || 0);
+                const passStatusHtml = op.isProvvisoria !== false ? 
+                    `<span class="text-amber-400 font-semibold text-xs">Provvisoria</span>` : 
+                    `<span class="text-emerald-400 font-semibold text-xs">Definitiva</span>`;
+
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-slate-700/50 hover:bg-slate-900/40";
                 tr.innerHTML = `
-                    <td class="p-3 font-mono font-bold text-blue-400">${op.matricola}</td>
-                    <td class="p-3">${op.username}</td>
-                    <td class="p-3 text-amber-400">${op.ruolo}</td>
-                    <td class="p-3 font-mono font-semibold">${oreFmt}</td>
-                    <td class="p-3 space-x-2">
-                        <button onclick="adminModificaOre('${k}', 3600)" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded cursor-pointer">+1 Ora</button>
-                        <button onclick="adminModificaOre('${k}', -3600)" class="text-xs bg-amber-600 hover:bg-amber-500 text-white px-2 py-1 rounded cursor-pointer">-1 Ora</button>
-                        <button onclick="adminResetOre('${k}')" class="text-xs bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded cursor-pointer">Resetta</button>
-                        <button onclick="adminEliminaOperatore('${k}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                    <td class="p-3 font-bold text-white">${op.nome || op.username}</td>
+                    <td class="p-3 text-slate-300">${op.username}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 bg-blue-600/30 text-blue-400 rounded text-xs font-semibold">${op.ruolo}</span></td>
+                    <td class="p-3">${passStatusHtml}</td>
+                    <td class="p-3 font-mono text-cyan-300 font-medium">${oreFmt}</td>
+                    <td class="p-3 text-right space-x-1.5">
+                        <button onclick="adminPromuovi('${k}')" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded font-semibold transition cursor-pointer"><i class="fa-solid fa-arrow-up mr-1"></i> Promuovi</button>
+                        <button onclick="adminGestisciOrePrompt('${k}')" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs rounded font-semibold transition cursor-pointer"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Gestisci Ore</button>
+                        <button onclick="adminMostraStorico('${k}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs rounded font-semibold transition cursor-pointer">Storico</button>
+                        <button onclick="adminResetPass('${k}')" class="px-2.5 py-1 bg-amber-700 hover:bg-amber-600 text-white text-xs rounded font-semibold transition cursor-pointer">Pass</button>
+                        <button onclick="adminEliminaOperatore('${k}')" class="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white text-xs rounded font-semibold transition cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         });
 
-        function adminModificaOre(opKey, deltaSecs) {
-            db.ref(`operatori/${opKey}/totaleOreSecondi`).once('value').then(snap => {
-                let current = snap.val() || 0;
-                let aggiornato = current + deltaSecs;
-                if(aggiornato < 0) aggiornato = 0;
-                db.ref(`operatori/${opKey}`).update({ totaleOreSecondi: aggiornato });
+        function adminPromuovi(opKey) {
+            const nuovoRuolo = prompt("Inserisci il nuovo ruolo / qualifica:");
+            if(nuovoRuolo) {
+                db.ref(`operatori/${opKey}`).update({ ruolo: nuovoRuolo }).then(() => alert("Ruolo aggiornato!"));
+            }
+        }
+
+        function adminGestisciOrePrompt(opKey) {
+            const scelta = prompt("Scegli operazione ore:\n1. Aggiungi ore (es. +2h)\n2. Rimuovi ore (es. -1h)\n3. Imposta minuti/secondi diretti in secondi\nDigita il valore (es: +3600 o -1800):");
+            if(scelta) {
+                const delta = parseInt(scelta);
+                if(!isNaN(delta)) {
+                    db.ref(`operatori/${opKey}/totaleOreSecondi`).once('value').then(snap => {
+                        let cur = snap.val() || 0;
+                        let aggiornato = cur + delta;
+                        if(aggiornato < 0) aggiornato = 0;
+                        db.ref(`operatori/${opKey}`).update({ totaleOreSecondi: aggiornato });
+                    });
+                }
+            }
+        }
+
+        function adminResetPass(opKey) {
+            const nuovaPass = prompt("Inserisci la nuova password provvisoria per l'operatore:");
+            if(nuovaPass) {
+                db.ref(`operatori/${opKey}`).update({ password: nuovaPass, isProvvisoria: true }).then(() => alert("Password reimpostata come provvisoria!"));
+            }
+        }
+
+        function adminMostraStorico(opKey) {
+            db.ref(`operatori/${opKey}`).once('value').then(snap => {
+                const op = snap.val();
+                const turni = op.storicoTurni || {};
+                let msg = `Storico turni di ${op.nome || op.username}:\n\n`;
+                Object.values(turni).forEach(t => {
+                    msg += `- ${t.data} | Entrata: ${t.entrata} | Uscita: ${t.uscita} (${t.durataFormattata})\n`;
+                });
+                if(Object.keys(turni).length === 0) msg += "Nessun turno registrato.";
+                alert(msg);
             });
         }
 
-        function adminResetOre(opKey) {
-            if(confirm("Vuoi azzerare tutte le ore di questo operatore?")) {
-                db.ref(`operatori/${opKey}`).update({ totaleOreSecondi: 0, storicoTurni: null });
+        function resetAllOperatorsHours() {
+            if(confirm("Sei sicuro di voler azzerare le ore di tutti gli operatori registrati?")) {
+                db.ref('operatori').once('value').then(snap => {
+                    const ops = snap.val() || {};
+                    const updates = {};
+                    Object.keys(ops).forEach(k => {
+                        updates[`${k}/totaleOreSecondi`] = 0;
+                        updates[`${k}/storicoTurni`] = null;
+                    });
+                    db.ref('operatori').update(updates).then(() => alert("Ore settimanali resettate per tutti!"));
+                });
             }
         }
 
         function adminEliminaOperatore(opKey) {
-            if(confirm("Sei sicuro di voler eliminare questo operatore dal sistema?")) {
+            if(confirm("Sei sicuro di voler eliminare questo operatore?")) {
                 db.ref(`operatori/${opKey}`).remove();
             }
         }
