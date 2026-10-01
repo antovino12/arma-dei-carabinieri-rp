@@ -9,7 +9,7 @@
     <!-- FontAwesome per le icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK Compat v9 (percorso compatibile con script tag HTML) -->
+    <!-- Firebase SDK Compat v9 -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
@@ -53,7 +53,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Denunce -->
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col justify-between">
                         <div>
                             <div class="text-red-500 text-3xl mb-3"><i class="fa-solid fa-file-shield"></i></div>
@@ -63,7 +62,6 @@
                         <button onclick="openFormModal('denuncia')" class="mt-6 w-full bg-red-800 hover:bg-red-700 text-white py-2 rounded font-medium transition">Compila Denuncia</button>
                     </div>
 
-                    <!-- Segnalazioni -->
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col justify-between">
                         <div>
                             <div class="text-amber-500 text-3xl mb-3"><i class="fa-solid fa-triangle-exclamation"></i></div>
@@ -73,7 +71,6 @@
                         <button onclick="openFormModal('segnalazione')" class="mt-6 w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-medium transition">Invia Segnalazione</button>
                     </div>
 
-                    <!-- Prenotazioni Colloqui -->
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col justify-between">
                         <div>
                             <div class="text-blue-500 text-3xl mb-3"><i class="fa-solid fa-calendar-days"></i></div>
@@ -84,10 +81,9 @@
                     </div>
                 </div>
 
-                <!-- Verifica Stato Pratica -->
                 <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
                     <h3 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-magnifying-glass text-blue-400 mr-2"></i> Verifica Stato Pratica / Codice Unico</h3>
-                    <p class="text-slate-400 text-sm mb-4">Inserisci il codice identificativo ricevuto (es. `DEN-8492`, `SEG-1029`, `COL-3041`) per controllare lo stato.</p>
+                    <p class="text-slate-400 text-sm mb-4">Inserisci il codice identificativo ricevuto (es. `DEN-8492`) per controllare lo stato.</p>
                     <div class="flex gap-3">
                         <input type="text" id="tracking-code-input" placeholder="Inserisci codice (es. DEN-XXXX)..." class="bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white flex-grow focus:outline-none focus:border-blue-500 uppercase">
                         <button onclick="verifyTrackingCode()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-medium transition">Verifica</button>
@@ -100,12 +96,13 @@
             <!-- TAB 2: AREA OPERATORE                          -->
             <!------------------------------------------------ -->
             <section id="tab-operatore" class="hidden space-y-6">
-                <!-- Box Login Operatore -->
+                <!-- Login Operatore -->
                 <div id="operatore-login-box" class="bg-slate-800 border border-slate-700 p-8 rounded-xl max-w-md mx-auto text-center space-y-4 shadow-xl">
                     <div class="text-red-500 text-4xl mb-2"><i class="fa-solid fa-lock"></i></div>
                     <h3 class="text-xl font-bold text-white">Accesso Riservato Operatori</h3>
-                    <p class="text-slate-400 text-sm">Inserisci la password di servizio per accedere al terminale militare.</p>
-                    <input type="password" id="operatore-pass-input" placeholder="Password Operatore..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-red-500">
+                    <p class="text-slate-400 text-sm">Inserisci le credenziali assegnate dall'Amministrazione.</p>
+                    <input type="text" id="op-username-input" placeholder="Nome Utente o Matricola..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-red-500">
+                    <input type="password" id="op-password-input" placeholder="Password..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-red-500">
                     <button onclick="loginOperatore()" class="w-full bg-red-800 hover:bg-red-700 text-white py-2 rounded font-bold transition">Accedi al Terminale</button>
                 </div>
 
@@ -113,23 +110,52 @@
                 <div id="operatore-content" class="hidden space-y-6">
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-user-shield text-red-500 mr-2"></i> Terminale Operativo Militare</h2>
-                            <p class="text-slate-400 text-sm">Gestione dello stato di servizio, timbratura turni e presa in carico delle pratiche.</p>
+                            <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-user-shield text-red-500 mr-2"></i> Terminale Personale: <span id="op-display-name" class="text-red-400"></span></h2>
+                            <p class="text-slate-400 text-sm">Matricola: <span id="op-display-matricola" class="font-mono font-bold text-blue-400"></span> | Ruolo: <span id="op-display-ruolo" class="text-amber-400"></span></p>
                         </div>
-                        <div class="flex items-center gap-4 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
-                            <div>
-                                <p class="text-xs text-slate-400">Stato Attuale:</p>
-                                <p id="duty-status-text" class="text-sm font-bold text-red-400">FUORI SERVIZIO</p>
-                            </div>
-                            <button id="duty-btn" onclick="toggleDuty()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm transition">Inizia Servizio</button>
+                        <div class="flex items-center gap-3">
+                            <button onclick="openChangePasswordModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded text-xs font-semibold transition"><i class="fa-solid fa-key mr-1"></i> Cambia Password</button>
+                            <button onclick="logoutOperatore()" class="bg-red-950 hover:bg-red-900 text-red-300 px-3 py-2 rounded text-xs font-semibold transition">Esci</button>
                         </div>
                     </div>
 
-                    <!-- Timer -->
-                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl text-center">
-                        <span class="text-xs uppercase tracking-widest text-slate-400">Tempo del Turno Corrente</span>
-                        <div id="duty-timer" class="text-5xl font-mono font-bold text-white my-2">00:00:00</div>
-                        <p class="text-xs text-slate-500">Il tempo viene sincronizzato e salvato nel database alla chiusura del turno.</p>
+                    <!-- Gestione Turno -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl text-center flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs uppercase tracking-widest text-slate-400">Stato di Servizio</span>
+                                <div id="duty-status-text" class="text-xl font-bold text-red-400 my-2">FUORI SERVIZIO</div>
+                            </div>
+                            <button id="duty-btn" onclick="toggleDuty()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded font-bold text-sm transition mt-4">Inizia Servizio</button>
+                        </div>
+
+                        <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl text-center col-span-2 flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs uppercase tracking-widest text-slate-400">Cronometro Turno Attuale</span>
+                                <div id="duty-timer" class="text-4xl font-mono font-bold text-white my-1">00:00:00</div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Le ore vengono registrate automaticamente nello storico personale alla chiusura del turno.</p>
+                        </div>
+                    </div>
+
+                    <!-- Storico Ore Operatore -->
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-clock-rotate-left text-blue-400 mr-2"></i> Storico Ore & Turni Personali</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+                                    <tr>
+                                        <th class="p-3">Data</th>
+                                        <th class="p-3">Entrata</th>
+                                        <th class="p-3">Uscita</th>
+                                        <th class="p-3">Durata Turno</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="op-storico-table">
+                                    <tr><td colspan="4" class="p-4 text-center text-slate-500">Nessun turno registrato.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Elenco Pratiche -->
@@ -141,7 +167,7 @@
                                     <tr>
                                         <th class="p-3">Codice</th>
                                         <th class="p-3">Tipo</th>
-                                        <th class="p-3">Richiedente (RP / Discord)</th>
+                                        <th class="p-3">Richiedente</th>
                                         <th class="p-3">Dettagli</th>
                                         <th class="p-3">Stato</th>
                                         <th class="p-3">Azioni</th>
@@ -160,23 +186,27 @@
             <!-- TAB 3: AREA ADMIN                              -->
             <!------------------------------------------------ -->
             <section id="tab-admin" class="hidden space-y-6">
-                <!-- Box Login Admin -->
+                <!-- Login Admin -->
                 <div id="admin-login-box" class="bg-slate-800 border border-slate-700 p-8 rounded-xl max-w-md mx-auto text-center space-y-4 shadow-xl">
                     <div class="text-amber-500 text-4xl mb-2"><i class="fa-solid fa-shield-cat"></i></div>
                     <h3 class="text-xl font-bold text-white">Accesso Pannello Amministrazione</h3>
-                    <p class="text-slate-400 text-sm">Inserisci la password di comando per gestire il sistema.</p>
-                    <input type="password" id="admin-pass-input" placeholder="Password Admin (default: admin123)..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-amber-500">
+                    <p class="text-slate-400 text-sm">Inserisci username e password di comando.</p>
+                    <input type="text" id="admin-user-input" placeholder="Username Admin..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-amber-500">
+                    <input type="password" id="admin-pass-input" placeholder="Password..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-amber-500">
                     <button onclick="loginAdmin()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-bold transition">Accedi come Admin</button>
                 </div>
 
                 <!-- Contenuto Sbloccato Admin -->
                 <div id="admin-content" class="hidden space-y-6">
-                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
-                        <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-gauge-high text-amber-500 mr-2"></i> Pannello Amministrazione Generale</h2>
-                        <p class="text-slate-400 text-sm">Controllo globale del sistema, configurazione webhook Discord e statistiche.</p>
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-gauge-high text-amber-500 mr-2"></i> Pannello Amministrazione Generale</h2>
+                            <p class="text-slate-400 text-sm">Gestione operatori, controllo ore e configurazioni di sistema.</p>
+                        </div>
+                        <button onclick="openAdminSettingsModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-semibold transition"><i class="fa-solid fa-gear mr-1"></i> Modifica Credenziali Admin</button>
                     </div>
 
-                    <!-- Statistiche -->
+                    <!-- Statistiche Generali -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
                             <p class="text-xs text-slate-400">Totale Denunce</p>
@@ -191,8 +221,33 @@
                             <p id="stat-colloqui" class="text-3xl font-bold text-white mt-1">0</p>
                         </div>
                         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                            <p class="text-xs text-slate-400">Operatori in Servizio</p>
+                            <p class="text-xs text-slate-400">Operatori Registrati</p>
                             <p id="stat-operatori" class="text-3xl font-bold text-white mt-1">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Gestione Operatori (Aggiunta & Lista con modifica ore) -->
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users-gear text-red-500 mr-2"></i> Gestione Personale e Ore di Servizio</h3>
+                            <button onclick="openAddOperatorModal()" class="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-bold transition"><i class="fa-solid fa-user-plus mr-1"></i> Aggiungi Operatore</button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+                                    <tr>
+                                        <th class="p-3">Matricola</th>
+                                        <th class="p-3">Nome Utente</th>
+                                        <th class="p-3">Ruolo</th>
+                                        <th class="p-3">Ore Totali Accumulate</th>
+                                        <th class="p-3">Azioni Ore / Gestione</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-operators-table">
+                                    <tr><td colspan="5" class="p-4 text-center text-slate-500">Nessun operatore registrato.</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -220,7 +275,7 @@
         <p class="text-slate-400 font-medium mt-2 md:mt-0">Sito ideato e creato da <span class="text-red-500 font-bold">Antovino</span></p>
     </footer>
 
-    <!-- MODALE COMPILAZIONE FORM -->
+    <!-- MODALE COMPILAZIONE FORM CITTADINO -->
     <div id="form-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-xl p-6 space-y-4">
             <h3 id="modal-title" class="text-xl font-bold text-white">Compila Modulo</h3>
@@ -245,9 +300,67 @@
         </div>
     </div>
 
+    <!-- MODALE AGGIUNGI OPERATORE (Admin) -->
+    <div id="add-operator-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-xl p-6 space-y-4">
+            <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-user-plus text-red-500 mr-2"></i> Registra Nuovo Operatore</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Nome Utente</label>
+                    <input type="text" id="new-op-username" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="m.rossi">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Ruolo / Grado</label>
+                    <input type="text" id="new-op-ruolo" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Appuntato / Maresciallo">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Password Provvisoria</label>
+                    <input type="text" id="new-op-pass" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Es. pass1234">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeAddOperatorModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition">Annulla</button>
+                <button onclick="createNewOperator()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded text-sm font-bold transition">Crea Operatore</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE CAMBIA PASSWORD OPERATORE -->
+    <div id="change-pass-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-bold text-white">Modifica Password Personale</h3>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Nuova Password</label>
+                <input type="password" id="op-new-pass-input" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Nuova password...">
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeChangePasswordModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition">Annulla</button>
+                <button onclick="updateOperatorPassword()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-bold transition">Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE IMPOSTAZIONI ADMIN -->
+    <div id="admin-settings-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-bold text-white">Modifica Credenziali Admin</h3>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Nuovo Username Admin</label>
+                <input type="text" id="admin-new-user" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Nuova Password Admin</label>
+                <input type="password" id="admin-new-pass" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm">
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeAdminSettingsModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition">Annulla</button>
+                <button onclick="saveAdminCredentials()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm font-bold transition">Aggiorna</button>
+            </div>
+        </div>
+    </div>
+
     <!-- LOGICA FIREBASE & APPLICAZIONE -->
     <script>
-        // Configurazione Firebase aggiornata con i tuoi parametri esatti
         const firebaseConfig = {
             apiKey: "AIzaSyChsIsU6q6H163mqhScFnKoQm-jca6c4Yo",
             authDomain: "arma-dei-carabinieri.firebaseapp.com",
@@ -259,17 +372,15 @@
             measurementId: "G-GC7Y27MP10"
         };
 
-        // Inizializzazione Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        try {
-            firebase.analytics();
-        } catch(e) {
-            console.log("Analytics non attivo o non supportato in locale");
-        }
 
-        // Controllo stato connessione
+        // Stato Sessione Corrente Operatore
+        let currentOperator = null;
+        let isOnDuty = false;
+        let dutyStartTime = null;
+        let dutyInterval = null;
+
         db.ref(".info/connected").on("value", (snap) => {
             const statusBadge = document.getElementById('firebase-status');
             if (snap.val() === true) {
@@ -290,71 +401,299 @@
             document.getElementById('btn-tab-' + tabName).className = "px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded transition shadow";
         }
 
-        // Funzioni Login Operatore & Admin
+        // --- LOGIN OPERATORE ---
         function loginOperatore() {
-            const pass = document.getElementById('operatore-pass-input').value;
-            if(pass === "carabinieri2026") {
-                document.getElementById('operatore-login-box').classList.add('hidden');
-                document.getElementById('operatore-content').classList.remove('hidden');
-            } else {
-                alert("Password operatore errata!");
-            }
+            const userIn = document.getElementById('op-username-input').value.trim();
+            const passIn = document.getElementById('op-password-input').value;
+
+            db.ref('operatori').once('value').then(snap => {
+                const ops = snap.val() || {};
+                let foundKey = null;
+                let foundData = null;
+
+                Object.keys(ops).forEach(key => {
+                    const op = ops[key];
+                    if(op.username === userIn || op.matricola === userIn) {
+                        if(op.password === passIn) {
+                            foundKey = key;
+                            foundData = op;
+                        }
+                    }
+                });
+
+                if(foundData) {
+                    currentOperator = { key: foundKey, ...foundData };
+                    document.getElementById('operatore-login-box').classList.add('hidden');
+                    document.getElementById('operatore-content').classList.remove('hidden');
+                    document.getElementById('op-display-name').textContent = currentOperator.username;
+                    document.getElementById('op-display-matricola').textContent = currentOperator.matricola;
+                    document.getElementById('op-display-ruolo').textContent = currentOperator.ruolo;
+                    renderOperatorStorico();
+                } else {
+                    alert("Credenziali operatore errate!");
+                }
+            });
         }
 
+        function logoutOperatore() {
+            if(isOnDuty) {
+                if(!confirm("Sei in servizio! Vuoi terminare il turno prima di uscire?")) return;
+                toggleDuty();
+            }
+            currentOperator = null;
+            document.getElementById('operatore-content').classList.add('hidden');
+            document.getElementById('operatore-login-box').classList.remove('hidden');
+            document.getElementById('op-username-input').value = '';
+            document.getElementById('op-password-input').value = '';
+        }
+
+        // --- LOGIN ADMIN & CONFIGURAZIONE ---
         function loginAdmin() {
-            const pass = document.getElementById('admin-pass-input').value;
-            if(pass === "admin123") {
-                document.getElementById('admin-login-box').classList.add('hidden');
-                document.getElementById('admin-content').classList.remove('hidden');
+            const userIn = document.getElementById('admin-user-input').value.trim();
+            const passIn = document.getElementById('admin-pass-input').value;
+
+            db.ref('config/admin').once('value').then(snap => {
+                const adminCfg = snap.val() || { username: "admin", password: "admin123" };
+                if(userIn === adminCfg.username && passIn === adminCfg.password) {
+                    document.getElementById('admin-login-box').classList.add('hidden');
+                    document.getElementById('admin-content').classList.remove('hidden');
+                } else {
+                    alert("Credenziali Admin errate! (Default: admin / admin123)");
+                }
+            });
+        }
+
+        function openAdminSettingsModal() {
+            db.ref('config/admin').once('value').then(snap => {
+                const adminCfg = snap.val() || { username: "admin", password: "admin123" };
+                document.getElementById('admin-new-user').value = adminCfg.username;
+                document.getElementById('admin-new-pass').value = adminCfg.password;
+                document.getElementById('admin-settings-modal').classList.remove('hidden');
+            });
+        }
+        function closeAdminSettingsModal() { document.getElementById('admin-settings-modal').classList.add('hidden'); }
+        function saveAdminCredentials() {
+            const newUser = document.getElementById('admin-new-user').value.trim();
+            const newPass = document.getElementById('admin-new-pass').value;
+            if(!newUser || !newPass) { alert("Compila tutti i campi"); return; }
+            db.ref('config/admin').set({ username: newUser, password: newPass }).then(() => {
+                alert("Credenziali admin aggiornate con successo!");
+                closeAdminSettingsModal();
+            });
+        }
+
+        // --- GESTIONE OPERATORI DA ADMIN ---
+        function openAddOperatorModal() {
+            document.getElementById('new-op-username').value = '';
+            document.getElementById('new-op-ruolo').value = '';
+            document.getElementById('new-op-pass').value = '';
+            document.getElementById('add-operator-modal').classList.remove('hidden');
+        }
+        function closeAddOperatorModal() { document.getElementById('add-operator-modal').classList.add('hidden'); }
+
+        function createNewOperator() {
+            const username = document.getElementById('new-op-username').value.trim();
+            const ruolo = document.getElementById('new-op-ruolo').value.trim();
+            const password = document.getElementById('new-op-pass').value;
+
+            if(!username || !ruolo || !password) {
+                alert("Compila tutti i campi.");
+                return;
+            }
+
+            const matricola = 'CC-' + Math.floor(1000 + Math.random() * 9000);
+            const opData = {
+                matricola: matricola,
+                username: username,
+                ruolo: ruolo,
+                password: password,
+                totaleOreSecondi: 0
+            };
+
+            db.ref('operatori/' + matricola).set(opData).then(() => {
+                alert(`Operatore creato con successo!\nMatricola generata: ${matricola}`);
+                closeAddOperatorModal();
+            });
+        }
+
+        // --- CAMBIO PASSWORD OPERATORE ---
+        function openChangePasswordModal() { document.getElementById('change-pass-modal').classList.remove('hidden'); }
+        function closeChangePasswordModal() { document.getElementById('change-pass-modal').classList.add('hidden'); }
+        function updateOperatorPassword() {
+            const newPass = document.getElementById('op-new-pass-input').value;
+            if(!newPass) { alert("Inserisci una password valida"); return; }
+            db.ref('operatori/' + currentOperator.key).update({ password: newPass }).then(() => {
+                alert("Password aggiornata con successo!");
+                currentOperator.password = newPass;
+                closeChangePasswordModal();
+            });
+        }
+
+        // --- GESTIONE SERVIZIO E ORE (TIMER) ---
+        function toggleDuty() {
+            const btn = document.getElementById('duty-btn');
+            const statusText = document.getElementById('duty-status-text');
+
+            if (!isOnDuty) {
+                isOnDuty = true;
+                dutyStartTime = new Date();
+                btn.textContent = "Termina Servizio";
+                btn.className = "w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold text-sm transition mt-4";
+                statusText.textContent = "IN SERVIZIO";
+                statusText.className = "text-xl font-bold text-emerald-400 my-2";
+
+                dutyInterval = setInterval(() => {
+                    const diffSecs = Math.floor((new Date() - dutyStartTime) / 1000);
+                    let hrs = Math.floor(diffSecs / 3600).toString().padStart(2, '0');
+                    let mins = Math.floor((diffSecs % 3600) / 60).toString().padStart(2, '0');
+                    let secs = (diffSecs % 60).toString().padStart(2, '0');
+                    document.getElementById('duty-timer').textContent = `${hrs}:${mins}:${secs}`;
+                }, 1000);
             } else {
-                alert("Password amministratore errata!");
+                clearInterval(dutyInterval);
+                const dutyEndTime = new Date();
+                const sessionSecs = Math.floor((dutyEndTime - dutyStartTime) / 1000);
+
+                const turnoRecord = {
+                    data: dutyStartTime.toLocaleDateString(),
+                    entrata: dutyStartTime.toLocaleTimeString(),
+                    uscita: dutyEndTime.toLocaleTimeString(),
+                    durataSecs: sessionSecs,
+                    durataFormattata: formatSeconds(sessionSecs)
+                };
+
+                // Salva nel database storico dell'operatore
+                db.ref(`operatori/${currentOperator.key}/storicoTurni`).push(turnoRecord);
+
+                // Aggiorna totale ore
+                const nuovoTotale = (currentOperator.totaleOreSecondi || 0) + sessionSecs;
+                db.ref(`operatori/${currentOperator.key}`).update({ totaleOreSecondi: nuovoTotale });
+                currentOperator.totaleOreSecondi = nuovoTotale;
+
+                isOnDuty = false;
+                btn.textContent = "Inizia Servizio";
+                btn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded font-bold text-sm transition mt-4";
+                statusText.textContent = "FUORI SERVIZIO";
+                statusText.className = "text-xl font-bold text-red-400 my-2";
+                document.getElementById('duty-timer').textContent = "00:00:00";
+                alert("Turno terminato e ore registrate con successo!");
+                renderOperatorStorico();
             }
         }
 
+        function formatSeconds(secs) {
+            let h = Math.floor(secs / 3600);
+            let m = Math.floor((secs % 3600) / 60);
+            let s = secs % 60;
+            return `${h}h ${m}m ${s}s`;
+        }
+
+        function renderOperatorStorico() {
+            if(!currentOperator) return;
+            db.ref(`operatori/${currentOperator.key}/storicoTurni`).on('value', snap => {
+                const turni = snap.val() || {};
+                const tbody = document.getElementById('op-storico-table');
+                tbody.innerHTML = '';
+                const keys = Object.keys(turni);
+                if(keys.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Nessun turno registrato.</td></tr>`;
+                    return;
+                }
+                keys.forEach(k => {
+                    const t = turni[k];
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-slate-700/50";
+                    tr.innerHTML = `<td class="p-3">${t.data}</td><td class="p-3 text-emerald-400">${t.entrata}</td><td class="p-3 text-red-400">${t.uscita}</td><td class="p-3 font-mono font-bold">${t.durataFormattata}</td>`;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        // --- ASCOLTO OPERATORI PER ADMIN (Gestione Ore & Reset) ---
+        db.ref('operatori').on('value', snap => {
+            const ops = snap.val() || {};
+            const tbody = document.getElementById('admin-operators-table');
+            tbody.innerHTML = '';
+            const keys = Object.keys(ops);
+            document.getElementById('stat-operatori').textContent = keys.length;
+
+            if(keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nessun operatore registrato.</td></tr>`;
+                return;
+            }
+
+            keys.forEach(k => {
+                const op = ops[k];
+                const oreFmt = formatSeconds(op.totaleOreSecondi || 0);
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-700/50 hover:bg-slate-900/40";
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-blue-400">${op.matricola}</td>
+                    <td class="p-3">${op.username}</td>
+                    <td class="p-3 text-amber-400">${op.ruolo}</td>
+                    <td class="p-3 font-mono font-semibold">${oreFmt}</td>
+                    <td class="p-3 space-x-2">
+                        <button onclick="adminModificaOre('${k}', 3600)" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded">+1 Ora</button>
+                        <button onclick="adminModificaOre('${k}', -3600)" class="text-xs bg-amber-600 hover:bg-amber-500 text-white px-2 py-1 rounded">-1 Ora</button>
+                        <button onclick="adminResetOre('${k}')" class="text-xs bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded">Resetta</button>
+                        <button onclick="adminEliminaOperatore('${k}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+
+        function adminModificaOre(opKey, deltaSecs) {
+            db.ref(`operatori/${opKey}/totaleOreSecondi`).once('value').then(snap => {
+                let current = snap.val() || 0;
+                let aggiornato = current + deltaSecs;
+                if(aggiornato < 0) aggiornato = 0;
+                db.ref(`operatori/${opKey}`).update({ totaleOreSecondi: aggiornato });
+            });
+        }
+
+        function adminResetOre(opKey) {
+            if(confirm("Vuoi azzerare tutte le ore di questo operatore?")) {
+                db.ref(`operatori/${opKey}`).update({ totaleOreSecondi: 0, storicoTurni: null });
+            }
+        }
+
+        function adminEliminaOperatore(opKey) {
+            if(confirm("Sei sicuro di voler eliminare questo operatore dal sistema?")) {
+                db.ref(`operatori/${opKey}`).remove();
+            }
+        }
+
+        // --- GESTIONE PRATICHE CITTADINI ---
         let currentFormType = '';
         function openFormModal(type) {
             currentFormType = type;
             document.getElementById('form-name').value = '';
             document.getElementById('form-discord').value = '';
             document.getElementById('form-desc').value = '';
-            
             const titles = { denuncia: 'Presenta Denuncia Formale', segnalazione: 'Invia Segnalazione', colloquio: 'Prenota Colloquio in Caserma' };
             document.getElementById('modal-title').textContent = titles[type];
             document.getElementById('form-modal').classList.remove('hidden');
         }
-
-        function closeFormModal() {
-            document.getElementById('form-modal').classList.add('hidden');
-        }
+        function closeFormModal() { document.getElementById('form-modal').classList.add('hidden'); }
 
         function submitUserForm() {
             const name = document.getElementById('form-name').value.trim();
             const discord = document.getElementById('form-discord').value.trim();
             const desc = document.getElementById('form-desc').value.trim();
-
-            if(!name || !discord || !desc) {
-                alert("Compila tutti i campi obbligatori.");
-                return;
-            }
+            if(!name || !discord || !desc) { alert("Compila tutti i campi obbligatori."); return; }
 
             const prefixMap = { denuncia: 'DEN', segnalazione: 'SEG', colloquio: 'COL' };
             const code = prefixMap[currentFormType] + '-' + Math.floor(1000 + Math.random() * 9000);
 
             const praticaData = {
-                code: code,
-                type: currentFormType,
-                name: name,
-                discord: discord,
-                description: desc,
-                date: new Date().toLocaleString(),
-                status: 'In Attesa'
+                code: code, type: currentFormType, name: name, discord: discord,
+                description: desc, date: new Date().toLocaleString(), status: 'In Attesa'
             };
 
             db.ref('pratiche/' + code).set(praticaData).then(() => {
                 alert(`Pratica inviata con successo! Il tuo codice univoco è: ${code}`);
                 closeFormModal();
-            }).catch(err => {
-                alert("Errore durante l'invio: " + err.message);
             });
         }
 
@@ -362,7 +701,6 @@
             const code = document.getElementById('tracking-code-input').value.trim().toUpperCase();
             const resDiv = document.getElementById('tracking-result');
             if(!code) return;
-
             db.ref('pratiche/' + code).once('value').then(snapshot => {
                 const data = snapshot.val();
                 if(data) {
@@ -381,11 +719,11 @@
         db.ref('pratiche').on('value', snapshot => {
             const data = snapshot.val() || {};
             const tbody = document.getElementById('operator-requests-table');
+            if(!tbody) return;
             tbody.innerHTML = '';
 
             let countDen = 0, countSeg = 0, countCol = 0;
             const keys = Object.keys(data);
-
             if(keys.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Nessuna pratica in coda.</td></tr>`;
             }
@@ -417,58 +755,11 @@
             document.getElementById('stat-colloqui').textContent = countCol;
         });
 
-        function updateStatus(code, newStatus) {
-            db.ref('pratiche/' + code).update({ status: newStatus });
-        }
-
-        function deletePratica(code) {
-            if(confirm("Sei sicuro di voler eliminare questa pratica?")) {
-                db.ref('pratiche/' + code).remove();
-            }
-        }
-
-        let isOnDuty = false;
-        let secondsOnDuty = 0;
-        let timerInterval = null;
-
-        function toggleDuty() {
-            isOnDuty = !isOnDuty;
-            const btn = document.getElementById('duty-btn');
-            const statusText = document.getElementById('duty-status-text');
-
-            if (isOnDuty) {
-                btn.textContent = "Termina Servizio";
-                btn.className = "bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold text-sm transition";
-                statusText.textContent = "IN SERVIZIO";
-                statusText.className = "text-sm font-bold text-emerald-400";
-                document.getElementById('stat-operatori').textContent = "1";
-                
-                timerInterval = setInterval(() => {
-                    secondsOnDuty++;
-                    let hrs = Math.floor(secondsOnDuty / 3600).toString().padStart(2, '0');
-                    let mins = Math.floor((secondsOnDuty % 3600) / 60).toString().padStart(2, '0');
-                    let secs = (secondsOnDuty % 60).toString().padStart(2, '0');
-                    document.getElementById('duty-timer').textContent = `${hrs}:${mins}:${secs}`;
-                }, 1000);
-            } else {
-                btn.textContent = "Inizia Servizio";
-                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm transition";
-                statusText.textContent = "FUORI SERVIZIO";
-                statusText.className = "text-sm font-bold text-red-400";
-                document.getElementById('stat-operatori').textContent = "0";
-                
-                clearInterval(timerInterval);
-                alert("Turno terminato e registrato con successo!");
-                secondsOnDuty = 0;
-                document.getElementById('duty-timer').textContent = "00:00:00";
-            }
-        }
-
+        function updateStatus(code, newStatus) { db.ref('pratiche/' + code).update({ status: newStatus }); }
+        function deletePratica(code) { if(confirm("Eliminare questa pratica?")) db.ref('pratiche/' + code).remove(); }
         function saveWebhookConfig() {
             const url = document.getElementById('webhook-url').value.trim();
-            db.ref('config/webhook').set(url).then(() => {
-                alert("Webhook Discord salvato con successo!");
-            });
+            db.ref('config/webhook').set(url).then(() => alert("Webhook salvato!"));
         }
     </script>
 </body>
