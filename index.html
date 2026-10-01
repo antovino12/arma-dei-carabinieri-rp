@@ -59,7 +59,7 @@
                             <h3 class="text-lg font-bold text-white">Presenta Denuncia</h3>
                             <p class="text-slate-400 text-sm mt-2">Sporgi querela o denuncia reati, furti, danneggiamenti o truffe subite.</p>
                         </div>
-                        <button onclick="openFormModal('denuncia')" class="mt-6 w-full bg-red-800 hover:bg-red-700 text-white py-2 rounded font-medium transition">Compila Denuncia</button>
+                        <button onclick="openFormModal('denuncia')" class="mt-6 w-full bg-red-800 hover:bg-red-700 text-white py-2 rounded font-medium transition cursor-pointer">Compila Denuncia</button>
                     </div>
 
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col justify-between">
@@ -68,7 +68,7 @@
                             <h3 class="text-lg font-bold text-white">Invia Segnalazione</h3>
                             <p class="text-slate-400 text-sm mt-2">Segnala situazioni di pericolo, attività sospette o illeciti alle pattuglie.</p>
                         </div>
-                        <button onclick="openFormModal('segnalazione')" class="mt-6 w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-medium transition">Invia Segnalazione</button>
+                        <button onclick="openFormModal('segnalazione')" class="mt-6 w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-medium transition cursor-pointer">Invia Segnalazione</button>
                     </div>
 
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl flex flex-col justify-between">
@@ -77,7 +77,7 @@
                             <h3 class="text-lg font-bold text-white">Prenota Colloquio</h3>
                             <p class="text-slate-400 text-sm mt-2">Fissa un appuntamento in caserma per pratiche o colloqui informativi.</p>
                         </div>
-                        <button onclick="openFormModal('colloquio')" class="mt-6 w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-medium transition">Prenota Colloquio</button>
+                        <button onclick="openFormModal('colloquio')" class="mt-6 w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-medium transition cursor-pointer">Prenota Colloquio</button>
                     </div>
                 </div>
 
@@ -86,7 +86,7 @@
                     <p class="text-slate-400 text-sm mb-4">Inserisci il codice identificativo ricevuto (es. `DEN-8492`) per controllare lo stato.</p>
                     <div class="flex gap-3">
                         <input type="text" id="tracking-code-input" placeholder="Inserisci codice (es. DEN-XXXX)..." class="bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white flex-grow focus:outline-none focus:border-blue-500 uppercase">
-                        <button onclick="verifyTrackingCode()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-medium transition">Verifica</button>
+                        <button onclick="verifyTrackingCode()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-medium transition cursor-pointer">Verifica</button>
                     </div>
                     <div id="tracking-result" class="mt-4 text-sm text-slate-300"></div>
                 </div>
@@ -103,7 +103,7 @@
                     <p class="text-slate-400 text-sm">Inserisci le credenziali assegnate dall'Amministrazione.</p>
                     <input type="text" id="op-username-input" placeholder="Nome Utente o Matricola..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-red-500">
                     <input type="password" id="op-password-input" placeholder="Password..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-red-500">
-                    <button onclick="loginOperatore()" class="w-full bg-red-800 hover:bg-red-700 text-white py-2 rounded font-bold transition">Accedi al Terminale</button>
+                    <button onclick="loginOperatore()" class="w-full bg-red-800 hover:bg-red-700 text-white py-2 rounded font-bold transition cursor-pointer">Accedi al Terminale</button>
                 </div>
 
                 <!-- Contenuto Sbloccato Operatore -->
@@ -114,8 +114,8 @@
                             <p class="text-slate-400 text-sm">Matricola: <span id="op-display-matricola" class="font-mono font-bold text-blue-400"></span> | Ruolo: <span id="op-display-ruolo" class="text-amber-400"></span></p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <button onclick="openChangePasswordModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded text-xs font-semibold transition"><i class="fa-solid fa-key mr-1"></i> Cambia Password</button>
-                            <button onclick="logoutOperatore()" class="bg-red-950 hover:bg-red-900 text-red-300 px-3 py-2 rounded text-xs font-semibold transition">Esci</button>
+                            <button onclick="openChangePasswordModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded text-xs font-semibold transition cursor-pointer"><i class="fa-solid fa-key mr-1"></i> Cambia Password</button>
+                            <button onclick="logoutOperatore()" class="bg-red-950 hover:bg-red-900 text-red-300 px-3 py-2 rounded text-xs font-semibold transition cursor-pointer">Esci</button>
                         </div>
                     </div>
 
@@ -126,7 +126,7 @@
                                 <span class="text-xs uppercase tracking-widest text-slate-400">Stato di Servizio</span>
                                 <div id="duty-status-text" class="text-xl font-bold text-red-400 my-2">FUORI SERVIZIO</div>
                             </div>
-                            <button id="duty-btn" onclick="toggleDuty()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded font-bold text-sm transition mt-4">Inizia Servizio</button>
+                            <button id="duty-btn" onclick="toggleDuty()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded font-bold text-sm transition mt-4 cursor-pointer">Inizia Servizio</button>
                         </div>
 
                         <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl text-center col-span-2 flex flex-col justify-between">
@@ -193,7 +193,7 @@
                     <p class="text-slate-400 text-sm">Inserisci username e password di comando (Default: <b class="text-amber-400">admin</b> / <b class="text-amber-400">admin123</b>).</p>
                     <input type="text" id="admin-user-input" placeholder="Username Admin..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-amber-500">
                     <input type="password" id="admin-pass-input" placeholder="Password..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-center focus:outline-none focus:border-amber-500">
-                    <button onclick="loginAdmin()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-bold transition">Accedi come Admin</button>
+                    <button onclick="loginAdmin()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-bold transition cursor-pointer">Accedi come Admin</button>
                 </div>
 
                 <!-- Contenuto Sbloccato Admin -->
@@ -203,7 +203,7 @@
                             <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-gauge-high text-amber-500 mr-2"></i> Pannello Amministrazione Generale</h2>
                             <p class="text-slate-400 text-sm">Gestione operatori, controllo ore e configurazioni di sistema.</p>
                         </div>
-                        <button onclick="openAdminSettingsModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-semibold transition"><i class="fa-solid fa-gear mr-1"></i> Modifica Credenziali Admin</button>
+                        <button onclick="openAdminSettingsModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-semibold transition cursor-pointer"><i class="fa-solid fa-gear mr-1"></i> Modifica Credenziali Admin</button>
                     </div>
 
                     <!-- Statistiche Generali -->
@@ -230,7 +230,7 @@
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl space-y-4">
                         <div class="flex justify-between items-center">
                             <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users-gear text-red-500 mr-2"></i> Gestione Personale e Ore di Servizio</h3>
-                            <button onclick="openAddOperatorModal()" class="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-bold transition"><i class="fa-solid fa-user-plus mr-1"></i> Aggiungi Operatore</button>
+                            <button onclick="openAddOperatorModal()" class="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-bold transition cursor-pointer"><i class="fa-solid fa-user-plus mr-1"></i> Aggiungi Operatore</button>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -251,7 +251,7 @@
                         </div>
                     </div>
 
-                    <!-- Webhook Discord -->
+                    <!-- Webhook Discord & Test -->
                     <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
                         <h3 class="text-lg font-bold text-white mb-2"><i class="fa-brands fa-discord text-indigo-400 mr-2"></i> Configurazione Canale Discord Webhook</h3>
                         <p class="text-slate-400 text-sm mb-4">Ricevi notifiche automatiche quando un cittadino invia una pratica.</p>
@@ -260,7 +260,10 @@
                                 <label class="block text-xs text-slate-400 mb-1">Webhook URL</label>
                                 <input type="text" id="webhook-url" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded text-white text-sm">
                             </div>
-                            <button onclick="saveWebhookConfig()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-medium transition">Salva Webhook</button>
+                            <div class="flex gap-3">
+                                <button onclick="saveWebhookConfig()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-medium transition cursor-pointer">Salva Webhook</button>
+                                <button onclick="testDiscordWebhook()" class="bg-slate-700 hover:bg-slate-600 text-indigo-300 px-4 py-2 rounded text-sm font-medium transition cursor-pointer"><i class="fa-solid fa-paper-plane mr-1"></i> Fai Test su Discord</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -294,8 +297,8 @@
                 </div>
             </div>
             <div class="flex justify-end gap-3 pt-2">
-                <button onclick="closeFormModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition">Annulla</button>
-                <button onclick="submitUserForm()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-bold transition">Invia Pratica</button>
+                <button type="button" onclick="closeFormModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition cursor-pointer">Annulla</button>
+                <button type="button" onclick="submitUserForm()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-bold transition cursor-pointer">Invia Pratica</button>
             </div>
         </div>
     </div>
@@ -319,8 +322,8 @@
                 </div>
             </div>
             <div class="flex justify-end gap-3 pt-2">
-                <button onclick="closeAddOperatorModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition">Annulla</button>
-                <button onclick="createNewOperator()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded text-sm font-bold transition">Crea Operatore</button>
+                <button type="button" onclick="closeAddOperatorModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition cursor-pointer">Annulla</button>
+                <button type="button" onclick="createNewOperator()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded text-sm font-bold transition cursor-pointer">Crea Operatore</button>
             </div>
         </div>
     </div>
@@ -334,8 +337,8 @@
                 <input type="password" id="op-new-pass-input" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm" placeholder="Nuova password...">
             </div>
             <div class="flex justify-end gap-3 pt-2">
-                <button onclick="closeChangePasswordModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition">Annulla</button>
-                <button onclick="updateOperatorPassword()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-bold transition">Salva</button>
+                <button type="button" onclick="closeChangePasswordModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition cursor-pointer">Annulla</button>
+                <button type="button" onclick="updateOperatorPassword()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-bold transition cursor-pointer">Salva</button>
             </div>
         </div>
     </div>
@@ -353,8 +356,8 @@
                 <input type="password" id="admin-new-pass" class="w-full bg-slate-900 border border-slate-700 px-3 py-2 rounded text-white text-sm">
             </div>
             <div class="flex justify-end gap-3 pt-2">
-                <button onclick="closeAdminSettingsModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition">Annulla</button>
-                <button onclick="saveAdminCredentials()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm font-bold transition">Aggiorna</button>
+                <button type="button" onclick="closeAdminSettingsModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition cursor-pointer">Annulla</button>
+                <button type="button" onclick="saveAdminCredentials()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm font-bold transition cursor-pointer">Aggiorna</button>
             </div>
         </div>
     </div>
@@ -375,7 +378,6 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Stato Sessione Corrente Operatore
         let currentOperator = null;
         let isOnDuty = false;
         let dutyStartTime = null;
@@ -447,29 +449,33 @@
             document.getElementById('op-password-input').value = '';
         }
 
-        // --- LOGIN ADMIN & CONFIGURAZIONE (CON FALLBACK SICURO) ---
+        // --- LOGIN ADMIN ---
         function loginAdmin() {
             const userIn = document.getElementById('admin-user-input').value.trim();
             const passIn = document.getElementById('admin-pass-input').value;
 
             db.ref('config/admin').once('value').then(snap => {
-                // Se il database non ha ancora salvato l'admin, usa le credenziali di default (admin / admin123)
                 const adminCfg = snap.val() || { username: "admin", password: "admin123" };
-                
                 if(userIn === adminCfg.username && passIn === adminCfg.password) {
                     document.getElementById('admin-login-box').classList.add('hidden');
                     document.getElementById('admin-content').classList.remove('hidden');
+                    loadWebhookUrl();
                 } else {
-                    alert("Credenziali Admin errate! (Username di default: admin / Password: admin123)");
+                    alert("Credenziali Admin errate! (Username: admin / Password: admin123)");
                 }
             }).catch(err => {
-                // Fallback offline di sicurezza
                 if(userIn === "admin" && passIn === "admin123") {
                     document.getElementById('admin-login-box').classList.add('hidden');
                     document.getElementById('admin-content').classList.remove('hidden');
                 } else {
-                    alert("Credenziali Admin errate! (Username: admin / Password: admin123)");
+                    alert("Credenziali Admin errate!");
                 }
+            });
+        }
+
+        function loadWebhookUrl() {
+            db.ref('config/webhook').once('value').then(snap => {
+                if(snap.val()) document.getElementById('webhook-url').value = snap.val();
             });
         }
 
@@ -523,6 +529,8 @@
             db.ref('operatori/' + matricola).set(opData).then(() => {
                 alert(`Operatore creato con successo!\nMatricola generata: ${matricola}`);
                 closeAddOperatorModal();
+            }).catch(err => {
+                alert("Errore salvataggio: " + err.message);
             });
         }
 
@@ -548,7 +556,7 @@
                 isOnDuty = true;
                 dutyStartTime = new Date();
                 btn.textContent = "Termina Servizio";
-                btn.className = "w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold text-sm transition mt-4";
+                btn.className = "w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold text-sm transition mt-4 cursor-pointer";
                 statusText.textContent = "IN SERVIZIO";
                 statusText.className = "text-xl font-bold text-emerald-400 my-2";
 
@@ -572,17 +580,14 @@
                     durataFormattata: formatSeconds(sessionSecs)
                 };
 
-                // Salva nel database storico dell'operatore
                 db.ref(`operatori/${currentOperator.key}/storicoTurni`).push(turnoRecord);
-
-                // Aggiorna totale ore
                 const nuovoTotale = (currentOperator.totaleOreSecondi || 0) + sessionSecs;
                 db.ref(`operatori/${currentOperator.key}`).update({ totaleOreSecondi: nuovoTotale });
                 currentOperator.totaleOreSecondi = nuovoTotale;
 
                 isOnDuty = false;
                 btn.textContent = "Inizia Servizio";
-                btn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded font-bold text-sm transition mt-4";
+                btn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded font-bold text-sm transition mt-4 cursor-pointer";
                 statusText.textContent = "FUORI SERVIZIO";
                 statusText.className = "text-xl font-bold text-red-400 my-2";
                 document.getElementById('duty-timer').textContent = "00:00:00";
@@ -619,10 +624,11 @@
             });
         }
 
-        // --- ASCOLTO OPERATORI PER ADMIN (Gestione Ore & Reset) ---
+        // --- ASCOLTO OPERATORI PER ADMIN ---
         db.ref('operatori').on('value', snap => {
             const ops = snap.val() || {};
             const tbody = document.getElementById('admin-operators-table');
+            if(!tbody) return;
             tbody.innerHTML = '';
             const keys = Object.keys(ops);
             document.getElementById('stat-operatori').textContent = keys.length;
@@ -643,10 +649,10 @@
                     <td class="p-3 text-amber-400">${op.ruolo}</td>
                     <td class="p-3 font-mono font-semibold">${oreFmt}</td>
                     <td class="p-3 space-x-2">
-                        <button onclick="adminModificaOre('${k}', 3600)" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded">+1 Ora</button>
-                        <button onclick="adminModificaOre('${k}', -3600)" class="text-xs bg-amber-600 hover:bg-amber-500 text-white px-2 py-1 rounded">-1 Ora</button>
-                        <button onclick="adminResetOre('${k}')" class="text-xs bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded">Resetta</button>
-                        <button onclick="adminEliminaOperatore('${k}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="adminModificaOre('${k}', 3600)" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded cursor-pointer">+1 Ora</button>
+                        <button onclick="adminModificaOre('${k}', -3600)" class="text-xs bg-amber-600 hover:bg-amber-500 text-white px-2 py-1 rounded cursor-pointer">-1 Ora</button>
+                        <button onclick="adminResetOre('${k}')" class="text-xs bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded cursor-pointer">Resetta</button>
+                        <button onclick="adminEliminaOperatore('${k}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -674,7 +680,7 @@
             }
         }
 
-        // --- GESTIONE PRATICHE CITTADINI ---
+        // --- GESTIONE PRATICHE CITTADINI & DISCORD WEBHOOK ---
         let currentFormType = '';
         function openFormModal(type) {
             currentFormType = type;
@@ -704,6 +710,54 @@
             db.ref('pratiche/' + code).set(praticaData).then(() => {
                 alert(`Pratica inviata con successo! Il tuo codice univoco è: ${code}`);
                 closeFormModal();
+                sendDiscordNotification(praticaData);
+            }).catch(err => {
+                alert("Errore invio pratica: " + err.message);
+            });
+        }
+
+        function saveWebhookConfig() {
+            const url = document.getElementById('webhook-url').value.trim();
+            db.ref('config/webhook').set(url).then(() => alert("Webhook Discord salvato con successo!"));
+        }
+
+        function testDiscordWebhook() {
+            const url = document.getElementById('webhook-url').value.trim();
+            if(!url) { alert("Inserisci prima un URL Webhook valido."); return; }
+            
+            const payload = {
+                content: "🚨 **TEST PORTALE CARABINIERI** - Il webhook Discord è configurato e funzionante correttamente!"
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(res => {
+                if(res.ok || res.status === 204) {
+                    alert("Test inviato con successo su Discord!");
+                } else {
+                    alert("Errore durante l'invio del test (controlla che l'URL del webhook sia corretto).");
+                }
+            }).catch(err => {
+                alert("Errore di rete / CORS durante l'invio del test.");
+            });
+        }
+
+        function sendDiscordNotification(p) {
+            db.ref('config/webhook').once('value').then(snap => {
+                const url = snap.val();
+                if(!url) return;
+
+                const payload = {
+                    content: `📢 **NUOVA PRATICA RICEVUTA (${p.type.toUpperCase()})**\n> **Codice:** \`${p.code}\`\n> **Richiedente:** ${p.name} (${p.discord})\n> **Dettagli:** ${p.description}`
+                };
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(e => console.log("Errore webhook discord"));
             });
         }
 
@@ -753,8 +807,8 @@
                     <td class="p-3 text-xs text-slate-400 max-w-xs truncate">${p.description}</td>
                     <td class="p-3"><span class="px-2 py-1 bg-amber-500/20 text-amber-400 text-xs rounded">${p.status}</span></td>
                     <td class="p-3 space-x-2">
-                        <button onclick="updateStatus('${p.code}', 'Completata')" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded">Completa</button>
-                        <button onclick="deletePratica('${p.code}')" class="text-xs bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="updateStatus('${p.code}', 'Completata')" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded cursor-pointer">Completa</button>
+                        <button onclick="deletePratica('${p.code}')" class="text-xs bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -767,10 +821,6 @@
 
         function updateStatus(code, newStatus) { db.ref('pratiche/' + code).update({ status: newStatus }); }
         function deletePratica(code) { if(confirm("Eliminare questa pratica?")) db.ref('pratiche/' + code).remove(); }
-        function saveWebhookConfig() {
-            const url = document.getElementById('webhook-url').value.trim();
-            db.ref('config/webhook').set(url).then(() => alert("Webhook salvato!"));
-        }
     </script>
 </body>
 </html>
