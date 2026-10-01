@@ -9,9 +9,10 @@
     <!-- FontAwesome per le icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK Compat v9 -->
+    <!-- Firebase SDK Compat v9 (percorso compatibile con script tag HTML) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
@@ -96,7 +97,7 @@
             </section>
 
             <!------------------------------------------------ -->
-            <!-- TAB 2: AREA OPERATORE (Con Login)             -->
+            <!-- TAB 2: AREA OPERATORE                          -->
             <!------------------------------------------------ -->
             <section id="tab-operatore" class="hidden space-y-6">
                 <!-- Box Login Operatore -->
@@ -156,7 +157,7 @@
             </section>
 
             <!------------------------------------------------ -->
-            <!-- TAB 3: AREA ADMIN (Con Login)                 -->
+            <!-- TAB 3: AREA ADMIN                              -->
             <!------------------------------------------------ -->
             <section id="tab-admin" class="hidden space-y-6">
                 <!-- Box Login Admin -->
@@ -246,20 +247,29 @@
 
     <!-- LOGICA FIREBASE & APPLICAZIONE -->
     <script>
+        // Configurazione Firebase aggiornata con i tuoi parametri esatti
         const firebaseConfig = {
             apiKey: "AIzaSyChsIsU6q6H163mqhScFnKoQm-jca6c4Yo",
             authDomain: "arma-dei-carabinieri.firebaseapp.com",
+            databaseURL: "https://arma-dei-carabinieri-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "arma-dei-carabinieri",
             storageBucket: "arma-dei-carabinieri.firebasestorage.app",
             messagingSenderId: "318291768733",
-            appId: "1:318291768733:web:282e33719e6f5778d0ab74",
-            measurementId: "G-CDT4GPGP5R",
-            databaseURL: "https://arma-dei-carabinieri-default-rtdb.firebaseio.com"
+            appId: "1:318291768733:web:e004e716122e2132d0ab74",
+            measurementId: "G-GC7Y27MP10"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        // Inizializzazione Firebase
+        const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        
+        try {
+            firebase.analytics();
+        } catch(e) {
+            console.log("Analytics non attivo o non supportato in locale");
+        }
 
+        // Controllo stato connessione
         db.ref(".info/connected").on("value", (snap) => {
             const statusBadge = document.getElementById('firebase-status');
             if (snap.val() === true) {
@@ -283,7 +293,7 @@
         // Funzioni Login Operatore & Admin
         function loginOperatore() {
             const pass = document.getElementById('operatore-pass-input').value;
-            if(pass === "carabinieri2026") { // Puoi cambiare la password qui
+            if(pass === "carabinieri2026") {
                 document.getElementById('operatore-login-box').classList.add('hidden');
                 document.getElementById('operatore-content').classList.remove('hidden');
             } else {
@@ -293,7 +303,7 @@
 
         function loginAdmin() {
             const pass = document.getElementById('admin-pass-input').value;
-            if(pass === "admin123") { // Puoi cambiare la password qui
+            if(pass === "admin123") {
                 document.getElementById('admin-login-box').classList.add('hidden');
                 document.getElementById('admin-content').classList.remove('hidden');
             } else {
